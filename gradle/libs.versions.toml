@@ -37,6 +37,6 @@ espressoCore = { module = "androidx.test.espresso:espresso-core", version.ref = 
 composeUiTestJunit4 = { module = "androidx.compose.ui:ui-test-junit4" }
 composeUiTooling = { module = "androidx.compose.ui:ui-tooling" }
 composeUiTestManifest = { module = "androidx.compose.ui:ui-test-manifest" }
-hiltAndroid = { module = "com.google.dagger:hilt-android" }
-hiltCompiler = { module = "com.google.dagger:hilt-android-compiler" }
+hiltAndroid = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
+hiltCompiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }
 kotlinxCoroutinesAndroid = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
