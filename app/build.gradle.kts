@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.kapt)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.composeCompiler)
     alias(libs.plugins.ktlint)
     alias(libs.plugins.detekt)
 }
@@ -46,9 +47,6 @@ android {
     buildFeatures {
         compose = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.14"
-    }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -90,4 +88,3 @@ detekt {
     allRules = false
     config.setFrom(rootProject.files("detekt.yml"))
 }
-
