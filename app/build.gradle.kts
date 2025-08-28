@@ -59,6 +59,7 @@ dependencies {
     implementation(libs.coreKtx)
     implementation(libs.lifecycleRuntimeKtx)
     implementation(libs.activityCompose)
+    implementation(libs.material)
     implementation(libs.composeUi)
     implementation(libs.composeUiGraphics)
     implementation(libs.composeUiToolingPreview)
@@ -87,4 +88,9 @@ detekt {
     buildUponDefaultConfig = true
     allRules = false
     config.setFrom(rootProject.files("detekt.yml"))
+}
+
+// Ensure Kotlin uses JDK 17 toolchain even if Gradle runs under a newer JDK
+kotlin {
+    jvmToolchain(17)
 }
