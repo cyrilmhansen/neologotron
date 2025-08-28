@@ -1,0 +1,21 @@
+build:
+  maxIssues: 0
+
+config:
+  validation: true
+
+style:
+  MagicNumber:
+    active: false
+  WildcardImport:
+    active: false
+  MaxLineLength:
+    active: true
+    maxLineLength: 140
+
+comments:
+  UndocumentedPublicClass:
+    active: false
+  UndocumentedPublicFunction:
+    active: false
+

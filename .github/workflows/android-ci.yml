@@ -1,0 +1,35 @@
+name: Android CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Gradle cache
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Build
+        if: ${{ hashFiles('gradlew') != '' }}
+        run: ./gradlew assembleDebug --stacktrace
+
+      - name: Unit tests
+        if: ${{ hashFiles('gradlew') != '' }}
+        run: ./gradlew testDebugUnitTest
+
+      - name: Static analysis
+        if: ${{ hashFiles('gradlew') != '' }}
+        run: ./gradlew ktlintCheck detekt

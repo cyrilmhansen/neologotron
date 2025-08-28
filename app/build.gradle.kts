@@ -1,0 +1,93 @@
+plugins {
+    alias(libs.plugins.androidApplication)
+    alias(libs.plugins.kotlinAndroid)
+    alias(libs.plugins.kapt)
+    alias(libs.plugins.hilt)
+    alias(libs.plugins.ktlint)
+    alias(libs.plugins.detekt)
+}
+
+android {
+    namespace = "com.neologotron.app"
+    compileSdk = 34
+
+    defaultConfig {
+        applicationId = "com.neologotron.app"
+        minSdk = 24
+        targetSdk = 34
+        versionCode = 1
+        versionName = "0.1.0"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary = true
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+        debug {
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+    buildFeatures {
+        compose = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.14"
+    }
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
+}
+
+dependencies {
+    implementation(platform(libs.composeBom))
+    implementation(libs.coreKtx)
+    implementation(libs.lifecycleRuntimeKtx)
+    implementation(libs.activityCompose)
+    implementation(libs.composeUi)
+    implementation(libs.composeUiGraphics)
+    implementation(libs.composeUiToolingPreview)
+    implementation(libs.composeMaterial3)
+
+    implementation(libs.kotlinxCoroutinesAndroid)
+
+    implementation(libs.hiltAndroid)
+    kapt(libs.hiltCompiler)
+
+    testImplementation(libs.junit)
+    androidTestImplementation(platform(libs.composeBom))
+    androidTestImplementation(libs.androidxJunit)
+    androidTestImplementation(libs.espressoCore)
+    androidTestImplementation(libs.composeUiTestJunit4)
+    debugImplementation(libs.composeUiTooling)
+    debugImplementation(libs.composeUiTestManifest)
+}
+
+ktlint {
+    android.set(true)
+    outputColorName.set("RED")
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    allRules = false
+    config.setFrom(rootProject.files("detekt.yml"))
+}
+
