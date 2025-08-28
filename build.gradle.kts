@@ -1,12 +1,17 @@
 plugins {
-    // Version catalog-driven; no root plugins required
+    alias(libs.plugins.androidApplication) apply false
+    alias(libs.plugins.kotlinAndroid) apply false
+    alias(libs.plugins.kapt) apply false
+    alias(libs.plugins.hilt) apply false
+    alias(libs.plugins.composeCompiler) apply false
+    alias(libs.plugins.ktlint)
+    alias(libs.plugins.detekt)
 }
 
-allprojects {
-    // Common configuration if needed later
+subprojects {
+    // ktlint applied at root; detekt configured via detekt.yml
 }
 
 tasks.register("clean", Delete::class) {
     delete(rootProject.layout.buildDirectory)
 }
-
