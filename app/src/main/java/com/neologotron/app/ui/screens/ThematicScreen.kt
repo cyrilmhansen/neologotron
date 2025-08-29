@@ -23,7 +23,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.neologotron.app.ui.viewmodel.ThematicViewModel
 
 @Composable
-fun ThematicScreen(vm: ThematicViewModel = hiltViewModel()) {
+fun ThematicScreen(onOpenDetail: (String) -> Unit, vm: ThematicViewModel = hiltViewModel()) {
     val tags by vm.tags.collectAsState()
     val selected by vm.selected.collectAsState()
     Column(
@@ -52,6 +52,7 @@ fun ThematicScreen(vm: ThematicViewModel = hiltViewModel()) {
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Button(onClick = { vm.apply() }) { Text(text = stringResource(id = R.string.action_apply)) }
             Button(onClick = { vm.reset() }) { Text(text = stringResource(id = R.string.action_reset)) }
+            Button(onClick = { vm.generateAndOpen(onOpenDetail) }) { Text(text = stringResource(id = R.string.action_open_detail_preview)) }
         }
     }
 }

@@ -9,6 +9,7 @@ import com.neologotron.app.data.dao.SuffixDao
 import com.neologotron.app.data.db.AppDatabase
 import com.neologotron.app.data.seed.SeedManager
 import com.neologotron.app.data.dao.HistoryDao
+import com.neologotron.app.data.dao.FavoriteDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -50,4 +51,6 @@ object DatabaseModule {
     fun provideSuffixDao(db: AppDatabase): SuffixDao = db.suffixDao()
     @Provides
     fun provideHistoryDao(db: AppDatabase): HistoryDao = db.historyDao()
+    @Provides
+    fun provideFavoriteDao(db: AppDatabase): FavoriteDao = db.favoriteDao()
 }

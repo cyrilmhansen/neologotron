@@ -16,12 +16,14 @@
     <string name="action_open_thematic">Ouvrir Thématique</string>
     <string name="action_open_workshop">Ouvrir Atelier</string>
     <string name="action_open_debug">Ouvrir Debug</string>
+    <string name="action_open_detail_preview">Aperçu dans Détail</string>
     <string name="action_select_prefix">Préfixe</string>
     <string name="action_select_root">Racine</string>
     <string name="action_select_suffix">Suffixe</string>
     <string name="action_compose_word">Forger le mot</string>
     <string name="action_share">Partager</string>
     <string name="action_favorite">Ajouter aux favoris</string>
+    <string name="action_unfavorite">Retirer des favoris</string>
     <string name="action_back">Retour</string>
 
     <string name="placeholder_word">Néologisme</string>
@@ -36,4 +38,6 @@
     <string name="label_db_build_time">DB build time</string>
     <string name="action_reset_db">Réinitialiser la base</string>
     <string name="label_resetting">Réinitialisation…</string>
+    <string name="msg_favorite_added">Ajouté aux favoris</string>
+    <string name="msg_favorite_removed">Retiré des favoris</string>
 </resources>

@@ -6,6 +6,7 @@ import com.neologotron.app.data.entity.PrefixEntity
 import com.neologotron.app.data.entity.RootEntity
 import com.neologotron.app.data.entity.SuffixEntity
 import com.neologotron.app.data.repo.LexemeRepository
+import com.neologotron.app.domain.generator.GeneratorService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,7 +15,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class WorkshopViewModel @Inject constructor(
-    private val repo: LexemeRepository
+    private val repo: LexemeRepository,
+    private val generator: GeneratorService
 ) : ViewModel() {
     private val _prefixes = MutableStateFlow<List<PrefixEntity>>(emptyList())
     val prefixes: StateFlow<List<PrefixEntity>> = _prefixes
@@ -32,5 +34,11 @@ class WorkshopViewModel @Inject constructor(
             _suffixes.value = repo.listSuffixesByTag("").take(10)
         }
     }
-}
 
+    fun generateAndOpen(onOpenDetail: (String) -> Unit) {
+        viewModelScope.launch {
+            runCatching { generator.generateRandom(tags = emptySet(), saveToHistory = true) }
+                .onSuccess { onOpenDetail(it.word) }
+        }
+    }
+}

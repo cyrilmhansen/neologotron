@@ -14,20 +14,50 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.Text
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.neologotron.app.R
+import com.neologotron.app.ui.viewmodel.WordDetailViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WordDetailScreen(word: String, onBack: () -> Unit) {
+fun WordDetailScreen(onBack: () -> Unit, vm: WordDetailViewModel = hiltViewModel()) {
+    val word by vm.word.collectAsState()
+    val definition by vm.definition.collectAsState()
+    val decomposition by vm.decomposition.collectAsState()
+    val isFavorite by vm.isFavorite.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        vm.favoriteToggled.collect { added ->
+            if (snackbarHostState.currentSnackbarData == null) {
+                val msg = if (added) R.string.msg_favorite_added else R.string.msg_favorite_removed
+                snackbarHostState.showSnackbar(
+                    message = context.getString(msg),
+                    duration = SnackbarDuration.Short
+                )
+            }
+        }
+    }
+
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             CenterAlignedTopAppBar(
                 title = { Text(text = stringResource(id = R.string.title_detail)) },
@@ -53,16 +83,16 @@ fun WordDetailScreen(word: String, onBack: () -> Unit) {
             Text(text = word, style = MaterialTheme.typography.headlineLarge)
             Spacer(modifier = Modifier.height(8.dp))
             Text(text = stringResource(id = R.string.label_definition), style = MaterialTheme.typography.titleMedium)
-            Text(text = stringResource(id = R.string.placeholder_definition), textAlign = TextAlign.Start)
+            Text(text = if (definition.isNotBlank()) definition else stringResource(id = R.string.placeholder_definition), textAlign = TextAlign.Start)
 
             Spacer(modifier = Modifier.height(16.dp))
             Text(text = stringResource(id = R.string.label_etymology), style = MaterialTheme.typography.titleMedium)
-            Text(text = stringResource(id = R.string.placeholder_decomposition))
+            Text(text = if (decomposition.isNotBlank()) decomposition else stringResource(id = R.string.placeholder_decomposition))
 
             Spacer(modifier = Modifier.height(24.dp))
             Button(onClick = { /* TODO: share */ }) { Text(text = stringResource(id = R.string.action_share)) }
             Spacer(modifier = Modifier.height(8.dp))
-            Button(onClick = { /* TODO: favorite */ }) { Text(text = stringResource(id = R.string.action_favorite)) }
+            Button(onClick = { vm.toggleFavorite() }) { Text(text = stringResource(id = if (isFavorite) R.string.action_unfavorite else R.string.action_favorite)) }
         }
     }
 }

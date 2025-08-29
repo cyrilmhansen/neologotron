@@ -34,18 +34,31 @@ fun WordTheatreHost() {
         bottomBar = {
             val backStack by navController.currentBackStackEntryAsState()
             val currentRoute = backStack?.destination?.route
+            val bottomRoutes = NavItems.bottomBar.map { it.route.value }.toSet()
+            // Determine which bottom tab should appear selected; if on detail, map to parent 'from' arg.
+            val selectedTabRoute = when (currentRoute) {
+                Route.Detail.value -> {
+                    val from = backStack?.arguments?.getString(Route.Detail.fromArg)
+                    if (from != null && bottomRoutes.contains(from)) from else Route.Main.value
+                }
+                else -> currentRoute
+            } ?: Route.Main.value
             NavigationBar {
                 NavItems.bottomBar.forEach { item ->
                     val route = item.route.value
                     NavigationBarItem(
-                        selected = currentRoute == route,
+                        selected = selectedTabRoute == route,
                         onClick = {
-                            navController.navigate(route) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
+                            // Prefer popping back to an existing instance of the destination if present
+                            val popped = navController.popBackStack(route, inclusive = false)
+                            if (!popped) {
+                                navController.navigate(route) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
                                 }
-                                launchSingleTop = true
-                                restoreState = true
                             }
                         },
                         icon = { Icon(item.icon, contentDescription = stringResource(id = item.titleRes)) },
@@ -67,23 +80,29 @@ fun WordTheatreHost() {
                 )
             }
             composable(Route.History.value) {
-                HistoryScreen(onOpenDetail = { w -> navController.navigate(Route.Detail.build(w)) })
+                HistoryScreen(onOpenDetail = { w -> navController.navigate(Route.Detail.build(w, Route.History)) })
             }
             composable(Route.Favorites.value) {
-                FavoritesScreen(onOpenDetail = { w -> navController.navigate(Route.Detail.build(w)) })
+                FavoritesScreen(onOpenDetail = { w -> navController.navigate(Route.Detail.build(w, Route.Favorites)) })
             }
             composable(Route.Settings.value) {
                 SettingsScreen(onOpenDebug = { navController.navigate(Route.Debug.value) })
             }
-            composable(Route.Thematic.value) { ThematicScreen() }
-            composable(Route.Workshop.value) { WorkshopScreen() }
+            composable(Route.Thematic.value) {
+                ThematicScreen(onOpenDetail = { w -> navController.navigate(Route.Detail.build(w, Route.Thematic)) })
+            }
+            composable(Route.Workshop.value) {
+                WorkshopScreen(onOpenDetail = { w -> navController.navigate(Route.Detail.build(w, Route.Workshop)) })
+            }
             composable(Route.Debug.value) { DebugScreen() }
             composable(
                 route = Route.Detail.value,
-                arguments = listOf(navArgument(Route.Detail.argName) { type = NavType.StringType })
-            ) { backStack ->
-                val word = backStack.arguments?.getString(Route.Detail.argName).orEmpty()
-                WordDetailScreen(word = word, onBack = { navController.popBackStack() })
+                arguments = listOf(
+                    navArgument(Route.Detail.argName) { type = NavType.StringType },
+                    navArgument(Route.Detail.fromArg) { type = NavType.StringType; defaultValue = "" }
+                )
+            ) {
+                WordDetailScreen(onBack = { navController.popBackStack() })
             }
         }
     }

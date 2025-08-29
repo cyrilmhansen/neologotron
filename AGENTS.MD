@@ -142,3 +142,22 @@ This summarizes the required screens, core interactions, and implementation mile
 - KSP adopted; no kapt-specific options remain
 - Accessibility to be verified after core flows land
 - Room uses `fallbackToDestructiveMigration` during MVP; safe since data is seeded and user-generated data minimal for now
+
+- Bottom bar remains visible across all screens (including Detail) to improve accessibility and direct navigation.
+- On Detail, the bottom bar highlights the parent tab (History/Favorites/Main) for UX consistency.
+- Bottom bar tap behavior prefers popping back to an existing destination instance before navigating to avoid stacking duplicates.
+
+---
+
+## Newly Completed (This Session)
+- Favorites end-to-end: Room entity/DAO/repository; Favorites screen lists stored favorites; Detail screen favorite toggle (add/remove) with persisted state; DB version bumped to 4.
+- Main screen: Added heart toggle next to generated word; favorite state updates after each generation.
+- Favorites screen: Auto-refreshes on `ON_RESUME` to reflect changes made elsewhere.
+- Navigation UX: From Detail, tapping a bottom bar tab pops back to that tab's root; on Detail, the tab of origin is highlighted via a `from` nav argument.
+  - Extended: If Detail originates from non-bottom destinations (Thématique/Atelier/Debug), the Main tab is highlighted by default for consistency.
+ - Snackbars: Added confirmation snackbars on Théâtre and Détail when adding/removing favorites.
+
+---
+
+## Newly Completed (This Session)
+- Favorites end-to-end: Room entity/DAO/repository; Favorites screen now lists stored favorites; Detail screen has add/remove favorite toggle reflecting state; database version bumped to 4.

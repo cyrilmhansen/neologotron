@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -26,7 +24,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.neologotron.app.ui.viewmodel.WorkshopViewModel
 
 @Composable
-fun WorkshopScreen(vm: WorkshopViewModel = hiltViewModel()) {
+fun WorkshopScreen(onOpenDetail: (String) -> Unit, vm: WorkshopViewModel = hiltViewModel()) {
     val prefixes by vm.prefixes.collectAsState()
     val roots by vm.roots.collectAsState()
     val suffixes by vm.suffixes.collectAsState()
@@ -62,6 +60,8 @@ fun WorkshopScreen(vm: WorkshopViewModel = hiltViewModel()) {
         HorizontalDivider()
         Spacer(modifier = Modifier.height(12.dp))
         Button(onClick = { /* TODO commit */ }) { Text(text = stringResource(id = R.string.action_compose_word)) }
+        Spacer(modifier = Modifier.height(8.dp))
+        Button(onClick = { vm.generateAndOpen(onOpenDetail) }) { Text(text = stringResource(id = R.string.action_open_detail_preview)) }
 
         Spacer(modifier = Modifier.height(24.dp))
         Text(text = "Préfixes (extraits)", style = MaterialTheme.typography.titleMedium)

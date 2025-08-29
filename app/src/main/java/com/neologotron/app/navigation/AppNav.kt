@@ -17,9 +17,26 @@ sealed class Route(val value: String) {
     data object Thematic : Route("thematic")
     data object Workshop : Route("workshop")
     data object Debug : Route("debug")
-    data object Detail : Route("detail/{word}") {
+    data object Detail : Route("detail/{word}?from={from}") {
         const val argName = "word"
-        fun build(word: String): String = "detail/${Uri.encode(word)}"
+        const val fromArg = "from"
+        fun build(word: String, from: Route? = null): String {
+            val f = when (from) {
+                is Main -> Main.value
+                is History -> History.value
+                is Favorites -> Favorites.value
+                is Settings -> Settings.value
+                is Thematic -> Thematic.value
+                is Workshop -> Workshop.value
+                is Debug -> Debug.value
+                else -> ""
+            }
+            return if (f.isBlank()) {
+                "detail/${Uri.encode(word)}"
+            } else {
+                "detail/${Uri.encode(word)}?from=$f"
+            }
+        }
     }
 }
 
