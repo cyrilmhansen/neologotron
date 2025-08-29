@@ -173,3 +173,4 @@ This summarizes the required screens, core interactions, and implementation mile
 ## Newly Completed (This Session)
 - Favorites end-to-end: Room entity/DAO/repository; Favorites screen now lists stored favorites; Detail screen has add/remove favorite toggle reflecting state; database version bumped to 4.
 - About screen: Corrected attribution — the « Logotron » is credited to Jean‑Pierre Petit (France, 1977); removed misattribution to Queneau/Lescure and clarified inspiration context.
+- Generator bias: tag selection persisted via `GeneratorOptionsStore`; Main screen displays active tags and Settings can reset them; morpheme choice now weighted by tag matches.
