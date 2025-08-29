@@ -12,6 +12,9 @@
 
 # Package Files #
 *.jar
+# But keep Gradle wrapper JAR tracked
+!gradle/wrapper/gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.properties
 *.war
 *.nar
 *.ear
