@@ -44,8 +44,8 @@
     <string name="msg_favorite_removed">Retiré des favoris</string>
     <string name="title_about">À propos</string>
     <string name="about_intro">Néologotron est un hommage ludique à la création de mots.</string>
-    <string name="about_credit">Idée originale du « Logotron » par Raymond Queneau et Jean Lescure (Oulipo).</string>
-    <string name="about_links">En savoir plus: Oulipo, œuvres et expérimentations littéraires.</string>
+    <string name="about_credit">Le « Logotron » a été inventé par Jean‑Pierre Petit (France, 1977). Néologotron s’en inspire librement et s’inscrit aussi dans l’esprit des expérimentations littéraires de l’Oulipo.</string>
+    <string name="about_links">En savoir plus : Logotron (Jean‑Pierre Petit), Oulipo et expérimentations littéraires.</string>
     <string name="about_version">Version: %1$s</string>
     <string name="msg_select_all_parts">Sélectionnez un préfixe, une racine et un suffixe</string>
 </resources>
