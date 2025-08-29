@@ -16,6 +16,7 @@ sealed class Route(val value: String) {
     data object Settings : Route("settings")
     data object Thematic : Route("thematic")
     data object Workshop : Route("workshop")
+    data object Debug : Route("debug")
     data object Detail : Route("detail/{word}") {
         const val argName = "word"
         fun build(word: String): String = "detail/${Uri.encode(word)}"

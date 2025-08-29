@@ -1,0 +1,40 @@
+id,form,alt_forms,gloss,origin,connector,phon_rules,tags,weight
+pre_anti,anti-,,"contre, opposé à",grec,,assimilation antéposée (ant- devant voyelle facultatif),"opposition,société",1.0
+pre_auto,auto-,,"soi-même, autonome",grec,o,,"identité,technologie",1.0
+pre_bi,bi-,bis-,"deux, double",latin,,,nombre,0.8
+pre_bio,bio-,,"vie, vivant",grec,o,,"nature,science",1.0
+pre_cata,cata-,cat-,"vers le bas, contre",grec,a,élision du a devant voyelle (cat-),mouvement,0.6
+pre_cosmo,cosmo-,,"monde, univers",grec,o,,"cosmos,poétique",0.7
+pre_contra,contra-,contre-,"opposé, à l’encontre de",latin,,,"société,politique",0.7
+pre_crypto,crypto-,,"caché, secret",grec,o,,"mystère,tech",0.8
+pre_cyber,cyber-,,relatif aux réseaux et au numérique,grec(mod.),,,"technologie,réseaux",1.0
+pre_de,dé-,dés-,"séparation, privation, inversion",latin,,,opposition,1.0
+pre_dys,dys-,,"difficulté, anomalie",grec,,,"état,anomalie",0.6
+pre_ecto,ecto-,exo-,à l’extérieur,grec,o,,"espace,biologie",0.5
+pre_endo,endo-,,à l’intérieur,grec,o,,"espace,biologie",0.5
+pre_eu,eu-,,"bien, harmonieux",grec,,,"valeur,poétique",0.6
+pre_exo,exo-,,"extérieur, hors de",grec,o,,"espace,science",0.8
+pre_extra,extra-,,"au-delà, en dehors de",latin,,,"intensité,espace",0.7
+pre_geo,géo-,geo-,terre,grec,o,,"nature,science",0.8
+pre_hetero,hétéro-,hetero-,"autre, différent",grec,o,,variation,0.6
+pre_homo,homo-,,"semblable, identique",grec,o,,identité,0.6
+pre_hyper,hyper-,,"au-delà, excessif",grec,,,intensité,1.0
+pre_hypo,hypo-,,"au-dessous, insuffisant",grec,,,intensité,0.6
+pre_inter,inter-,,"entre, au milieu",latin,,,relation,0.9
+pre_intra,intra-,,"à l’intérieur, au-dedans",latin,,,espace,0.6
+pre_macro,macro-,,"grand, à grande échelle",grec,o,,échelle,0.7
+pre_micro,micro-,,petit,grec,o,,"échelle,science",1.0
+pre_mono,mono-,,"seul, unique",grec,o,,nombre,0.8
+pre_multi,multi-,poly-,"plusieurs, multiple",latin/grec,,,nombre,0.9
+pre_neo,néo-,neo-,"nouveau, récent",grec,o,,"temps,mode",1.0
+pre_ortho,ortho-,,"droit, correct",grec,o,,norme,0.6
+pre_para,para-,,"à côté de, au-delà de",grec,,,"espace,relation",0.7
+pre_peri,péri-,peri-,autour de,grec,i,,espace,0.6
+pre_proto,proto-,,"premier, originel",grec,o,,"origine,temps",0.6
+pre_pseudo,pseudo-,,"faux, trompeur",grec,o,,"mystère,critique",0.8
+pre_re,ré-,re-,"à nouveau, retour",latin,,,"temps,action",1.0
+pre_sub,sub-,sous-,"sous, inférieur",latin,,assimilation devant p/b → sup-/sub-,"espace,intensité",0.7
+pre_super,super-,supra-,"au-dessus, très",latin,,,intensité,0.9
+pre_trans,trans-,tra-,"au-delà, à travers",latin,,élision s → tra- devant consonne parfois,"mouvement,espace",0.9
+pre_ultra,ultra-,,"au-delà, extrême",latin,,,intensité,0.8
+pre_xeno,xéno-,xeno-,"étranger, autre",grec,o,,altérité,0.6

@@ -1,0 +1,31 @@
+id,form,alt_forms,gloss,origin,pos_out,def_template,tags,weight
+suf_able,-able,-ible,"susceptible de, pouvant être",latin,adj,qui peut être {ACTION} par/avec {ROOT},"qualité,général",0.9
+suf_algie,-algie,,douleur,grec,nom,douleur liée à {ROOT},"médecine,poétique",0.4
+suf_cratie,-cratie,,pouvoir de,grec,nom,pouvoir de/du {ROOT},"politique,société",0.8
+suf_cratique,-cratique,,relatif au pouvoir de,grec,adj,relatif au pouvoir de {ROOT},politique,0.6
+suf_gène,-gène,,qui engendre/produit,grec,adj,qui engendre/produit {ROOT},science,0.7
+suf_genese,-genèse,,"formation, naissance",grec,nom,formation/naissance de {ROOT},"science,poétique",0.6
+suf_graphe,-graphe,,appareil ou personne qui écrit/enregistre,grec,nom,appareil/personne qui trace/enregistre {ROOT},"tech,art",0.8
+suf_graphie,-graphie,,"écriture, description",grec,nom,écriture/description de {ROOT},"langage,science",0.9
+suf_ique,-ique,,relatif à,grec/latin,adj,relatif à {ROOT},qualité,1.0
+suf_isme,-isme,,"doctrine, tendance, état",grec,nom,doctrine/tendance liée à {ROOT},"idée,société",1.0
+suf_iste,-iste,,"adepte, spécialiste",grec,nom_agent,adepte/spécialiste de {ROOT},personne,1.0
+suf_it_e,-ité,,"qualité, état",latin,nom,qualité/état de ce qui est {ROOT},abstraction,0.8
+suf_logie,-logie,,"étude, discours sur",grec,nom,étude/discours sur {ROOT},science,1.0
+suf_logue,-logue,,"spécialiste, celui qui parle de",grec,nom_agent,spécialiste/locuteur de {ROOT},personne,0.8
+suf_mancie,-mancie,,divination par,grec,nom,divination par {ROOT},"mystère,poétique",0.4
+suf_mane,-manie,,passion excessive pour,grec,nom,passion excessive pour {ROOT},émotion,0.6
+suf_metrique,-métrie,,mesure de,grec,nom,mesure de {ROOT},"science,tech",0.8
+suf_metre,-mètre,,instrument de mesure,grec,nom,instrument mesurant {ROOT},tech,0.7
+suf_phage,-phage,,qui mange/dévore,grec,nom_agent,qui dévore/consomme {ROOT},"poétique,science",0.7
+suf_phile,-phile,,qui aime/attire,grec,nom_agent,qui aime/est attiré par {ROOT},"émotion,relation",0.8
+suf_phobie,-phobie,,"aversion, peur de",grec,nom,peur/aversion de {ROOT},émotion,0.8
+suf_scope,-scope,,instrument d’observation,grec,nom,instrument pour observer {ROOT},"science,tech",0.8
+suf_sophie,-sophie,,"sagesse, connaissance de",grec,nom,sagesse/connaissance de {ROOT},philo,0.5
+suf_th_e,-thé,-thée,"posé, placé (synt.)",grec,adj,posé/ordonné selon {ROOT},poétique,0.3
+suf_trope,-trope,,"qui tourne vers, qui change",grec,adj/nom,qui se tourne vers/transforme {ROOT},"poétique,science",0.5
+suf_vore,-vore,,qui mange,latin,nom_agent,qui se nourrit de {ROOT},"nature,poétique",0.6
+suf_forme,-forme,,en forme de,latin,adj,ayant la forme de {ROOT},"art,science",0.6
+suf_aire,-aire,,"relatif à, appartenant à",latin,adj,relatif/appartenant à {ROOT},qualité,0.5
+suf_arium,-arium,,lieu destiné à,latin,nom,lieu consacré à {ROOT},espace,0.4
+suf_ateur,-ateur,-teur,"agent, moteur de",latin,nom_agent,celui/celle qui {ACTION} {ROOT},"personne,tech",0.6

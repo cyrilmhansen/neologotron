@@ -1,0 +1,58 @@
+id,form,alt_forms,gloss,origin,domain,connector_pref,examples,weight
+root_anthrop,anthrop-,,humain,grec,"société,philo",o,anthropologie,1.0
+root_arch,arch-,arche-,"commander, origine",grec,"pouvoir,origine",i/o,"archétype, monarchie",0.8
+root_aero,aéro-,aer-,air,grec,"nature,tech",o,aérodrome,0.7
+root_agro,agro-,,"champ, agriculture",grec,"nature,économie",o,agronomie,0.6
+root_algo,algo-,alg-,douleur,grec,"médecine,poétique",o,analgésique,0.5
+root_astro,astro-,astr-,"astre, étoile",grec,"cosmos,science",o,astronomie,0.9
+root_biblio,biblio-,bibli-,livre,grec,culture,o,bibliothèque,0.7
+root_bio,bio-,bi-,vie,grec,"nature,science",o,biologie,1.0
+root_cardio,cardio-,cardi-,cœur,grec,"médecine,poétique",o,cardiogramme,0.7
+root_chrono,chrono-,chron-,temps,grec,"temps,poétique",o,chronologie,1.0
+root_cosmo,cosmo-,cosm-,"monde, ordre",grec,"cosmos,philo",o,cosmogonie,0.8
+root_crypto,crypto-,crypt-,caché,grec,"mystère,tech",o,cryptographie,0.9
+root_demo,démo-,dém-,peuple,grec,politique,o,démocratie,0.8
+root_derm,derm-,dermo-,peau,grec,corps,o,dermatologie,0.6
+root_electro,électro-,electr-,"ambre, électricité",grec(mod.),"tech,science",o,électrolyse,1.0
+root_ether,éther-,aether-,"ciel, éther",grec,"cosmos,poétique",o,éthérique,0.5
+root_geo,géo-,ge-,terre,grec,"nature,science",o,géographie,1.0
+root_gastro,gastro-,gastr-,"ventre, estomac",grec,"corps,cuisine",o,gastronomie,0.6
+root_gyno,gyno-,gyn-,femme,grec,"société,corps",o,gynécologie,0.6
+root_heli,héli-,helio-,soleil,grec,"cosmos,poétique",o,héliographie,0.6
+root_hem,hém-,hémo-,sang,grec,"corps,poétique",o,hémoglobine,0.6
+root_hydro,hydro-,hydr-,eau,grec,"nature,tech",o,hydraulique,0.9
+root_icon,icon-,eikon-,image,grec,"art,tech",o,iconographie,0.5
+root_lex,lex-,leξ-,"mot, loi (lat. lex)",grec/latin,"langage,droit",o,"lexique, légal",0.7
+root_log,log-,logo-,"discours, raison",grec,"langage,philo",o,"logique, dialogue",1.0
+root_lumin,lumin-,lux-,lumière,latin,"nature,poétique",i,"luminaire,lucide",0.7
+root_macro,macro-,macr-,grand,grec,échelle,o,macrocosme,0.6
+root_micro,micro-,micr-,petit,grec,"échelle,science",o,microscope,1.0
+root_morph,morph-,morpho-,forme,grec,"art,science",o,morphologie,0.9
+root_neuro,neuro-,neur-,"nerf, esprit (par ext.)",grec,"corps,psyché",o,neurologie,0.8
+root_nomen,nomen-,nom-,nommer,latin,langage,i,nomenclature,0.6
+root_onych,onych-,onycho-,ongle (pour le détail poétique),grec,"corps,poétique",o,onychophagie,0.3
+root_onyma,onym-,onyma-,nom,grec,langage,o,"synonyme, patronyme",0.7
+root_opto,opto-,opt-,"vue, voir",grec,"corps,tech",o,"optique, optogramme",0.7
+root_ortho,ortho-,,"droit, correct",grec,norme,o,orthographe,0.6
+root_paleo,paléo-,palaeo-,ancien,grec,"temps,histoire",o,paléolithique,0.6
+root_path,path-,patho-,"souffrance, passion",grec,"émotion,corps",o,"pathologie, empathie",0.8
+root_philo,philo-,phil-,"amour, amitié pour",grec,"valeur,poétique",o,philosophie,1.0
+root_phob,phob-,phobo-,peur,grec,"émotion,société",o,arachnophobie,0.7
+root_phon,phon-,phono-,"voix, son",grec,"art,tech",o,"phonétique,téléphone",0.9
+root_photo,photo-,phot-,lumière,grec,"art,science",o,photographie,1.0
+root_phys,phys-,physio-,"nature, croissance",grec,"science,nature",o,"physique, physiologie",0.8
+root_plast,plast-,plasto-,"former, modeler",grec,"art,science",o,"plastique, plasturgie",0.6
+root_pneum,pneum-,pneumo-,"souffle, poumon",grec,"corps,poétique",o,pneumatique,0.5
+root_polis,polis-,pol-,cité,grec,"politique,société",i/o,"métropole, politique",0.7
+root_psycho,psycho-,psych-,"esprit, âme",grec,psyché,o,psychologie,0.9
+root_pyro,pyro-,pyr-,feu,grec,"nature,poétique",o,pyrotechnie,0.6
+root_quadr,quadr-,quadri-,quatre,latin,nombre,i,"quadrilatère, quadridimensionnel",0.4
+root_techn,techn-,techno-,"art, technique",grec,"tech,art",o,technologie,1.0
+root_tele,télé-,tele-,loin,grec,"espace,tech",o,"télépathie,téléphone",0.9
+root_therm,therm-,thermo-,chaleur,grec,"science,nature",o,thermomètre,0.9
+root_topo,topo-,top-,lieu,grec,"espace,science",o,"topographie, utopie",0.7
+root_tox,tox-,toxico-,poison,grec,"corps,société",o,toxicologie,0.6
+root_urban,urban-,urb-,ville,latin,"société,espace",i,"urbanisme, urbain",0.6
+root_virid,virid-,verd-,"vert, verdure",latin,"nature,poétique",i,"viridescent, verdure",0.3
+root_xeno,xéno-,xen-,étranger,grec,altérité,o,xénophilie,0.5
+root_zo,zo-,zoo-,"animal, vivant",grec,nature,o,zoologie,0.8

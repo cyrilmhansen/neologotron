@@ -111,23 +111,34 @@ This summarizes the required screens, core interactions, and implementation mile
 - Build system: Compose Navigation dependency; Kotlin/AGP aligned
 - KSP migration: Replaced KAPT with KSP for Hilt (faster builds, removed warnings)
 - Build health: `assembleDebug` passes; studio human tests pass; no warnings
+- Data layer: Room v3 with entities (prefixes, roots, suffixes, history, db_meta), DAOs, `AppDatabase`, Hilt DI
+- Seeding: CSVs moved to assets and seeded on first run via `SeedManager`; `db_meta.createdAtMillis` recorded
+- Repositories: `LexemeRepository` (tags/lists/search), `HistoryRepository` (save/recent), `AdminRepository` (reset+reseed)
+- Thematic/Atelier wiring: Thematic chips are populated from DB tags; Atelier shows sample lists from DB
+- Generator: Minimal `GeneratorService` (random composition, basic elision/liaison, simple definition composer) + saves to history
+- Main screen: "Générer" button now generates a word/definition and persists to history
+- Debug screen: Accessible from Settings; shows DB build time; provides Reset DB (clear + reseed)
+- Fixes: SQL order-by changed to SQLite-compatible CASE; CSV parser corrected; DB version bumped with destructive migration for MVP
 
 ## In Progress / Open Items
 - Bottom bar behavior: Optionally hide on Detail for a focused view (decision pending)
 - Thematic: Wire real tag data + selection state; pass filters to generator
 - Atelier: Implement prefix/racine/suffix pickers (lists + search) with live preview logic
+- History screen: Replace placeholders with recent entries from Room
+- Favorites: Storage model + UI wiring (toggle in Detail/Main)
 
 ## Next Up (Planned)
-- Data layer: Room schema (morphèmes, history, favorites) and seed from `specs_wip/*.csv`
-- Generator engine: Random, Thematic-biased, Manual composition
-- Coherence filters: Élision, liaison, plausibility scoring + tests
-- Definition composer: Technical/Poetic templates from morphème meanings
-- Persistence: Save to History/Favorites; load into lists
-- Sharing & copy: System share sheet + clipboard; favorite toggle
-- Themes & settings: 3 themes; generator defaults; gesture toggles
+- Wire History list to Room `recent()` and open Detail from it
+- Favorites: add entities/DAO, toggle in UI, list screen backed by Room
+- Generator bias: use selected Thematic tags to weight choices; expose state in Main
+- Coherence filters: improve elision/liaison; add plausibility scoring + unit tests
+- Definition composer: refine templates (technical/poetic) using suffix/root metadata
+- Sharing & copy: Android share sheet + clipboard from Detail/Main
+- Themes & settings: implement 3 themes; persist preferences; gesture toggles
 - Onboarding: 3-screen first-run tutorial
 
 ## Notes & Decisions
 - Image-card generation deferred post‑MVP (per specs)
 - KSP adopted; no kapt-specific options remain
 - Accessibility to be verified after core flows land
+- Room uses `fallbackToDestructiveMigration` during MVP; safe since data is seeded and user-generated data minimal for now

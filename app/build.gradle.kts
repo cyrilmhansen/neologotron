@@ -66,11 +66,15 @@ dependencies {
     implementation(libs.composeMaterial3)
     implementation(libs.navigationCompose)
     implementation(libs.materialIconsExtended)
+    implementation(libs.roomRuntime)
+    implementation(libs.roomKtx)
+    ksp(libs.roomCompiler)
 
     implementation(libs.kotlinxCoroutinesAndroid)
 
     implementation(libs.hiltAndroid)
     ksp(libs.hiltCompiler)
+    implementation(libs.hiltNavigationCompose)
 
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.composeBom))

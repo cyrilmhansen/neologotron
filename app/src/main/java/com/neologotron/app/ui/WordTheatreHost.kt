@@ -25,6 +25,7 @@ import com.neologotron.app.ui.screens.SettingsScreen
 import com.neologotron.app.ui.screens.ThematicScreen
 import com.neologotron.app.ui.screens.WorkshopScreen
 import com.neologotron.app.ui.screens.WordDetailScreen
+import com.neologotron.app.ui.screens.DebugScreen
 
 @Composable
 fun WordTheatreHost() {
@@ -71,9 +72,12 @@ fun WordTheatreHost() {
             composable(Route.Favorites.value) {
                 FavoritesScreen(onOpenDetail = { w -> navController.navigate(Route.Detail.build(w)) })
             }
-            composable(Route.Settings.value) { SettingsScreen() }
+            composable(Route.Settings.value) {
+                SettingsScreen(onOpenDebug = { navController.navigate(Route.Debug.value) })
+            }
             composable(Route.Thematic.value) { ThematicScreen() }
             composable(Route.Workshop.value) { WorkshopScreen() }
+            composable(Route.Debug.value) { DebugScreen() }
             composable(
                 route = Route.Detail.value,
                 arguments = listOf(navArgument(Route.Detail.argName) { type = NavType.StringType })
