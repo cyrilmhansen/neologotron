@@ -20,8 +20,7 @@ class ThematicViewModel @Inject constructor(
     private val _tags = MutableStateFlow<List<String>>(emptyList())
     val tags: StateFlow<List<String>> = _tags
 
-    private val _selected = MutableStateFlow<Set<String>>(emptySet())
-    val selected: StateFlow<Set<String>> = _selected
+    val selected: StateFlow<Set<String>> = options.selectedTags
 
     init {
         viewModelScope.launch {
@@ -30,20 +29,20 @@ class ThematicViewModel @Inject constructor(
     }
 
     fun toggle(tag: String) {
-        _selected.value = _selected.value.toMutableSet().also { set ->
-            if (!set.add(tag)) set.remove(tag)
-        }
+        val current = options.selectedTags.value.toMutableSet()
+        if (!current.add(tag)) current.remove(tag)
+        options.setTags(current)
     }
 
     fun reset() {
-        _selected.value = emptySet()
+        options.clear()
     }
 
-    fun apply() { options.setTags(_selected.value) }
+    fun apply() { /* selection is applied immediately */ }
 
     fun generateAndOpen(onOpenDetail: (String) -> Unit) {
         viewModelScope.launch {
-            runCatching { generator.generateRandom(tags = _selected.value, saveToHistory = true) }
+            runCatching { generator.generateRandom(tags = options.selectedTags.value, saveToHistory = true) }
                 .onSuccess { onOpenDetail(it.word) }
         }
     }

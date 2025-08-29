@@ -21,16 +21,15 @@ class GeneratorService @Inject constructor(
     private val history: HistoryRepository
 ) {
     suspend fun generateRandom(tags: Set<String> = emptySet(), saveToHistory: Boolean = true): WordResult {
-        val chosenTag = tags.shuffled().firstOrNull().orEmpty()
-        val prefixes = if (chosenTag.isNotBlank()) lexemes.listPrefixesByTag(chosenTag) else lexemes.listPrefixesByTag("")
-        val roots = if (chosenTag.isNotBlank()) lexemes.listRootsByTag(chosenTag) else lexemes.listRootsByTag("")
-        val suffixes = if (chosenTag.isNotBlank()) lexemes.listSuffixesByTag(chosenTag) else lexemes.listSuffixesByTag("")
+        val prefixes = lexemes.listPrefixesByTag("")
+        val roots = lexemes.listRootsByTag("")
+        val suffixes = lexemes.listSuffixesByTag("")
 
-        val p = weightedRandom(prefixes) { it.weight }
+        val p = weightedRandom(prefixes) { (it.weight ?: 1.0) * tagMultiplier(it.tags, tags) }
             ?: throw IllegalStateException("No prefixes available")
-        val r = weightedRandom(roots) { it.weight }
+        val r = weightedRandom(roots) { (it.weight ?: 1.0) * tagMultiplier(it.domain, tags) }
             ?: throw IllegalStateException("No roots available")
-        val s = weightedRandom(suffixes) { it.weight }
+        val s = weightedRandom(suffixes) { (it.weight ?: 1.0) * tagMultiplier(it.tags, tags) }
             ?: throw IllegalStateException("No suffixes available")
 
         val word = compose(p, r, s)
@@ -50,6 +49,13 @@ class GeneratorService @Inject constructor(
     }
 
     private fun <T> List<T>.randomOrNull(): T? = if (isEmpty()) null else this[Random.nextInt(size)]
+
+    private fun tagMultiplier(raw: String?, selected: Set<String>): Double {
+        if (selected.isEmpty()) return 1.0
+        val tags = raw?.split(',')?.map { it.trim() } ?: emptyList()
+        val matches = tags.count { selected.contains(it) }
+        return if (matches == 0) 1.0 else 1.0 + matches
+    }
 
     private fun <T> weightedRandom(items: List<T>, weightOf: (T) -> Double?): T? {
         if (items.isEmpty()) return null

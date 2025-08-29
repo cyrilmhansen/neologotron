@@ -48,4 +48,6 @@
     <string name="about_links">En savoir plus : Logotron (Jean‑Pierre Petit), Oulipo et expérimentations littéraires.</string>
     <string name="about_version">Version: %1$s</string>
     <string name="msg_select_all_parts">Sélectionnez un préfixe, une racine et un suffixe</string>
+    <string name="label_active_tags">Tags actifs: %1$s</string>
+    <string name="action_clear_tags">Effacer les tags</string>
 </resources>

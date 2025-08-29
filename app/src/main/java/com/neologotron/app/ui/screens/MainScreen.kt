@@ -42,6 +42,7 @@ fun MainScreen(
     val word by vm.word.collectAsState()
     val definition by vm.definition.collectAsState()
     val isFavorite by vm.isFavorite.collectAsState()
+    val activeTags by vm.activeTags.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
 
@@ -87,6 +88,17 @@ fun MainScreen(
                 modifier = Modifier.padding(top = 8.dp),
                 textAlign = TextAlign.Center
             )
+            if (activeTags.isNotEmpty()) {
+                Text(
+                    text = stringResource(id = R.string.label_active_tags, activeTags.joinToString()),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(top = 8.dp),
+                    textAlign = TextAlign.Center
+                )
+                Button(onClick = { vm.clearTags() }, modifier = Modifier.padding(top = 8.dp)) {
+                    Text(text = stringResource(id = R.string.action_clear_tags))
+                }
+            }
             Button(onClick = { vm.generate() }, modifier = Modifier.padding(top = 24.dp)) {
                 Text(text = stringResource(id = R.string.action_generate))
             }
