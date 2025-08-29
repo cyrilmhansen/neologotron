@@ -92,5 +92,5 @@ detekt {
 
 // Ensure Kotlin uses JDK 17 toolchain even if Gradle runs under a newer JDK
 kotlin {
-    jvmToolchain(17)
+   // jvmToolchain(17)
 }
