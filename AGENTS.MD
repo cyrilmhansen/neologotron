@@ -123,7 +123,7 @@ This summarizes the required screens, core interactions, and implementation mile
 ## In Progress / Open Items
 - Bottom bar behavior: Optionally hide on Detail for a focused view (decision pending)
 - Thematic: Wire real tag data + selection state; pass filters to generator
-- Atelier: Implement prefix/racine/suffix pickers (lists + search) with live preview logic
+  
 - History screen: Replace placeholders with recent entries from Room
 - Favorites: Storage model + UI wiring (toggle in Detail/Main)
 
@@ -158,6 +158,15 @@ This summarizes the required screens, core interactions, and implementation mile
   - Extended: If Detail originates from non-bottom destinations (Thématique/Atelier/Debug), the Main tab is highlighted by default for consistency.
  - Snackbars: Added confirmation snackbars on Théâtre and Détail when adding/removing favorites.
 - About: New `AboutScreen` with credits and version; Settings now links to About.
+
+### Workshop (Atelier) – Draft selectors + live preview
+- ViewModel: Added selected prefix/root/suffix state and live preview computation (`previewWord`, `previewDefinition`, `previewDecomposition`).
+- Search: ViewModel exposes `searchPrefixes/Roots/Suffixes` delegating to repository search or list‑by‑tag.
+- UI: Implemented selection dialogs (searchable lists) for Préfixe/Racine/Suffixe and wired to ViewModel selections.
+- Preview: Workshop screen now shows current selection summary and a live preview (word, definition, decomposition) based on selections.
+- Commit: Implemented "Forger le mot" — composes from selections, saves to history with mode="manual", and navigates to Detail.
+- Preview in Detail (Atelier): Opens Detail for the current selection WITHOUT saving to history, by passing transient definition + decomposition via nav args. Detail falls back to these when no history/favorite exists.
+- Guardrails: "Forger le mot" is disabled until all three parts are selected; tapping "Aperçu dans Détail" without full selection shows a snackbar prompt.
 
 ---
 

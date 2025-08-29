@@ -26,6 +26,7 @@
     <string name="action_favorite">Ajouter aux favoris</string>
     <string name="action_unfavorite">Retirer des favoris</string>
     <string name="action_back">Retour</string>
+    <string name="hint_search">Recherche…</string>
 
     <string name="placeholder_word">Néologisme</string>
     <string name="placeholder_definition">Définition poétique ou technique apparaitra ici</string>
@@ -46,4 +47,5 @@
     <string name="about_credit">Idée originale du « Logotron » par Raymond Queneau et Jean Lescure (Oulipo).</string>
     <string name="about_links">En savoir plus: Oulipo, œuvres et expérimentations littéraires.</string>
     <string name="about_version">Version: %1$s</string>
+    <string name="msg_select_all_parts">Sélectionnez un préfixe, une racine et un suffixe</string>
 </resources>

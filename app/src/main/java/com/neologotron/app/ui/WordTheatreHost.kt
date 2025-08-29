@@ -96,7 +96,11 @@ fun WordTheatreHost() {
                 ThematicScreen(onOpenDetail = { w -> navController.navigate(Route.Detail.build(w, Route.Thematic)) })
             }
             composable(Route.Workshop.value) {
-                WorkshopScreen(onOpenDetail = { w -> navController.navigate(Route.Detail.build(w, Route.Workshop)) })
+                WorkshopScreen(
+                    onOpenDetail = { w, def, decomp ->
+                        navController.navigate(Route.Detail.build(w, Route.Workshop, def = def, decomp = decomp))
+                    }
+                )
             }
             composable(Route.Debug.value) { DebugScreen() }
             composable(Route.About.value) { AboutScreen(onBack = { navController.popBackStack() }) }
@@ -104,7 +108,9 @@ fun WordTheatreHost() {
                 route = Route.Detail.value,
                 arguments = listOf(
                     navArgument(Route.Detail.argName) { type = NavType.StringType },
-                    navArgument(Route.Detail.fromArg) { type = NavType.StringType; defaultValue = "" }
+                    navArgument(Route.Detail.fromArg) { type = NavType.StringType; defaultValue = "" },
+                    navArgument(Route.Detail.defArg) { type = NavType.StringType; defaultValue = "" },
+                    navArgument(Route.Detail.decompArg) { type = NavType.StringType; defaultValue = "" }
                 )
             ) {
                 WordDetailScreen(onBack = { navController.popBackStack() })

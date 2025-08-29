@@ -21,6 +21,8 @@ class WordDetailViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val wordArg: String = savedStateHandle.get<String>("word").orEmpty()
+    private val defArg: String = savedStateHandle.get<String>("def").orEmpty()
+    private val decompArg: String = savedStateHandle.get<String>("decomp").orEmpty()
 
     private val _word = MutableStateFlow(wordArg)
     val word: StateFlow<String> = _word
@@ -57,6 +59,11 @@ class WordDetailViewModel @Inject constructor(
                     _definition.value = fav.definition
                     _decomposition.value = fav.decomposition
                     _mode.value = fav.mode
+                } else {
+                    // Fallback to navigation-provided preview, if any
+                    if (defArg.isNotBlank()) _definition.value = defArg
+                    if (decompArg.isNotBlank()) _decomposition.value = decompArg
+                    if (defArg.isNotBlank() || decompArg.isNotBlank()) _mode.value = "preview"
                 }
             }
             _isFavorite.value = favorites.isFavorited(wordArg)

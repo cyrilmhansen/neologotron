@@ -18,10 +18,12 @@ sealed class Route(val value: String) {
     data object Workshop : Route("workshop")
     data object Debug : Route("debug")
     data object About : Route("about")
-    data object Detail : Route("detail/{word}?from={from}") {
+    data object Detail : Route("detail/{word}?from={from}&def={def}&decomp={decomp}") {
         const val argName = "word"
         const val fromArg = "from"
-        fun build(word: String, from: Route? = null): String {
+        const val defArg = "def"
+        const val decompArg = "decomp"
+        fun build(word: String, from: Route? = null, def: String? = null, decomp: String? = null): String {
             val f = when (from) {
                 is Main -> Main.value
                 is History -> History.value
@@ -32,11 +34,12 @@ sealed class Route(val value: String) {
                 is Debug -> Debug.value
                 else -> ""
             }
-            return if (f.isBlank()) {
-                "detail/${Uri.encode(word)}"
-            } else {
-                "detail/${Uri.encode(word)}?from=$f"
-            }
+            val base = "detail/${Uri.encode(word)}"
+            val params = mutableListOf<String>()
+            if (f.isNotBlank()) params += "from=$f"
+            def?.takeIf { it.isNotBlank() }?.let { params += "def=${Uri.encode(it)}" }
+            decomp?.takeIf { it.isNotBlank() }?.let { params += "decomp=${Uri.encode(it)}" }
+            return if (params.isEmpty()) base else base + "?" + params.joinToString("&")
         }
     }
 }
