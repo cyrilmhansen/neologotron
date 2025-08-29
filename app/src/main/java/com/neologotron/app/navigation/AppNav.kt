@@ -17,6 +17,7 @@ sealed class Route(val value: String) {
     data object Thematic : Route("thematic")
     data object Workshop : Route("workshop")
     data object Debug : Route("debug")
+    data object About : Route("about")
     data object Detail : Route("detail/{word}?from={from}") {
         const val argName = "word"
         const val fromArg = "from"

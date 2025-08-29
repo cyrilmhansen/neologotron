@@ -146,6 +146,7 @@ This summarizes the required screens, core interactions, and implementation mile
 - Bottom bar remains visible across all screens (including Detail) to improve accessibility and direct navigation.
 - On Detail, the bottom bar highlights the parent tab (History/Favorites/Main) for UX consistency.
 - Bottom bar tap behavior prefers popping back to an existing destination instance before navigating to avoid stacking duplicates.
+- Add an About screen referencing original Logotron idea (Raymond Queneau, Jean Lescure, Oulipo); accessible from Settings.
 
 ---
 
@@ -156,6 +157,7 @@ This summarizes the required screens, core interactions, and implementation mile
 - Navigation UX: From Detail, tapping a bottom bar tab pops back to that tab's root; on Detail, the tab of origin is highlighted via a `from` nav argument.
   - Extended: If Detail originates from non-bottom destinations (Thématique/Atelier/Debug), the Main tab is highlighted by default for consistency.
  - Snackbars: Added confirmation snackbars on Théâtre and Détail when adding/removing favorites.
+- About: New `AboutScreen` with credits and version; Settings now links to About.
 
 ---
 

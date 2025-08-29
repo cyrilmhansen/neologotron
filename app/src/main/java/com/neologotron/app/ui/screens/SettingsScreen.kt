@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.neologotron.app.R
 
 @Composable
-fun SettingsScreen(onOpenDebug: () -> Unit) {
+fun SettingsScreen(onOpenDebug: () -> Unit, onOpenAbout: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp),
         verticalArrangement = Arrangement.Center,
@@ -25,6 +25,9 @@ fun SettingsScreen(onOpenDebug: () -> Unit) {
         Text(text = stringResource(id = R.string.placeholder_settings))
         Button(onClick = onOpenDebug, modifier = Modifier.padding(top = 16.dp)) {
             Text(text = stringResource(id = R.string.action_open_debug))
+        }
+        Button(onClick = onOpenAbout, modifier = Modifier.padding(top = 8.dp)) {
+            Text(text = stringResource(id = R.string.action_open_about))
         }
     }
 }

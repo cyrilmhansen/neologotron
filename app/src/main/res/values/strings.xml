@@ -16,6 +16,7 @@
     <string name="action_open_thematic">Ouvrir Thématique</string>
     <string name="action_open_workshop">Ouvrir Atelier</string>
     <string name="action_open_debug">Ouvrir Debug</string>
+    <string name="action_open_about">À propos</string>
     <string name="action_open_detail_preview">Aperçu dans Détail</string>
     <string name="action_select_prefix">Préfixe</string>
     <string name="action_select_root">Racine</string>
@@ -40,4 +41,9 @@
     <string name="label_resetting">Réinitialisation…</string>
     <string name="msg_favorite_added">Ajouté aux favoris</string>
     <string name="msg_favorite_removed">Retiré des favoris</string>
+    <string name="title_about">À propos</string>
+    <string name="about_intro">Néologotron est un hommage ludique à la création de mots.</string>
+    <string name="about_credit">Idée originale du « Logotron » par Raymond Queneau et Jean Lescure (Oulipo).</string>
+    <string name="about_links">En savoir plus: Oulipo, œuvres et expérimentations littéraires.</string>
+    <string name="about_version">Version: %1$s</string>
 </resources>
