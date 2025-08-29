@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
-    alias(libs.plugins.kapt)
+    alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.ktlint)
@@ -70,7 +70,7 @@ dependencies {
     implementation(libs.kotlinxCoroutinesAndroid)
 
     implementation(libs.hiltAndroid)
-    kapt(libs.hiltCompiler)
+    ksp(libs.hiltCompiler)
 
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.composeBom))
@@ -80,6 +80,8 @@ dependencies {
     debugImplementation(libs.composeUiTooling)
     debugImplementation(libs.composeUiTestManifest)
 }
+
+// KSP (no configuration needed for Hilt)
 
 ktlint {
     android.set(true)

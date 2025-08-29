@@ -95,3 +95,39 @@ This summarizes the required screens, core interactions, and implementation mile
 - Scaffold Navigation + bottom bar + routes
 - Build Main screen in Compose; wire actions and gestures
 - Implement History/Favorites storage and UIs
+
+---
+
+# Project Progress – Status Log
+
+## Done (Validated)
+- Navigation: Bottom bar + `NavHost` with routes (`main`, `history`, `favorites`, `settings`, `thematic`, `workshop`, `detail/{word}`)
+- Root container rename: `WordTheatreHost` (avoid generic "Scaffold" naming)
+- Primary screens: Main, History, Favorites, Settings (Compose stubs with strings)
+- Additional screens: Thématique (tag chips), Atelier (manual builder), Word Detail (title, definition, etymology)
+- Inter-screen flows: Buttons from Main → Thématique/Atelier; History/Favorites → Detail via tap
+- Detail UX: Top app bar with back navigation; argument handling for selected word
+- Resources: Strings for titles, actions, placeholders; icons via Material Icons Extended
+- Build system: Compose Navigation dependency; Kotlin/AGP aligned
+- KSP migration: Replaced KAPT with KSP for Hilt (faster builds, removed warnings)
+- Build health: `assembleDebug` passes; studio human tests pass; no warnings
+
+## In Progress / Open Items
+- Bottom bar behavior: Optionally hide on Detail for a focused view (decision pending)
+- Thematic: Wire real tag data + selection state; pass filters to generator
+- Atelier: Implement prefix/racine/suffix pickers (lists + search) with live preview logic
+
+## Next Up (Planned)
+- Data layer: Room schema (morphèmes, history, favorites) and seed from `specs_wip/*.csv`
+- Generator engine: Random, Thematic-biased, Manual composition
+- Coherence filters: Élision, liaison, plausibility scoring + tests
+- Definition composer: Technical/Poetic templates from morphème meanings
+- Persistence: Save to History/Favorites; load into lists
+- Sharing & copy: System share sheet + clipboard; favorite toggle
+- Themes & settings: 3 themes; generator defaults; gesture toggles
+- Onboarding: 3-screen first-run tutorial
+
+## Notes & Decisions
+- Image-card generation deferred post‑MVP (per specs)
+- KSP adopted; no kapt-specific options remain
+- Accessibility to be verified after core flows land

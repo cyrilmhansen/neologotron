@@ -20,6 +20,7 @@
     <string name="action_compose_word">Forger le mot</string>
     <string name="action_share">Partager</string>
     <string name="action_favorite">Ajouter aux favoris</string>
+    <string name="action_back">Retour</string>
 
     <string name="placeholder_word">Néologisme</string>
     <string name="placeholder_definition">Définition poétique ou technique apparaitra ici</string>

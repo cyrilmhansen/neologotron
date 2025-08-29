@@ -79,7 +79,7 @@ fun WordTheatreHost() {
                 arguments = listOf(navArgument(Route.Detail.argName) { type = NavType.StringType })
             ) { backStack ->
                 val word = backStack.arguments?.getString(Route.Detail.argName).orEmpty()
-                WordDetailScreen(word = word)
+                WordDetailScreen(word = word, onBack = { navController.popBackStack() })
             }
         }
     }
