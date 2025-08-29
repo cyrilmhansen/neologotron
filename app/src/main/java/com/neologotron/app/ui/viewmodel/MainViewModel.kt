@@ -34,6 +34,8 @@ class MainViewModel @Inject constructor(
     private val _favoriteToggled = MutableSharedFlow<Boolean>(extraBufferCapacity = 1)
     val favoriteToggled: SharedFlow<Boolean> = _favoriteToggled
 
+    val activeTags: StateFlow<Set<String>> = options.selectedTags
+
     fun generate(tags: Set<String> = options.selectedTags.value) {
         viewModelScope.launch {
             runCatching { generator.generateRandom(tags, saveToHistory = true) }
@@ -65,4 +67,6 @@ class MainViewModel @Inject constructor(
             _favoriteToggled.emit(!currentlyFav)
         }
     }
+
+    fun clearTags() { options.clear() }
 }
