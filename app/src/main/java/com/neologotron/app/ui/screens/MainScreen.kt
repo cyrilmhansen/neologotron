@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -22,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,7 +34,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.neologotron.app.R
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.neologotron.app.ui.copyToClipboard
+import com.neologotron.app.ui.shareWord
 import com.neologotron.app.ui.viewmodel.MainViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun MainScreen(
@@ -44,6 +50,7 @@ fun MainScreen(
     val isFavorite by vm.isFavorite.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         vm.favoriteToggled.collect { added ->
@@ -80,13 +87,30 @@ fun MainScreen(
                         Icon(Icons.Outlined.FavoriteBorder, contentDescription = stringResource(id = R.string.action_favorite))
                     }
                 }
+                IconButton(onClick = { shareWord(context, word, definition) }) {
+                    Icon(Icons.Filled.Share, contentDescription = stringResource(id = R.string.action_share))
+                }
+                IconButton(onClick = {
+                    copyToClipboard(context, context.getString(R.string.action_copy_word), word)
+                    scope.launch { snackbarHostState.showSnackbar(context.getString(R.string.msg_copied)) }
+                }) {
+                    Icon(Icons.Filled.ContentCopy, contentDescription = stringResource(id = R.string.action_copy_word))
+                }
             }
-            Text(
-                text = definition,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(top = 8.dp),
-                textAlign = TextAlign.Center
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = definition,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(top = 8.dp),
+                    textAlign = TextAlign.Center
+                )
+                IconButton(onClick = {
+                    copyToClipboard(context, context.getString(R.string.action_copy_definition), definition)
+                    scope.launch { snackbarHostState.showSnackbar(context.getString(R.string.msg_copied)) }
+                }) {
+                    Icon(Icons.Filled.ContentCopy, contentDescription = stringResource(id = R.string.action_copy_definition))
+                }
+            }
             Button(onClick = { vm.generate() }, modifier = Modifier.padding(top = 24.dp)) {
                 Text(text = stringResource(id = R.string.action_generate))
             }

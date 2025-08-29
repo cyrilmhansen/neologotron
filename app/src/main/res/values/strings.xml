@@ -25,6 +25,8 @@
     <string name="action_share">Partager</string>
     <string name="action_favorite">Ajouter aux favoris</string>
     <string name="action_unfavorite">Retirer des favoris</string>
+    <string name="action_copy_word">Copier le mot</string>
+    <string name="action_copy_definition">Copier la définition</string>
     <string name="action_back">Retour</string>
     <string name="hint_search">Recherche…</string>
 
@@ -42,6 +44,7 @@
     <string name="label_resetting">Réinitialisation…</string>
     <string name="msg_favorite_added">Ajouté aux favoris</string>
     <string name="msg_favorite_removed">Retiré des favoris</string>
+    <string name="msg_copied">Copié dans le presse-papiers</string>
     <string name="title_about">À propos</string>
     <string name="about_intro">Néologotron est un hommage ludique à la création de mots.</string>
     <string name="about_credit">Le « Logotron » a été inventé par Jean‑Pierre Petit (France, 1977). Néologotron s’en inspire librement et s’inscrit aussi dans l’esprit des expérimentations littéraires de l’Oulipo.</string>

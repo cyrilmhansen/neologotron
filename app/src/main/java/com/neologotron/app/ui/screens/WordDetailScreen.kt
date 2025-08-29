@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Icon
@@ -24,6 +25,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -32,7 +34,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.neologotron.app.R
+import com.neologotron.app.ui.copyToClipboard
+import com.neologotron.app.ui.shareWord
 import com.neologotron.app.ui.viewmodel.WordDetailViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,6 +48,7 @@ fun WordDetailScreen(onBack: () -> Unit, vm: WordDetailViewModel = hiltViewModel
     val isFavorite by vm.isFavorite.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         vm.favoriteToggled.collect { added ->
@@ -80,17 +86,36 @@ fun WordDetailScreen(onBack: () -> Unit, vm: WordDetailViewModel = hiltViewModel
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start
         ) {
-            Text(text = word, style = MaterialTheme.typography.headlineLarge)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(text = word, style = MaterialTheme.typography.headlineLarge)
+                IconButton(onClick = {
+                    copyToClipboard(context, context.getString(R.string.action_copy_word), word)
+                    scope.launch { snackbarHostState.showSnackbar(context.getString(R.string.msg_copied)) }
+                }) {
+                    Icon(Icons.Filled.ContentCopy, contentDescription = stringResource(id = R.string.action_copy_word))
+                }
+            }
             Spacer(modifier = Modifier.height(8.dp))
-            Text(text = stringResource(id = R.string.label_definition), style = MaterialTheme.typography.titleMedium)
-            Text(text = if (definition.isNotBlank()) definition else stringResource(id = R.string.placeholder_definition), textAlign = TextAlign.Start)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(text = stringResource(id = R.string.label_definition), style = MaterialTheme.typography.titleMedium)
+                IconButton(onClick = {
+                    copyToClipboard(context, context.getString(R.string.action_copy_definition), definition)
+                    scope.launch { snackbarHostState.showSnackbar(context.getString(R.string.msg_copied)) }
+                }) {
+                    Icon(Icons.Filled.ContentCopy, contentDescription = stringResource(id = R.string.action_copy_definition))
+                }
+            }
+            Text(
+                text = if (definition.isNotBlank()) definition else stringResource(id = R.string.placeholder_definition),
+                textAlign = TextAlign.Start
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
             Text(text = stringResource(id = R.string.label_etymology), style = MaterialTheme.typography.titleMedium)
             Text(text = if (decomposition.isNotBlank()) decomposition else stringResource(id = R.string.placeholder_decomposition))
 
             Spacer(modifier = Modifier.height(24.dp))
-            Button(onClick = { /* TODO: share */ }) { Text(text = stringResource(id = R.string.action_share)) }
+            Button(onClick = { shareWord(context, word, definition) }) { Text(text = stringResource(id = R.string.action_share)) }
             Spacer(modifier = Modifier.height(8.dp))
             Button(onClick = { vm.toggleFavorite() }) { Text(text = stringResource(id = if (isFavorite) R.string.action_unfavorite else R.string.action_favorite)) }
         }

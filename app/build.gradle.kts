@@ -80,6 +80,7 @@ dependencies {
     androidTestImplementation(platform(libs.composeBom))
     androidTestImplementation(libs.androidxJunit)
     androidTestImplementation(libs.espressoCore)
+    androidTestImplementation(libs.espressoIntents)
     androidTestImplementation(libs.composeUiTestJunit4)
     debugImplementation(libs.composeUiTooling)
     debugImplementation(libs.composeUiTestManifest)
