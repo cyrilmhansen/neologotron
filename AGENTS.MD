@@ -1,5 +1,9 @@
-Update this file to keep track of project progress, which tasks are done, which ones are in progress, which ones remains to do.
+                                                                                Update this file to keep track of project progress, which tasks are done, which ones are in progress, which ones remains to do.
 Note everything here that you may need to remember sooner or later if you need to update the project.
+
+Please don't use name like Scaffold. Use name inspired by the screen usage.
+
+We are using latest Android Studio and emulator for build and app human testing.
 
 See SPECS.MD
 

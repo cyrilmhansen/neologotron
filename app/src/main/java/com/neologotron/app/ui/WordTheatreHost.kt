@@ -1,0 +1,86 @@
+package com.neologotron.app.ui
+
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.res.stringResource
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import androidx.navigation.NavType
+import com.neologotron.app.navigation.NavItems
+import com.neologotron.app.navigation.Route
+import com.neologotron.app.ui.screens.FavoritesScreen
+import com.neologotron.app.ui.screens.HistoryScreen
+import com.neologotron.app.ui.screens.MainScreen
+import com.neologotron.app.ui.screens.SettingsScreen
+import com.neologotron.app.ui.screens.ThematicScreen
+import com.neologotron.app.ui.screens.WorkshopScreen
+import com.neologotron.app.ui.screens.WordDetailScreen
+
+@Composable
+fun WordTheatreHost() {
+    val navController = rememberNavController()
+    Scaffold(
+        bottomBar = {
+            val backStack by navController.currentBackStackEntryAsState()
+            val currentRoute = backStack?.destination?.route
+            NavigationBar {
+                NavItems.bottomBar.forEach { item ->
+                    val route = item.route.value
+                    NavigationBarItem(
+                        selected = currentRoute == route,
+                        onClick = {
+                            navController.navigate(route) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        },
+                        icon = { Icon(item.icon, contentDescription = stringResource(id = item.titleRes)) },
+                        label = { Text(text = stringResource(id = item.titleRes)) }
+                    )
+                }
+            }
+        }
+    ) { innerPadding ->
+        NavHost(
+            navController = navController,
+            startDestination = Route.Main.value,
+            modifier = androidx.compose.ui.Modifier.padding(innerPadding)
+        ) {
+            composable(Route.Main.value) {
+                MainScreen(
+                    onOpenThematic = { navController.navigate(Route.Thematic.value) },
+                    onOpenWorkshop = { navController.navigate(Route.Workshop.value) }
+                )
+            }
+            composable(Route.History.value) {
+                HistoryScreen(onOpenDetail = { w -> navController.navigate(Route.Detail.build(w)) })
+            }
+            composable(Route.Favorites.value) {
+                FavoritesScreen(onOpenDetail = { w -> navController.navigate(Route.Detail.build(w)) })
+            }
+            composable(Route.Settings.value) { SettingsScreen() }
+            composable(Route.Thematic.value) { ThematicScreen() }
+            composable(Route.Workshop.value) { WorkshopScreen() }
+            composable(
+                route = Route.Detail.value,
+                arguments = listOf(navArgument(Route.Detail.argName) { type = NavType.StringType })
+            ) { backStack ->
+                val word = backStack.arguments?.getString(Route.Detail.argName).orEmpty()
+                WordDetailScreen(word = word)
+            }
+        }
+    }
+}

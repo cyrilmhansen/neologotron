@@ -1,5 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Neologotron</string>
-</resources>
+    <string name="title_main">Théâtre</string>
+    <string name="title_history">Historique</string>
+    <string name="title_favorites">Favoris</string>
+    <string name="title_settings">Paramètres</string>
+    <string name="title_thematic">Thématique</string>
+    <string name="title_workshop">Atelier</string>
+    <string name="title_detail">Détail du mot</string>
 
+    <string name="action_generate">Générer</string>
+    <string name="action_apply">Appliquer</string>
+    <string name="action_reset">Réinitialiser</string>
+    <string name="action_open_thematic">Ouvrir Thématique</string>
+    <string name="action_open_workshop">Ouvrir Atelier</string>
+    <string name="action_select_prefix">Préfixe</string>
+    <string name="action_select_root">Racine</string>
+    <string name="action_select_suffix">Suffixe</string>
+    <string name="action_compose_word">Forger le mot</string>
+    <string name="action_share">Partager</string>
+    <string name="action_favorite">Ajouter aux favoris</string>
+
+    <string name="placeholder_word">Néologisme</string>
+    <string name="placeholder_definition">Définition poétique ou technique apparaitra ici</string>
+    <string name="placeholder_history">Votre historique s’affichera ici</string>
+    <string name="placeholder_favorites">Vos favoris s’afficheront ici</string>
+    <string name="placeholder_settings">Options de thème et préférences</string>
+    <string name="label_preview">Aperçu</string>
+    <string name="label_definition">Définition</string>
+    <string name="label_etymology">Étymologie</string>
+    <string name="placeholder_decomposition">[préfixe] + [racine] + [suffixe]</string>
+</resources>

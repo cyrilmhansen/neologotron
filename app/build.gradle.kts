@@ -64,6 +64,8 @@ dependencies {
     implementation(libs.composeUiGraphics)
     implementation(libs.composeUiToolingPreview)
     implementation(libs.composeMaterial3)
+    implementation(libs.navigationCompose)
+    implementation(libs.materialIconsExtended)
 
     implementation(libs.kotlinxCoroutinesAndroid)
 

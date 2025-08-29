@@ -8,6 +8,8 @@ plugins {
     alias(libs.plugins.detekt)
 }
 
+tasks.withType<JavaCompile>().configureEach { options.compilerArgs.add("-Xlint:deprecation") }
+
 subprojects {
     // ktlint applied at root; detekt configured via detekt.yml
 }
