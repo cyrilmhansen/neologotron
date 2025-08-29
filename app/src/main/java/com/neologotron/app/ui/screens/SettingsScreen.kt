@@ -13,9 +13,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.neologotron.app.R
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.neologotron.app.ui.viewmodel.SettingsViewModel
 
 @Composable
-fun SettingsScreen(onOpenDebug: () -> Unit, onOpenAbout: () -> Unit) {
+fun SettingsScreen(onOpenDebug: () -> Unit, onOpenAbout: () -> Unit, vm: SettingsViewModel = hiltViewModel()) {
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp),
         verticalArrangement = Arrangement.Center,
@@ -28,6 +30,9 @@ fun SettingsScreen(onOpenDebug: () -> Unit, onOpenAbout: () -> Unit) {
         }
         Button(onClick = onOpenAbout, modifier = Modifier.padding(top = 8.dp)) {
             Text(text = stringResource(id = R.string.action_open_about))
+        }
+        Button(onClick = { vm.resetTags() }, modifier = Modifier.padding(top = 8.dp)) {
+            Text(text = stringResource(id = R.string.action_reset_tags))
         }
     }
 }

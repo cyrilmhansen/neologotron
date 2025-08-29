@@ -50,7 +50,6 @@ fun ThematicScreen(onOpenDetail: (String) -> Unit, vm: ThematicViewModel = hiltV
         }
         Spacer(modifier = Modifier.height(24.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Button(onClick = { vm.apply() }) { Text(text = stringResource(id = R.string.action_apply)) }
             Button(onClick = { vm.reset() }) { Text(text = stringResource(id = R.string.action_reset)) }
             Button(onClick = { vm.generateAndOpen(onOpenDetail) }) { Text(text = stringResource(id = R.string.action_open_detail_preview)) }
         }

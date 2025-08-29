@@ -21,16 +21,15 @@ class GeneratorService @Inject constructor(
     private val history: HistoryRepository
 ) {
     suspend fun generateRandom(tags: Set<String> = emptySet(), saveToHistory: Boolean = true): WordResult {
-        val chosenTag = tags.shuffled().firstOrNull().orEmpty()
-        val prefixes = if (chosenTag.isNotBlank()) lexemes.listPrefixesByTag(chosenTag) else lexemes.listPrefixesByTag("")
-        val roots = if (chosenTag.isNotBlank()) lexemes.listRootsByTag(chosenTag) else lexemes.listRootsByTag("")
-        val suffixes = if (chosenTag.isNotBlank()) lexemes.listSuffixesByTag(chosenTag) else lexemes.listSuffixesByTag("")
+        val prefixes = lexemes.listPrefixesByTag("")
+        val roots = lexemes.listRootsByTag("")
+        val suffixes = lexemes.listSuffixesByTag("")
 
-        val p = weightedRandom(prefixes) { it.weight }
+        val p = weightedRandom(prefixes) { weightWithTags(it.weight, it.tags, tags) }
             ?: throw IllegalStateException("No prefixes available")
-        val r = weightedRandom(roots) { it.weight }
+        val r = weightedRandom(roots) { weightWithTags(it.weight, it.domain, tags) }
             ?: throw IllegalStateException("No roots available")
-        val s = weightedRandom(suffixes) { it.weight }
+        val s = weightedRandom(suffixes) { weightWithTags(it.weight, it.tags, tags) }
             ?: throw IllegalStateException("No suffixes available")
 
         val word = compose(p, r, s)
@@ -49,8 +48,6 @@ class GeneratorService @Inject constructor(
         return GeneratorRules.composeDefinition(r.gloss, s.posOut, s.defTemplate)
     }
 
-    private fun <T> List<T>.randomOrNull(): T? = if (isEmpty()) null else this[Random.nextInt(size)]
-
     private fun <T> weightedRandom(items: List<T>, weightOf: (T) -> Double?): T? {
         if (items.isEmpty()) return null
         var total = 0.0
@@ -64,5 +61,13 @@ class GeneratorService @Inject constructor(
             r -= w
         }
         return items.last()
+    }
+
+    private fun weightWithTags(base: Double?, tagString: String?, selected: Set<String>): Double {
+        val baseWeight = base ?: 1.0
+        if (selected.isEmpty()) return baseWeight
+        val itemTags = tagString?.split(',')?.map { it.trim() } ?: emptyList()
+        val matches = itemTags.count { it in selected }
+        return baseWeight * (1 + matches)
     }
 }
