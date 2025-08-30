@@ -10,6 +10,7 @@ import com.neologotron.app.data.repo.HistoryRepository
 import com.neologotron.app.domain.generator.GeneratorRules
 import com.neologotron.app.domain.generator.GeneratorService
 import com.neologotron.app.data.repo.SettingsRepository
+import com.neologotron.app.ui.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,6 +25,8 @@ class WorkshopViewModel @Inject constructor(
     private val history: HistoryRepository,
     private val settings: SettingsRepository
 ) : ViewModel() {
+    private val _uiState = MutableStateFlow<UiState<Unit>>(UiState.Loading)
+    val uiState: StateFlow<UiState<Unit>> = _uiState
     private val _prefixes = MutableStateFlow<List<PrefixEntity>>(emptyList())
     val prefixes: StateFlow<List<PrefixEntity>> = _prefixes
 
@@ -54,30 +57,50 @@ class WorkshopViewModel @Inject constructor(
     private val _filtersEnabled = MutableStateFlow(true)
     val filtersEnabled: StateFlow<Boolean> = _filtersEnabled.asStateFlow()
 
-    init {
+    init { refreshInitial() }
+
+    fun refreshInitial() {
         viewModelScope.launch {
-            _prefixes.value = repo.listPrefixesByTag("").take(10)
-            _roots.value = repo.listRootsByTag("").take(10)
-            _suffixes.value = repo.listSuffixesByTag("").take(10)
-            settings.coherenceFilters.collect { enabled -> _filtersEnabled.value = enabled }
+            _uiState.value = UiState.Loading
+            runCatching {
+                val p = repo.listPrefixesByTag("").take(10)
+                val r = repo.listRootsByTag("").take(10)
+                val s = repo.listSuffixesByTag("").take(10)
+                Triple(p, r, s)
+            }.onSuccess { (p, r, s) ->
+                _prefixes.value = p
+                _roots.value = r
+                _suffixes.value = s
+                _uiState.value = UiState.Data(Unit)
+            }.onFailure { e ->
+                _uiState.value = UiState.Error(e.message)
+            }
+            // Keep filters synced regardless
+            viewModelScope.launch { settings.coherenceFilters.collect { enabled -> _filtersEnabled.value = enabled } }
         }
     }
 
     fun searchPrefixes(query: String) {
         viewModelScope.launch {
-            _prefixes.value = if (query.isBlank()) repo.listPrefixesByTag("") else repo.searchPrefixes(query)
+            runCatching { if (query.isBlank()) repo.listPrefixesByTag("") else repo.searchPrefixes(query) }
+                .onSuccess { _prefixes.value = it }
+                .onFailure { _uiState.value = UiState.Error(it.message) }
         }
     }
 
     fun searchRoots(query: String) {
         viewModelScope.launch {
-            _roots.value = if (query.isBlank()) repo.listRootsByTag("") else repo.searchRoots(query)
+            runCatching { if (query.isBlank()) repo.listRootsByTag("") else repo.searchRoots(query) }
+                .onSuccess { _roots.value = it }
+                .onFailure { _uiState.value = UiState.Error(it.message) }
         }
     }
 
     fun searchSuffixes(query: String) {
         viewModelScope.launch {
-            _suffixes.value = if (query.isBlank()) repo.listSuffixesByTag("") else repo.searchSuffixes(query)
+            runCatching { if (query.isBlank()) repo.listSuffixesByTag("") else repo.searchSuffixes(query) }
+                .onSuccess { _suffixes.value = it }
+                .onFailure { _uiState.value = UiState.Error(it.message) }
         }
     }
 
@@ -151,7 +174,22 @@ class WorkshopViewModel @Inject constructor(
         _previewDefinition.value = def
         _previewDecomposition.value = decomp
         viewModelScope.launch {
-            runCatching { history.add(word, def, decomp, mode = "manual") }
+            runCatching {
+                history.add(
+                    word = word,
+                    definition = def,
+                    decomposition = decomp,
+                    mode = "manual",
+                    prefixForm = p.form,
+                    rootForm = r.form,
+                    suffixForm = s.form,
+                    rootGloss = r.gloss,
+                    rootConnectorPref = r.connectorPref,
+                    suffixPosOut = s.posOut,
+                    suffixDefTemplate = s.defTemplate,
+                    suffixTags = s.tags,
+                )
+            }
                 .onSuccess {
                     onOpenDetail(
                         word,

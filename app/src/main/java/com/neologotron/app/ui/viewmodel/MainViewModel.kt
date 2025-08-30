@@ -45,6 +45,8 @@ class MainViewModel @Inject constructor(
 
     fun markShakeHintShown() { viewModelScope.launch { settings.setShakeHintShown(true) } }
 
+    private var lastResult: com.neologotron.app.domain.generator.WordResult? = null
+
     init {
         // Keep in-memory tag options in sync with persisted selection
         viewModelScope.launch {
@@ -56,8 +58,10 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             val mode = definitionMode.first()
             val filters = settings.coherenceFilters.first()
-            runCatching { generator.generateRandom(tags, saveToHistory = true, mode = mode, useFilters = filters) }
+            val intensity = settings.weightingIntensity.first().toDouble()
+            runCatching { generator.generateRandom(tags, saveToHistory = true, mode = mode, useFilters = filters, weightingIntensity = intensity) }
                 .onSuccess {
+                    lastResult = it
                     _word.value = it.word
                     _definition.value = it.definition
                     _decomposition.value = it.decomposition
@@ -78,11 +82,20 @@ class MainViewModel @Inject constructor(
             if (currentlyFav) {
                 favorites.remove(w)
             } else {
+                val meta = lastResult
                 favorites.add(
                     word = w,
                     definition = _definition.value,
                     decomposition = _decomposition.value,
-                    mode = "random"
+                    mode = "random",
+                    prefixForm = meta?.prefixForm,
+                    rootForm = meta?.rootForm,
+                    suffixForm = meta?.suffixForm,
+                    rootGloss = meta?.rootGloss,
+                    rootConnectorPref = meta?.rootConnectorPref,
+                    suffixPosOut = meta?.suffixPosOut,
+                    suffixDefTemplate = meta?.suffixDefTemplate,
+                    suffixTags = meta?.suffixTags,
                 )
             }
             _isFavorite.value = !currentlyFav

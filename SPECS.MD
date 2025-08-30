@@ -193,3 +193,24 @@ Le Néologotron se veut plus qu'un simple générateur aléatoire. C'est un outi
     Performance : La génération doit être quasi-instantanée pour procurer un sentiment de fluidité et encourager l'exploration rapide. Le choix d'une base de données locale est excellent pour cela. Prévoir indexation des tags et profilage du seuil/débounce du shake.
 
     Attribution : S'assurer que les références publiques mentionnent correctement Jean‑Pierre Petit pour le « Logotron », tout en citant l'inspiration Oulipo séparément.
+
+---
+
+Mise à Jour Spécification — 30 août 2025
+
+- Données & Persistance
+  - Historique/Favoris stockent désormais en option des métadonnées morphologiques: `prefixForm`, `rootForm`, `suffixForm`, `rootGloss`, `rootConnectorPref`, `suffixPosOut`, `suffixDefTemplate`, `suffixTags`.
+  - Détail recompute mot/définition à la volée depuis ces métadonnées lorsque mode de définition et filtres changent.
+
+- Moteur de Définition
+  - Normalisation POS étendue: prise en charge de `adj`, `adv`, `verbe/verb/v`, `nom`, `nom_agent`, `nom_action`, `nom_resultat` et composites (ex: `adj/nom`) avec priorisation agent > action > résultat > verbe > adjectif > nom > adverbe.
+  - Templates par mode (`tech:` / `poetic:`) avec défauts sensés si absents; mapping `{ACTION}` contextuel (ex: verbe → « agir sur », nom_action → « action de »).
+  - Tests unitaires ajoutés pour nouveaux cas (adv, nom_action, nom_resultat, composites).
+
+- États de Chargement / Erreurs / A11y
+  - Introduction de `UiState` (Loading/Data/Error) pour Historique, Favoris, Thématique (tags) et Atelier (chargement initial).
+  - Squelettes de chargement pour listes et chips; snackbar « Réessayer » sur erreur; boutons désactivés pendant le chargement lorsque nécessaire.
+
+- Performance
+  - Caching mémoire dans `LexemeRepository` pour jeux complets et par tag (préfixes/racines/suffixes), invalidé lors d’un reseed.
+  - Journalisation des latences de génération (DEBUG uniquement) avec alerte si total > 150ms; mesure séparée « compose » vs « total ».

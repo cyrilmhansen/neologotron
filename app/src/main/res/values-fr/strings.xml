@@ -67,10 +67,18 @@
     <string name="option_shake_generate">Secouer pour générer</string>
     <string name="option_haptic_on_shake">Retour haptique lors du secouement</string>
     <string name="msg_shake_hint">Secouement détecté — vous pouvez désactiver le retour haptique dans Paramètres.</string>
+    <string name="label_thematic_bias">Biais thématique</string>
+    <string name="bias_low">Faible</string>
+    <string name="bias_normal">Normal</string>
+    <string name="bias_high">Fort</string>
+    <string name="bias_desc">Règle l’intensité du biais vers les tags sélectionnés : Faible = léger, Normal = équilibré, Fort = préférence marquée (surtout pour les intersections).</string>
     <string name="action_undo">Annuler</string>
     <string name="msg_history_deleted">Élément supprimé</string>
     <string name="msg_favorite_deleted">Favori supprimé</string>
     <string name="action_delete">Supprimer</string>
+    <string name="label_loading">Chargement…</string>
+    <string name="action_retry">Réessayer</string>
+    <string name="error_generic">Erreur de chargement</string>
 
     <!-- Onboarding (French) -->
     <string name="onboarding_title">Bienvenue dans Néologotron</string>

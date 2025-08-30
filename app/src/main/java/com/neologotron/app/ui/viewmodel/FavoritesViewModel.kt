@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.neologotron.app.data.entity.FavoriteEntity
 import com.neologotron.app.data.repo.FavoriteRepository
+import com.neologotron.app.ui.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,26 +15,31 @@ import javax.inject.Inject
 class FavoritesViewModel @Inject constructor(
     private val repo: FavoriteRepository
 ) : ViewModel() {
-    private val _items = MutableStateFlow<List<FavoriteEntity>>(emptyList())
-    val items: StateFlow<List<FavoriteEntity>> = _items
+    private val _state = MutableStateFlow<UiState<List<FavoriteEntity>>>(UiState.Loading)
+    val state: StateFlow<UiState<List<FavoriteEntity>>> = _state
 
     init { refresh() }
 
     fun refresh() {
-        viewModelScope.launch { _items.value = repo.list() }
+        viewModelScope.launch {
+            _state.value = UiState.Loading
+            runCatching { repo.list() }
+                .onSuccess { _state.value = UiState.Data(it) }
+                .onFailure { _state.value = UiState.Error(it.message) }
+        }
     }
 
     fun remove(id: Long) {
         viewModelScope.launch {
             runCatching { repo.removeById(id) }
-            _items.value = repo.list()
+            _state.value = UiState.Data(repo.list())
         }
     }
 
     fun undoInsert(entity: FavoriteEntity) {
         viewModelScope.launch {
             runCatching { repo.insert(entity.copy(id = 0)) }
-            _items.value = repo.list()
+            _state.value = UiState.Data(repo.list())
         }
     }
 }

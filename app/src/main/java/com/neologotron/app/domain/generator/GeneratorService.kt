@@ -1,5 +1,4 @@
 package com.neologotron.app.domain.generator
-
 import com.neologotron.app.data.entity.PrefixEntity
 import com.neologotron.app.data.entity.RootEntity
 import com.neologotron.app.data.entity.SuffixEntity
@@ -34,7 +33,9 @@ class GeneratorService @Inject constructor(
         saveToHistory: Boolean = true,
         mode: GeneratorRules.DefinitionMode = GeneratorRules.DefinitionMode.TECHNICAL,
         useFilters: Boolean = true,
+        weightingIntensity: Double = 1.0,
     ): WordResult {
+        val t0 = System.nanoTime()
         val selected = tags.map { it.trim().lowercase() }.filter { it.isNotBlank() }.toSet()
         // Fetch complete sets to allow multi-tag weighting; repository orders by base weight already
         val prefixes = lexemes.listPrefixesByTag("")
@@ -42,16 +43,16 @@ class GeneratorService @Inject constructor(
         val suffixes = lexemes.listSuffixesByTag("")
 
         val p = weightedRandom(prefixes) { pe ->
-            effectiveWeight(base = pe.weight, rawTags = pe.tags, selected = selected)
+            effectiveWeight(base = pe.weight, rawTags = pe.tags, selected = selected, intensity = weightingIntensity)
         } ?: throw IllegalStateException("No prefixes available")
 
         val r = weightedRandom(roots) { re ->
             // For roots, we treat `domain` as tag-like field
-            effectiveWeight(base = re.weight, rawTags = re.domain, selected = selected)
+            effectiveWeight(base = re.weight, rawTags = re.domain, selected = selected, intensity = weightingIntensity)
         } ?: throw IllegalStateException("No roots available")
 
         val s = weightedRandom(suffixes) { se ->
-            effectiveWeight(base = se.weight, rawTags = se.tags, selected = selected)
+            effectiveWeight(base = se.weight, rawTags = se.tags, selected = selected, intensity = weightingIntensity)
         } ?: throw IllegalStateException("No suffixes available")
 
         val composed = compose(p, r, s, useFilters)
@@ -59,7 +60,28 @@ class GeneratorService @Inject constructor(
         val definition = composeDefinition(r, s, mode)
         val decomposition = "${p.form} + ${r.form} + ${s.form}"
 
-        if (saveToHistory) history.add(word, definition, decomposition, mode = "random")
+        val tCompose = System.nanoTime()
+        if (saveToHistory) history.add(
+            word = word,
+            definition = definition,
+            decomposition = decomposition,
+            mode = "random",
+            prefixForm = p.form,
+            rootForm = r.form,
+            suffixForm = s.form,
+            rootGloss = r.gloss,
+            rootConnectorPref = r.connectorPref,
+            suffixPosOut = s.posOut,
+            suffixDefTemplate = s.defTemplate,
+            suffixTags = s.tags,
+        )
+        val t1 = System.nanoTime()
+        val composeMs = (tCompose - t0) / 1_000_000.0
+        val totalMs = (t1 - t0) / 1_000_000.0
+        if (DEBUG_LOG) {
+            val msg = String.format("compose=%.1fms total=%.1fms tags=%d", composeMs, totalMs, selected.size)
+            if (totalMs > 150.0) println("[WARN] $TAG: Generation latency >150ms: $msg") else println("[DEBUG] $TAG: Generation latency: $msg")
+        }
         return WordResult(
             word = word,
             definition = definition,
@@ -76,7 +98,12 @@ class GeneratorService @Inject constructor(
         )
     }
 
-    private fun effectiveWeight(base: Double?, rawTags: String?, selected: Set<String>): Double {
+    companion object {
+        private const val TAG = "GeneratorService"
+        private const val DEBUG_LOG = false
+    }
+
+    private fun effectiveWeight(base: Double?, rawTags: String?, selected: Set<String>, intensity: Double): Double {
         val baseW = (base ?: 1.0).coerceAtLeast(0.0)
         if (selected.isEmpty()) return baseW
         val itemTags = rawTags.orEmpty()
@@ -86,8 +113,8 @@ class GeneratorService @Inject constructor(
             .toSet()
         val matchCount = itemTags.intersect(selected).size
         // If at least one item in the collection matches, unmatched should be heavily deprioritized.
-        // We return 0.0 for no matches and scale by (1 + matchCount) otherwise.
-        return if (matchCount == 0) 0.0 else baseW * (1.0 + matchCount)
+        // We return 0.0 for no matches and scale by (1 + matchCount * intensity) otherwise.
+        return if (matchCount == 0) 0.0 else baseW * (1.0 + matchCount * intensity.coerceAtLeast(0.0))
     }
 
     private fun compose(

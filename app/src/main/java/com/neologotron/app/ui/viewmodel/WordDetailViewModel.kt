@@ -24,6 +24,17 @@ class WordDetailViewModel @Inject constructor(
     private val settings: SettingsRepository,
 ) : ViewModel() {
 
+    private data class MorphMeta(
+        val pform: String?,
+        val rform: String,
+        val sform: String,
+        val rgloss: String?,
+        val rconn: String?,
+        val spos: String?,
+        val sdef: String?,
+        val stags: String?,
+    )
+
     private val wordArg: String = savedStateHandle.get<String>("word").orEmpty()
     private val defArg: String = savedStateHandle.get<String>("def").orEmpty()
     private val decompArg: String = savedStateHandle.get<String>("decomp").orEmpty()
@@ -54,32 +65,47 @@ class WordDetailViewModel @Inject constructor(
     private val _favoriteToggled = MutableSharedFlow<Boolean>(extraBufferCapacity = 1)
     val favoriteToggled: SharedFlow<Boolean> = _favoriteToggled
 
+    private val _morphMeta = MutableStateFlow<MorphMeta?>(
+        if (rformArg.isNotBlank() && sformArg.isNotBlank())
+            MorphMeta(
+                pform = pformArg.ifBlank { null },
+                rform = rformArg,
+                sform = sformArg,
+                rgloss = rglossArg.ifBlank { null },
+                rconn = rconnArg.ifBlank { null },
+                spos = sposArg.ifBlank { null },
+                sdef = sdefArg.ifBlank { null },
+                stags = stagsArg.ifBlank { null },
+            )
+        else null
+    )
+
     init {
         refresh()
         // Recompute on-the-fly when settings change and morph metadata is available
         viewModelScope.launch {
-            combine(settings.definitionMode, settings.coherenceFilters) { mode, filters ->
-                Pair(mode, filters)
-            }.collect { (mode, filters) ->
-                if (rformArg.isNotBlank() && sformArg.isNotBlank()) {
+            combine(settings.definitionMode, settings.coherenceFilters, _morphMeta) { mode, filters, meta ->
+                Triple(mode, filters, meta)
+            }.collect { (mode, filters, meta) ->
+                if (meta != null) {
                     val wordBuild = GeneratorRules.composeWord(
-                        prefixForm = pformArg,
-                        rootForm = rformArg,
-                        suffixForm = sformArg,
-                        connectorPref = rconnArg.ifBlank { null },
+                        prefixForm = meta.pform ?: "",
+                        rootForm = meta.rform,
+                        suffixForm = meta.sform,
+                        connectorPref = meta.rconn,
                         useFilters = filters,
                     )
                     val newWord = wordBuild.word
                     val newDef = GeneratorRules.composeDefinition(
-                        rootGloss = rglossArg.ifBlank { rformArg },
-                        suffixPosOut = sposArg.ifBlank { null },
-                        defTemplate = sdefArg.ifBlank { null },
-                        tags = stagsArg.ifBlank { null },
+                        rootGloss = meta.rgloss ?: meta.rform,
+                        suffixPosOut = meta.spos,
+                        defTemplate = meta.sdef,
+                        tags = meta.stags,
                         mode = mode,
                     )
                     _word.value = newWord
                     _definition.value = newDef
-                    _decomposition.value = listOf(pformArg, rformArg, sformArg).filter { it.isNotBlank() }.joinToString(" + ")
+                    _decomposition.value = listOfNotNull(meta.pform, meta.rform, meta.sform).joinToString(" + ")
                     _mode.value = when (mode) {
                         GeneratorRules.DefinitionMode.TECHNICAL -> "technical"
                         GeneratorRules.DefinitionMode.POETIC -> "poetic"
@@ -93,15 +119,42 @@ class WordDetailViewModel @Inject constructor(
         viewModelScope.launch {
             val latest = history.latestByWord(wordArg)
             if (latest != null) {
-                _definition.value = latest.definition
-                _decomposition.value = latest.decomposition
-                _mode.value = latest.mode
+                // If stored metadata exists, seed reactive recompute; else use stored strings
+                if (!latest.rootForm.isNullOrBlank() && !latest.suffixForm.isNullOrBlank()) {
+                    _morphMeta.value = MorphMeta(
+                        pform = latest.prefixForm,
+                        rform = latest.rootForm!!,
+                        sform = latest.suffixForm!!,
+                        rgloss = latest.rootGloss,
+                        rconn = latest.rootConnectorPref,
+                        spos = latest.suffixPosOut,
+                        sdef = latest.suffixDefTemplate,
+                        stags = latest.suffixTags,
+                    )
+                } else {
+                    _definition.value = latest.definition
+                    _decomposition.value = latest.decomposition
+                    _mode.value = latest.mode
+                }
             } else {
                 val fav = favorites.get(wordArg)
                 if (fav != null) {
-                    _definition.value = fav.definition
-                    _decomposition.value = fav.decomposition
-                    _mode.value = fav.mode
+                    if (!fav.rootForm.isNullOrBlank() && !fav.suffixForm.isNullOrBlank()) {
+                        _morphMeta.value = MorphMeta(
+                            pform = fav.prefixForm,
+                            rform = fav.rootForm!!,
+                            sform = fav.suffixForm!!,
+                            rgloss = fav.rootGloss,
+                            rconn = fav.rootConnectorPref,
+                            spos = fav.suffixPosOut,
+                            sdef = fav.suffixDefTemplate,
+                            stags = fav.suffixTags,
+                        )
+                    } else {
+                        _definition.value = fav.definition
+                        _decomposition.value = fav.decomposition
+                        _mode.value = fav.mode
+                    }
                 } else {
                     // Fallback to navigation-provided preview, if any
                     if (defArg.isNotBlank()) _definition.value = defArg
@@ -123,7 +176,15 @@ class WordDetailViewModel @Inject constructor(
                     word = wordArg,
                     definition = _definition.value.ifBlank { "" },
                     decomposition = _decomposition.value.ifBlank { "" },
-                    mode = _mode.value
+                    mode = _mode.value,
+                    prefixForm = pformArg.ifBlank { null },
+                    rootForm = rformArg.ifBlank { null },
+                    suffixForm = sformArg.ifBlank { null },
+                    rootGloss = rglossArg.ifBlank { null },
+                    rootConnectorPref = rconnArg.ifBlank { null },
+                    suffixPosOut = sposArg.ifBlank { null },
+                    suffixDefTemplate = sdefArg.ifBlank { null },
+                    suffixTags = stagsArg.ifBlank { null },
                 )
             }
             _isFavorite.value = !currentlyFav

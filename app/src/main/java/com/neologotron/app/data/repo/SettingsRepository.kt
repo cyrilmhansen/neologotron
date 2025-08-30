@@ -2,6 +2,7 @@ package com.neologotron.app.data.repo
 
 import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -27,6 +28,7 @@ class SettingsRepository @Inject constructor(
     private val hapticOnShakeKey = booleanPreferencesKey("haptic_on_shake")
     private val shakeHintShownKey = booleanPreferencesKey("shake_hint_shown")
     private val selectedTagsKey = stringPreferencesKey("selected_thematic_tags")
+    private val weightingIntensityKey = floatPreferencesKey("weighting_intensity")
 
     val theme: Flow<ThemeStyle> = context.settingsStore.data.map { p ->
         when (p[themeKey]) {
@@ -52,6 +54,7 @@ class SettingsRepository @Inject constructor(
     val selectedTags: Flow<Set<String>> = context.settingsStore.data.map { p ->
         p[selectedTagsKey]?.split(',')?.map { it.trim() }?.filter { it.isNotBlank() }?.toSet() ?: emptySet()
     }
+    val weightingIntensity: Flow<Float> = context.settingsStore.data.map { p -> p[weightingIntensityKey] ?: 1.0f }
 
     suspend fun setTheme(style: ThemeStyle) { context.settingsStore.edit { it[themeKey] = style.name } }
     suspend fun setDarkTheme(enabled: Boolean) { context.settingsStore.edit { it[darkKey] = enabled } }
@@ -64,4 +67,5 @@ class SettingsRepository @Inject constructor(
         val serialized = tags.sorted().joinToString(",")
         context.settingsStore.edit { it[selectedTagsKey] = serialized }
     }
+    suspend fun setWeightingIntensity(value: Float) { context.settingsStore.edit { it[weightingIntensityKey] = value } }
 }

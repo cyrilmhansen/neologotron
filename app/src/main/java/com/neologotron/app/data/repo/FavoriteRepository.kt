@@ -11,14 +11,35 @@ import javax.inject.Singleton
 class FavoriteRepository @Inject constructor(
     private val dao: FavoriteDao
 ) {
-    suspend fun add(word: String, definition: String, decomposition: String, mode: String) = withContext(Dispatchers.IO) {
+    suspend fun add(
+        word: String,
+        definition: String,
+        decomposition: String,
+        mode: String,
+        prefixForm: String? = null,
+        rootForm: String? = null,
+        suffixForm: String? = null,
+        rootGloss: String? = null,
+        rootConnectorPref: String? = null,
+        suffixPosOut: String? = null,
+        suffixDefTemplate: String? = null,
+        suffixTags: String? = null,
+    ) = withContext(Dispatchers.IO) {
         dao.insert(
             FavoriteEntity(
                 word = word,
                 definition = definition,
                 decomposition = decomposition,
                 mode = mode,
-                createdAt = System.currentTimeMillis()
+                createdAt = System.currentTimeMillis(),
+                prefixForm = prefixForm,
+                rootForm = rootForm,
+                suffixForm = suffixForm,
+                rootGloss = rootGloss,
+                rootConnectorPref = rootConnectorPref,
+                suffixPosOut = suffixPosOut,
+                suffixDefTemplate = suffixDefTemplate,
+                suffixTags = suffixTags,
             )
         )
     }

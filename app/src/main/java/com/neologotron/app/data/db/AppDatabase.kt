@@ -17,7 +17,7 @@ import com.neologotron.app.data.entity.FavoriteEntity
 
 @Database(
     entities = [PrefixEntity::class, RootEntity::class, SuffixEntity::class, HistoryEntity::class, DbMetaEntity::class, FavoriteEntity::class],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

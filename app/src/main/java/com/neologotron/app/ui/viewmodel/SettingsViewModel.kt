@@ -23,6 +23,7 @@ class SettingsViewModel @Inject constructor(
     val shakeToGenerate: StateFlow<Boolean> = repo.shakeToGenerate.stateIn(viewModelScope, SharingStarted.Eagerly, false)
     val hapticOnShake: StateFlow<Boolean> = repo.hapticOnShake.stateIn(viewModelScope, SharingStarted.Eagerly, true)
     val shakeHintShown: StateFlow<Boolean> = repo.shakeHintShown.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+    val weightingIntensity: StateFlow<Float> = repo.weightingIntensity.stateIn(viewModelScope, SharingStarted.Eagerly, 1.0f)
 
     fun setTheme(style: ThemeStyle) { viewModelScope.launch { repo.setTheme(style) } }
     fun setDarkTheme(enabled: Boolean) { viewModelScope.launch { repo.setDarkTheme(enabled) } }
@@ -31,4 +32,5 @@ class SettingsViewModel @Inject constructor(
     fun setShakeToGenerate(enabled: Boolean) { viewModelScope.launch { repo.setShakeToGenerate(enabled) } }
     fun setHapticOnShake(enabled: Boolean) { viewModelScope.launch { repo.setHapticOnShake(enabled) } }
     fun markShakeHintShown() { viewModelScope.launch { repo.setShakeHintShown(true) } }
+    fun setWeightingIntensity(value: Float) { viewModelScope.launch { repo.setWeightingIntensity(value) } }
 }

@@ -278,3 +278,21 @@ Specs alignment note
 - Thematic (single tag): Select one chip, repeat; observe only matching morphèmes are chosen; unmatched are excluded.
 - Reset tags: Use « Réinitialiser », return to Main and tap « Générer » multiple times; outputs reflect full dataset (base weights only).
 - Performance: Generation remains perceptually <150ms; no visible lag changing chips.
+
+---
+
+## Newly Completed (This Session)
+- Morph metadata persistence: Added nullable morph metadata fields to History/Favorites entities; DB bumped to Room v5 (destructive migration allowed for MVP). New saves from Main/Thematic/Workshop include metadata.
+- Detail live recompute: WordDetail now recomputes word/definition when metadata exists from History/Favorites or nav args, reacting to definition mode and coherence filter changes.
+- UiState polish: Introduced `UiState` wrapper and applied to History, Favorites, Thematic (tags), and Workshop (initial load). Added loading skeletons and error snackbars with Retry. Buttons disabled during loads where appropriate.
+- Definition composer: Expanded POS normalization (adj/adv/verb/nom, nom_agent, nom_action, nom_resultat, composites like adj/nom). Improved technical/poetic defaults and action mapping. Added unit tests for new cases.
+- Performance caching: Implemented in‑memory caches and tag indexes in `LexemeRepository` with Mutex guards; invalidated on reseed via `AdminRepository`.
+- Metrics logging: Added debug‑only generation latency logging (compose and total) with a 150ms warning threshold.
+
+## Acceptance – Loading/Error/A11y
+- Lists show skeletons while loading; empty states only when not loading and list is empty.
+- Errors surface a snackbar with a Retry action that refreshes the data.
+- Interactive elements expose contentDescription; focus order remains logical.
+
+## Notes
+- DB reset on upgrade due to `fallbackToDestructiveMigration()`; acceptable for MVP but we can add a proper migration later to preserve local data.

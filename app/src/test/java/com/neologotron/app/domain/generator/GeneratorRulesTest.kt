@@ -54,5 +54,53 @@ class GeneratorRulesTest {
         assertEquals("instrument qui concerne lumière", tech)
         assertEquals("qui évoque lumière", poet)
     }
-}
 
+    @Test
+    fun composeDefinition_default_adj_in_technical_mode_is_qualifie() {
+        val def = GeneratorRules.composeDefinition("lumière", "adj", null, mode = GeneratorRules.DefinitionMode.TECHNICAL)
+        assertEquals("qui qualifie lumière", def)
+    }
+
+    @Test
+    fun composeDefinition_default_poetic_falls_back_to_evoque() {
+        val def1 = GeneratorRules.composeDefinition("lumière", "nom", null, mode = GeneratorRules.DefinitionMode.POETIC)
+        val def2 = GeneratorRules.composeDefinition("lumière", null, null, mode = GeneratorRules.DefinitionMode.POETIC)
+        assertEquals("qui évoque lumière", def1)
+        assertEquals("qui évoque lumière", def2)
+    }
+
+    @Test
+    fun composeDefinition_action_for_verb_uses_agir_sur_when_template_requires_action() {
+        val tpl = "tech:{ACTION} {ROOT}"
+        val def = GeneratorRules.composeDefinition("lumière", "verbe", tpl, mode = GeneratorRules.DefinitionMode.TECHNICAL)
+        assertEquals("agir sur lumière", def)
+    }
+
+    @Test
+    fun composeDefinition_defaults_for_adverb() {
+        val tech = GeneratorRules.composeDefinition("lumière", "adv", null, mode = GeneratorRules.DefinitionMode.TECHNICAL)
+        val poet = GeneratorRules.composeDefinition("lumière", "adv", null, mode = GeneratorRules.DefinitionMode.POETIC)
+        assertEquals("de manière liée à lumière", tech)
+        assertEquals("d'une manière qui évoque lumière", poet)
+    }
+
+    @Test
+    fun composeDefinition_action_and_result_nouns_map_actions() {
+        val act = GeneratorRules.composeDefinition("lumière", "nom_action", "tech:{ACTION} {ROOT}", mode = GeneratorRules.DefinitionMode.TECHNICAL)
+        val res = GeneratorRules.composeDefinition("lumière", "nom_resultat", "tech:{ACTION} {ROOT}", mode = GeneratorRules.DefinitionMode.TECHNICAL)
+        assertEquals("action de lumière", act)
+        assertEquals("résultat de lumière", res)
+    }
+
+    @Test
+    fun composeDefinition_agent_noun_default_template() {
+        val def = GeneratorRules.composeDefinition("lumière", "nom_agent", null, mode = GeneratorRules.DefinitionMode.TECHNICAL)
+        assertEquals("agent lié à lumière", def)
+    }
+
+    @Test
+    fun composeDefinition_composite_adj_nom_prefers_adj() {
+        val def = GeneratorRules.composeDefinition("lumière", "adj/nom", null, mode = GeneratorRules.DefinitionMode.TECHNICAL)
+        assertEquals("qui qualifie lumière", def)
+    }
+}

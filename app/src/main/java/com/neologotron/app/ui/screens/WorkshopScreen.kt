@@ -18,6 +18,11 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -40,6 +45,7 @@ import com.neologotron.app.data.entity.RootEntity
 import com.neologotron.app.data.entity.SuffixEntity
 import com.neologotron.app.ui.viewmodel.WorkshopViewModel
 import kotlinx.coroutines.launch
+import com.neologotron.app.ui.UiState
 
 @Composable
 fun WorkshopScreen(
@@ -49,6 +55,7 @@ fun WorkshopScreen(
     val prefixes by vm.prefixes.collectAsState()
     val roots by vm.roots.collectAsState()
     val suffixes by vm.suffixes.collectAsState()
+    val uiState by vm.uiState.collectAsState()
     val selectedPrefix by vm.selectedPrefix.collectAsState()
     val selectedRoot by vm.selectedRoot.collectAsState()
     val selectedSuffix by vm.selectedSuffix.collectAsState()
@@ -59,15 +66,26 @@ fun WorkshopScreen(
     var showPrefixPicker by remember { mutableStateOf(false) }
     var showRootPicker by remember { mutableStateOf(false) }
     var showSuffixPicker by remember { mutableStateOf(false) }
-    val snackbarHostState = remember { androidx.compose.material3.SnackbarHostState() }
+    val snackbarHostState = remember { SnackbarHostState() }
     val snackbarScope = rememberCoroutineScope()
     val context = LocalContext.current
-    androidx.compose.material3.Scaffold(snackbarHost = { androidx.compose.material3.SnackbarHost(snackbarHostState) }) { innerPadding ->
+    if (uiState is UiState.Error) {
+        LaunchedEffect(uiState) {
+            val res = snackbarHostState.showSnackbar(
+                message = (uiState as UiState.Error).message ?: context.getString(R.string.error_generic),
+                actionLabel = context.getString(R.string.action_retry),
+                duration = SnackbarDuration.Short,
+            )
+            if (res == androidx.compose.material3.SnackbarResult.ActionPerformed) vm.refreshInitial()
+        }
+    }
+    androidx.compose.material3.Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { innerPadding ->
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(innerPadding)
-            .padding(24.dp),
+            .padding(24.dp)
+            .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.Start
     ) {
@@ -75,9 +93,9 @@ fun WorkshopScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Button(onClick = { showPrefixPicker = true }) { Text(text = stringResource(id = R.string.action_select_prefix)) }
-            Button(onClick = { showRootPicker = true }) { Text(text = stringResource(id = R.string.action_select_root)) }
-            Button(onClick = { showSuffixPicker = true }) { Text(text = stringResource(id = R.string.action_select_suffix)) }
+            Button(onClick = { showPrefixPicker = true }, enabled = uiState !is UiState.Loading) { Text(text = stringResource(id = R.string.action_select_prefix)) }
+            Button(onClick = { showRootPicker = true }, enabled = uiState !is UiState.Loading) { Text(text = stringResource(id = R.string.action_select_root)) }
+            Button(onClick = { showSuffixPicker = true }, enabled = uiState !is UiState.Loading) { Text(text = stringResource(id = R.string.action_select_suffix)) }
         }
 
         if (showPrefixPicker) {
@@ -156,13 +174,13 @@ fun WorkshopScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
         Text(text = "Préfixes (extraits)", style = MaterialTheme.typography.titleMedium)
-        prefixes.take(5).forEach { item -> Text(text = "• ${item.form} (${item.gloss})") }
+        if (uiState is UiState.Loading) repeat(3) { Text(text = "• ", modifier = Modifier.height(12.dp)) } else prefixes.take(5).forEach { item -> Text(text = "• ${item.form} (${item.gloss})") }
         Spacer(modifier = Modifier.height(12.dp))
         Text(text = "Racines (extraits)", style = MaterialTheme.typography.titleMedium)
-        roots.take(5).forEach { item -> Text(text = "• ${item.form} (${item.gloss})") }
+        if (uiState is UiState.Loading) repeat(3) { Text(text = "• ", modifier = Modifier.height(12.dp)) } else roots.take(5).forEach { item -> Text(text = "• ${item.form} (${item.gloss})") }
         Spacer(modifier = Modifier.height(12.dp))
         Text(text = "Suffixes (extraits)", style = MaterialTheme.typography.titleMedium)
-        suffixes.take(5).forEach { item -> Text(text = "• ${item.form} (${item.gloss})") }
+        if (uiState is UiState.Loading) repeat(3) { Text(text = "• ", modifier = Modifier.height(12.dp)) } else suffixes.take(5).forEach { item -> Text(text = "• ${item.form} (${item.gloss})") }
     }
     }
 }

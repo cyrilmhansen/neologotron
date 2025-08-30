@@ -67,10 +67,18 @@
     <string name="option_shake_generate">Shake to generate</string>
     <string name="option_haptic_on_shake">Haptic feedback on shake</string>
     <string name="msg_shake_hint">Shake detected — you can disable haptic feedback in Settings.</string>
+    <string name="label_thematic_bias">Thematic bias</string>
+    <string name="bias_low">Low</string>
+    <string name="bias_normal">Normal</string>
+    <string name="bias_high">High</string>
+    <string name="bias_desc">Adjusts how strongly generation favors selected tags: Low = subtle, Normal = balanced, High = stronger multi‑tag bias.</string>
     <string name="action_undo">Undo</string>
     <string name="msg_history_deleted">Item deleted</string>
     <string name="msg_favorite_deleted">Favorite deleted</string>
     <string name="action_delete">Delete</string>
+    <string name="label_loading">Loading…</string>
+    <string name="action_retry">Retry</string>
+    <string name="error_generic">Load error</string>
     
     <!-- Onboarding (default English to be translated) -->
     <string name="onboarding_title">Welcome to Neologotron</string>

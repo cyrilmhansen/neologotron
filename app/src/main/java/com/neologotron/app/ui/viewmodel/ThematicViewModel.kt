@@ -7,6 +7,7 @@ import com.neologotron.app.domain.generator.GeneratorService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import com.neologotron.app.domain.GeneratorOptionsStore
 import com.neologotron.app.data.repo.SettingsRepository
+import com.neologotron.app.ui.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -20,18 +21,22 @@ class ThematicViewModel @Inject constructor(
     private val generator: GeneratorService,
     private val settings: SettingsRepository
 ) : ViewModel() {
-    private val _tags = MutableStateFlow<List<String>>(emptyList())
-    val tags: StateFlow<List<String>> = _tags
+    private val _tags = MutableStateFlow<UiState<List<String>>>(UiState.Loading)
+    val tags: StateFlow<UiState<List<String>>> = _tags
 
     private val _selected = MutableStateFlow<Set<String>>(emptySet())
     val selected: StateFlow<Set<String>> = _selected
 
-    init {
+    init { refreshTags() }
+
+    fun refreshTags() {
         viewModelScope.launch {
-            _tags.value = repo.getDistinctTags()
-            // Load persisted selection and reflect it locally
+            _tags.value = UiState.Loading
             val persisted = settings.selectedTags.first()
             _selected.value = persisted
+            runCatching { repo.getDistinctTags() }
+                .onSuccess { list -> _tags.value = UiState.Data(list) }
+                .onFailure { err -> _tags.value = UiState.Error(err.message) }
         }
     }
 
@@ -60,7 +65,8 @@ class ThematicViewModel @Inject constructor(
         viewModelScope.launch {
             val mode = settings.definitionMode.first()
             val filters = settings.coherenceFilters.first()
-            runCatching { generator.generateRandom(tags = _selected.value, saveToHistory = true, mode = mode, useFilters = filters) }
+            val intensity = settings.weightingIntensity.first().toDouble()
+            runCatching { generator.generateRandom(tags = _selected.value, saveToHistory = true, mode = mode, useFilters = filters, weightingIntensity = intensity) }
                 .onSuccess {
                     onOpenDetail(
                         it.word,
