@@ -1,0 +1,62 @@
+uniform float2 iResolution;
+uniform float iTime;
+uniform float iIntensity;
+uniform float uAspect;
+uniform float2 uSize;
+uniform float uSpeed;
+uniform float uYSpread;
+uniform float uBasePulse;
+uniform float3 uColor1;
+uniform float3 uColor2;
+uniform float3 uBgColor;
+uniform float uOpacity;
+
+float fractf(float x) { return x - floor(x); }
+float rand1(float x) { return fractf(sin(x) * 4358.5453123); }
+float rand2f(float2 co) { return fractf(sin(dot(co.xy ,float2(12.9898,78.233))) * 43758.5357); }
+
+float pulseColor(float t, float basePulse) {
+    float myPulse = basePulse + sin(t) * 0.1;
+    return myPulse < 1.0 ? myPulse : 1.0;
+}
+
+float boxSDF(float2 p, float2 b, float r) {
+  return length(max(abs(p)-b,0.0))-r;
+}
+
+half4 main(float2 fragCoord) {
+    float2 uv = fragCoord / iResolution - 0.5;
+    float3 color = float3(0.0);
+    float pulse = pulseColor(iTime, uBasePulse);
+    float3 baseColor = uv.x > 0.0 ? uColor1 : uColor2;
+    float colFactor = pulse * 0.5 * (0.9 - cos(uv.x * 8.0));
+    color += colFactor * baseColor;
+    uv.x *= uAspect;
+
+    // Fixed loop bound for AGSL
+    for (int i = 0; i < 70; i++) {
+        float z = 1.0 - 0.7 * rand1(float(i) * 1.4333);
+        float tickTime = iTime * z * uSpeed + float(i) * 1.23753;
+        float tick = floor(tickTime);
+
+        float sgnx = uv.x >= 0.0 ? 1.0 : -1.0;
+        float2 pos = float2(0.6 * uAspect * (rand1(tick) - 0.5), sgnx * uYSpread * (0.5 - fractf(tickTime)));
+        pos.x += 0.24 * (pos.x >= 0.0 ? 1.0 : -1.0);
+        if (abs(pos.x) < 0.1) pos.x += 1.0; // guard when sign is zero
+
+        float b = boxSDF(uv - pos, uSize, 0.01);
+        float dust  = z * smoothstep(0.22, 0.0, b) * pulse * 0.5 * iIntensity;
+        float block = 0.2 * z * smoothstep(0.002, 0.0, b);
+        float shine = 0.6 * z * pulse * smoothstep(-0.002, b, 0.007) * iIntensity;
+        color += dust * baseColor + block * z + shine;
+    }
+
+    // Fine film grain
+    color -= rand2f(uv) * 0.02;
+    // Gentle vignette to reduce center impact
+    float v = smoothstep(0.8, 0.2, length(uv));
+    color *= mix(0.82, 1.0, v);
+    float3 outc = mix(uBgColor, color, clamp(uOpacity, 0.0, 1.0));
+    return half4(outc, 1.0);
+}
+

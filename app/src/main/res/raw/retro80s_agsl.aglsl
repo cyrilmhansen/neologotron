@@ -1,0 +1,59 @@
+uniform float2 iResolution;
+uniform float iTime;
+uniform float iIntensity;
+uniform float uOpacity;
+uniform float3 uPrimary;   // neon pink
+uniform float3 uSecondary; // turquoise
+uniform float3 uBgColor;   // material background
+
+float fractf(float x) { return x - floor(x); }
+float2 fract2(float2 x) { return x - floor(x); }
+float hash21(float2 p) {
+    p = fract2(p * float2(123.34, 345.45));
+    p += dot(p, p + 34.345);
+    return fractf(p.x * p.y);
+}
+
+float noise(float2 p) {
+    float2 i = floor(p);
+    float2 f = p - i;
+    float a = hash21(i);
+    float b = hash21(i + float2(1.0, 0.0));
+    float c = hash21(i + float2(0.0, 1.0));
+    float d = hash21(i + float2(1.0, 1.0));
+    float2 u = f*f*(3.0-2.0*f);
+    return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+}
+
+half4 main(float2 fragCoord) {
+    float2 uv = fragCoord / iResolution;
+    float t = iTime * 0.6;
+
+    // Scanlines (soft, non-distracting)
+    float scan = 0.90 + 0.10 * sin((uv.y * iResolution.y) * 3.14159 + t * 5.0);
+
+    // Two layers of noise for richer grain
+    float n1 = noise(uv * iResolution * 0.35 + float2(0.0, t * 24.0));
+    float n2 = noise(uv * iResolution * 1.0 + float2(t * 8.0, 0.0));
+    float grain = mix(n1, n2, 0.5);
+    grain = pow(grain, 1.25);
+
+    // Horizontal jitter, very subtle
+    float jitter = (noise(float2(t * 3.0, uv.y * 36.0)) - 0.5) * (0.002 + 0.002*iIntensity);
+    float x = clamp(uv.x + jitter, 0.0, 1.0);
+
+    // Luminance and tint
+    float luma = grain * scan;
+    float3 base = mix(uPrimary, uSecondary, luma);
+
+    // Slight chromatic shift
+    float r = mix(base.r, luma, 0.12);
+    float g = mix(base.g, luma, 0.08);
+    float b = mix(base.b, luma, 0.16);
+
+    float3 fx = float3(r, g, b);
+    // Blend with background using opacity
+    float3 outc = mix(uBgColor, fx, clamp(uOpacity, 0.0, 1.0));
+    return half4(outc, 1.0);
+}
+

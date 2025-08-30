@@ -155,7 +155,9 @@ Le Néologotron se veut plus qu'un simple générateur aléatoire. C'est un outi
     Technique :
         - API 33+ : AGSL via `RuntimeShader` et rendu dans un `Canvas` Jetpack Compose (composable `ThemedBackground`).
         - API < 33 : dégradé statique/soft fallback (sans dépendances externes).
-        - Blend contrôlé : les shaders mélangent leur sortie avec `MaterialTheme.colorScheme.background` via un uniforme d’opacité (préserve la lisibilité).
+        - Sources externalisées: `res/raw/retro80s_agsl.aglsl`, `res/raw/cyberpunk_agsl.aglsl` pour maintenance.
+        - Override optionnel (modding): si présent, charger `assets/shaders/*.aglsl` en priorité (mêmes noms) — aucune dépendance réseau.
+        - Blend contrôlé : output shader mélangé avec `MaterialTheme.colorScheme.background` via uniforme `uOpacity` (lisibilité garantie).
         - Respect "Réduire les animations" : le temps (`iTime`) est figé si l’option système désactive les animations.
 
     Paramètres/Uniformes clés :
@@ -174,6 +176,7 @@ Le Néologotron se veut plus qu'un simple générateur aléatoire. C'est un outi
         - Fond animé visible et fluide sur API 33+; pas de scintillement; lisibilité intacte.
         - Fond statique lisible quand l’option est OFF ou sur API < 33.
         - "Réduire les animations" fige l’animation; aucune régression de performance perceptible.
+        - Les shaders peuvent être remplacés par des fichiers `assets/shaders/*.aglsl` en build de dev sans modification du code.
 
 3.1. Accessibilité & Qualité
 

@@ -326,6 +326,12 @@ Acceptance — Def Mode Control
 - Contrast fixes: Set explicit `contentColor = onBackground` for all screens/bars; fixed prior black‑on‑black in Minimal theme and onboarding. Bottom bar/top bars are transparent without tonal elevation.
 - Bug fixes: Resolved AGSL type error (fract on float2), moved shader creation out of draw scope, removed duplicate imports; ensured no @Composable calls inside draw.
 
+### Shader Maintenance & Mod Support
+- Externalized AGSL sources to resources: `res/raw/retro80s_agsl.aglsl`, `res/raw/cyberpunk_agsl.aglsl`.
+- Loader supports optional assets overrides for modding without code changes: place files under `assets/shaders/retro80s_agsl.aglsl` or `assets/shaders/cyberpunk_agsl.aglsl`.
+- Kept uniforms stable (`iResolution`, `iTime`, `iIntensity`, `uOpacity`, theme colors, etc.) to avoid breakage when swapping sources.
+- Tuned shader opacity and motion for readability; blended over `MaterialTheme.colorScheme.background` rather than raw black.
+
 Acceptance — Animated Backgrounds
 - With toggle ON (API 33+): background animates smoothly; UI text/icons remain readable; switching intensity updates subtly.
 - With toggle OFF: static solid theme background; no black‑on‑black anywhere.
@@ -334,3 +340,4 @@ Acceptance — Animated Backgrounds
 Follow‑ups
 - Optionally add battery saver pause and a debug slider for shader opacity/speed.
 - Tune Minimal fallback gradient for light theme variant (if added later).
+- Optional: add a Debug action to hot‑reload shader sources from assets at runtime (dev builds only).
