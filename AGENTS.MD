@@ -128,14 +128,14 @@ This summarizes the required screens, core interactions, and implementation mile
 - Favorites: Storage model + UI wiring (toggle in Detail/Main)
 
 ## Next Up (Planned)
-- Wire History list to Room `recent()` and open Detail from it
-- Favorites: add entities/DAO, toggle in UI, list screen backed by Room
-- Generator bias: use selected Thematic tags to weight choices; expose state in Main
-- Coherence filters: improve elision/liaison; add plausibility scoring + unit tests
-- Definition composer: refine templates (technical/poetic) using suffix/root metadata
-- Sharing & copy: Android share sheet + clipboard from Detail/Main
-- Themes & settings: implement 3 themes; persist preferences; gesture toggles
-- Onboarding: 3-screen first-run tutorial
+- Themes & settings: DataStore-backed preferences (theme, default definition mode, coherence filters, shake-to-generate); implement 3 visual themes; wire `NeologotronTheme` to prefs
+- Definition mode: UI toggle (Technique/Poétique) on Main/Detail; persist default; extend composer templates for more suffix types and better phrasing
+- Thematic biasing: flow layout for all tags, persist selection; improve multi-tag weighting (intersection priority + bias factor, robust fallback)
+- History UX: swipe-to-remove with snackbar undo; auto-refresh on `ON_RESUME` like Favorites
+- Gestures: shake-to-generate with sensitivity/debounce; gated by settings toggle
+- Loading/error/a11y: skeletons for History/Favorites; repository error snackbars with retry; content descriptions and contrast checks across themes
+- Testing/data quality: unit tests for `GeneratorService` and CSV parsing edge cases; basic navigation tests; curate/expand CSVs with simple validation
+- CI: optional separate job for instrumented tests (keep unit/linters as-is for speed)
 
 ## Notes & Decisions
 - Image-card generation deferred post‑MVP (per specs)
@@ -147,6 +147,8 @@ This summarizes the required screens, core interactions, and implementation mile
 - On Detail, the bottom bar highlights the parent tab (History/Favorites/Main) for UX consistency.
 - Bottom bar tap behavior prefers popping back to an existing destination instance before navigating to avoid stacking duplicates.
 - Add an About screen referencing original Logotron idea (Raymond Queneau, Jean Lescure, Oulipo); accessible from Settings.
+
+— Definition default mode will be persisted in settings and surfaced on Main/Detail. Share/copy is considered complete for MVP. Image-card generation remains post‑MVP as previously decided.
 
 ---
 
@@ -174,3 +176,41 @@ This summarizes the required screens, core interactions, and implementation mile
 - Favorites end-to-end: Room entity/DAO/repository; Favorites screen now lists stored favorites; Detail screen has add/remove favorite toggle reflecting state; database version bumped to 4.
 - About screen: Corrected attribution — the « Logotron » is credited to Jean‑Pierre Petit (France, 1977); removed misattribution to Queneau/Lescure and clarified inspiration context.
 - Share & copy: Main and Detail screens support sharing via `ShareCompat` and copying with `ClipboardManager`; tests cover intents and clipboard.
+
+---
+
+## Assessment Snapshot – Implementation Status and Gaps
+
+### Current State (Summary)
+- Navigation: Single-activity with bottom bar and Detail highlighting; pop-to-root behavior implemented.
+- Data: Room schema for morphèmes, history, favorites, meta; CSV seeding on first run; Admin reset + reseed flow.
+- Generator: Word composition with elision/liaison/duplicate-boundary handling and plausibility score; unit tests for rules.
+- Screens: Main, History, Favorites, Thematic, Workshop (manual with live preview + commit), Detail, Settings (stub), About, Debug, Onboarding (3 screens).
+- Share/Copy: Implemented with instrumentation tests.
+
+### Gaps vs AGENTS.MD Milestones
+- M1 filters/composer: Coherence rules exist but need refinement; Definition mode not exposed in UI nor persisted.
+- M2 gestures: Shake-to-generate not implemented.
+- M4 thematic: Tag UI shows subset only; selection not persisted; weighting for multi-tag not tuned.
+- M5 themes/settings: Only a basic theme stub; no theme variants or persisted preferences.
+- Cross-cut polish: No swipe/undo in History, limited loading/error states, a11y/contrast/content descriptions need pass.
+
+### Milestone Status (Quick View)
+- M0: Complete (schema + seed).
+- M1: Partial (needs rule refinements + tests; definition mode integration).
+- M2: Partial (main UI done; gestures pending).
+- M3: Mostly complete (add swipe/undo polish).
+- M4: Baseline complete; improve tag UX/weighting and persist selection.
+- M5: Not started (themes + settings + persistence).
+- M6: Complete (share/copy).
+- M7: Onboarding implemented; polish/a11y/performance ongoing.
+
+### Prioritized Next Steps (Accepted)
+1) Themes & Settings (DataStore + 3 themes + toggles)
+2) Definition Mode UI + persistence + composer improvements
+3) Thematic biasing UX + weighting + persistence
+4) History swipe/undo and refresh behavior
+5) Shake-to-generate (sensors + debounce)
+6) Loading/error states and a11y pass
+7) Tests for generator/service/seeding and simple navigation
+8) CSV curation and validation; optional CI enhancement for instrumented tests
