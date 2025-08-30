@@ -75,6 +75,7 @@ dependencies {
     implementation(libs.hiltAndroid)
     ksp(libs.hiltCompiler)
     implementation(libs.hiltNavigationCompose)
+    implementation(libs.datastorePreferences)
 
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.composeBom))
