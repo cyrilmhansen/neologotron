@@ -12,7 +12,8 @@ import kotlin.random.Random
 data class WordResult(
     val word: String,
     val definition: String,
-    val decomposition: String
+    val decomposition: String,
+    val plausibility: Double
 )
 
 @Singleton
@@ -33,20 +34,21 @@ class GeneratorService @Inject constructor(
         val s = weightedRandom(suffixes) { it.weight }
             ?: throw IllegalStateException("No suffixes available")
 
-        val word = compose(p, r, s)
+        val composed = compose(p, r, s)
+        val word = composed.word
         val definition = composeDefinition(r, s)
         val decomposition = "${p.form} + ${r.form} + ${s.form}"
 
         if (saveToHistory) history.add(word, definition, decomposition, mode = "random")
-        return WordResult(word, definition, decomposition)
+        return WordResult(word, definition, decomposition, composed.plausibility)
     }
 
-    private fun compose(p: PrefixEntity, r: RootEntity, s: SuffixEntity): String {
+    private fun compose(p: PrefixEntity, r: RootEntity, s: SuffixEntity): GeneratorRules.WordBuild {
         return GeneratorRules.composeWord(p.form, r.form, s.form, r.connectorPref)
     }
 
     private fun composeDefinition(r: RootEntity, s: SuffixEntity): String {
-        return GeneratorRules.composeDefinition(r.gloss, s.posOut, s.defTemplate)
+        return GeneratorRules.composeDefinition(r.gloss, s.posOut, s.defTemplate, s.tags)
     }
 
     private fun <T> List<T>.randomOrNull(): T? = if (isEmpty()) null else this[Random.nextInt(size)]

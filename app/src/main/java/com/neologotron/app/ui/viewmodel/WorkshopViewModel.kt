@@ -95,8 +95,8 @@ class WorkshopViewModel @Inject constructor(
         val r = _selectedRoot.value
         val s = _selectedSuffix.value
         if (p != null && r != null && s != null) {
-            val word = GeneratorRules.composeWord(p.form, r.form, s.form, r.connectorPref)
-            val def = GeneratorRules.composeDefinition(r.gloss, s.posOut, s.defTemplate)
+            val word = GeneratorRules.composeWord(p.form, r.form, s.form, r.connectorPref).word
+            val def = GeneratorRules.composeDefinition(r.gloss, s.posOut, s.defTemplate, s.tags)
             _previewWord.value = word
             _previewDefinition.value = def
             _previewDecomposition.value = "${p.form} + ${r.form} + ${s.form}"
@@ -112,8 +112,8 @@ class WorkshopViewModel @Inject constructor(
         val r = _selectedRoot.value
         val s = _selectedSuffix.value
         if (p == null || r == null || s == null) return
-        val word = GeneratorRules.composeWord(p.form, r.form, s.form, r.connectorPref)
-        val def = GeneratorRules.composeDefinition(r.gloss, s.posOut, s.defTemplate)
+        val word = GeneratorRules.composeWord(p.form, r.form, s.form, r.connectorPref).word
+        val def = GeneratorRules.composeDefinition(r.gloss, s.posOut, s.defTemplate, s.tags)
         val decomp = "${p.form} + ${r.form} + ${s.form}"
         _previewWord.value = word
         _previewDefinition.value = def
@@ -126,8 +126,8 @@ class WorkshopViewModel @Inject constructor(
         val r = _selectedRoot.value
         val s = _selectedSuffix.value
         if (p == null || r == null || s == null) return
-        val word = GeneratorRules.composeWord(p.form, r.form, s.form, r.connectorPref)
-        val def = GeneratorRules.composeDefinition(r.gloss, s.posOut, s.defTemplate)
+        val word = GeneratorRules.composeWord(p.form, r.form, s.form, r.connectorPref).word
+        val def = GeneratorRules.composeDefinition(r.gloss, s.posOut, s.defTemplate, s.tags)
         val decomp = "${p.form} + ${r.form} + ${s.form}"
         _previewWord.value = word
         _previewDefinition.value = def
