@@ -22,4 +22,10 @@ interface FavoriteDao {
 
     @Query("SELECT * FROM favorites WHERE word = :word LIMIT 1")
     suspend fun getByWord(word: String): FavoriteEntity?
+
+    @Query("DELETE FROM favorites WHERE id = :id")
+    suspend fun deleteById(id: Long)
+
+    @Query("SELECT * FROM favorites WHERE id = :id LIMIT 1")
+    suspend fun getById(id: Long): FavoriteEntity?
 }

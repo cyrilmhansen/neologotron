@@ -26,4 +26,8 @@ class HistoryRepository @Inject constructor(
     suspend fun recent(limit: Int = 50): List<HistoryEntity> = withContext(Dispatchers.IO) { dao.recent(limit) }
 
     suspend fun latestByWord(word: String): HistoryEntity? = withContext(Dispatchers.IO) { dao.latestByWord(word) }
+
+    suspend fun delete(id: Long) = withContext(Dispatchers.IO) { dao.deleteById(id) }
+
+    suspend fun insert(entity: HistoryEntity) = withContext(Dispatchers.IO) { dao.insert(entity) }
 }

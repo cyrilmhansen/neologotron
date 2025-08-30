@@ -8,7 +8,7 @@ Date : 28 août 2025
 Développer une application mobile native Android, nommée "Néologotron", destinée à la génération créative de néologismes. L'application combine des préfixes, racines et suffixes issus principalement du grec et du latin pour créer des mots inédits. Chaque mot est accompagné d'une définition plausible, oscillant entre l'étymologique, le poétique et le surprenant.
 
 1.2. Philosophie
-Le Néologotron se veut plus qu'un simple générateur aléatoire. C'est un outil d'inspiration pour les écrivains, les poètes, les créatifs, les maîtres de jeu et les curieux de la langue. Il s'inspire du concept original du "Logotron", imaginé par Raymond Queneau et Jean Lescure au sein de l'Oulipo, pour le transposer dans une ère numérique et interactive. Il vise à moderniser le plaisir étymologique en offrant une expérience ludique, fluide et esthétiquement soignée.
+Le Néologotron se veut plus qu'un simple générateur aléatoire. C'est un outil d'inspiration pour les écrivains, les poètes, les créatifs, les maîtres de jeu et les curieux de la langue. Il s'inspire du « Logotron », inventé par Jean‑Pierre Petit (France, 1977), et s'inscrit aussi dans l'esprit des expérimentations littéraires de l'Oulipo, pour le transposer dans une ère numérique et interactive. Il vise à moderniser le plaisir étymologique en offrant une expérience ludique, fluide et esthétiquement soignée.
 
 1.3. Public Cible
 
@@ -44,7 +44,7 @@ Le Néologotron se veut plus qu'un simple générateur aléatoire. C'est un outi
 
         Mode Aléatoire : Combine un préfixe, une racine et un suffixe au hasard.
 
-        Mode Semi-Guidé ("Thématique") : L'utilisateur choisit une ou plusieurs catégories (tags sémantiques) pour orienter la génération vers un champ lexical précis. L'algorithme piochera alors en priorité dans les morphèmes correspondants.
+        Mode Semi-Guidé ("Thématique") : L'utilisateur choisit une ou plusieurs catégories (tags sémantiques) pour orienter la génération vers un champ lexical précis. L'algorithme pèse les morphèmes selon le nombre de tags correspondants (favorise les intersections multi‑tags), avec repli sur correspondance simple puis non filtré si aucun tag ne correspond.
 
         Comportement d'application immédiate : Les sélections de tags sont persistées (DataStore) et appliquées instantanément à la génération (pas de bouton « Appliquer »). Une action « Réinitialiser » permet d'effacer la sélection. Un bouton « Aperçu dans Détail » peut ouvrir un aperçu sans enregistrer dans l'historique.
 
@@ -52,7 +52,7 @@ Le Néologotron se veut plus qu'un simple générateur aléatoire. C'est un outi
 
     2.1.3. Filtres de Cohérence Linguistique :
 
-        L'algorithme doit intégrer des règles pour améliorer la qualité des résultats et éviter les cacophonies.
+        L'algorithme doit intégrer des règles pour améliorer la qualité des résultats et éviter les cacophonies. Ces filtres sont activables/désactivables via Paramètres.
 
         Gestion de l'élision : Suppression automatique de voyelles en double (ex: bio + o-logie → biologie et non bioologie).
 
@@ -102,7 +102,9 @@ Le Néologotron se veut plus qu'un simple générateur aléatoire. C'est un outi
 
             De partager directement sur les réseaux sociaux.
 
-            [Suggestion] De générer une image stylisée (une "carte") avec le mot, sa définition et le thème visuel de l'app, prête à être partagée sur Instagram, etc.
+            [Suggestion] De générer une image stylisée (une "carte") avec le mot, sa définition et le thème visuel de l'app, prête à être partagée sur Instagram, etc. (post‑MVP)
+
+        Historique : prise en charge du "swipe pour supprimer" avec option d'annulation (Undo) via snackbar.
 
     2.3.3. Personnalisation :
 
@@ -122,6 +124,8 @@ Le Néologotron se veut plus qu'un simple générateur aléatoire. C'est un outi
 
         Retour immédiat : Le tap sur un chip applique instantanément le filtre (pas de bouton « Appliquer »), avec persistance de la sélection. Un bouton « Réinitialiser » efface la sélection. « Aperçu dans Détail » reste disponible.
 
+        Pondération multi‑tags : Les éléments correspondant à plusieurs tags sont favorisés; comportement de repli documenté lorsque aucun élément ne correspond aux tags sélectionnés.
+
 3. Spécifications Techniques
 
     Plateforme : Android (API niveau 24+ recommandé pour un bon équilibre compatibilité/fonctionnalités).
@@ -130,11 +134,27 @@ Le Néologotron se veut plus qu'un simple générateur aléatoire. C'est un outi
 
     Architecture : MVVM (Model-View-ViewModel) ou MVI (Model-View-Intent) pour une structure claire et testable.
 
-    Base de données : SQLite avec l'ORM Room pour une gestion simplifiée.
+    Base de données : SQLite avec l'ORM Room pour une gestion simplifiée; migrations versionnées (ex: persistance des métadonnées morphologiques dans Historique/Favoris pour recomposition dynamiques en Détail).
 
     UI : Jetpack Compose pour une interface utilisateur déclarative, moderne et performante.
 
     Dépendances : Aucune dépendance externe majeure n'est requise pour la V1, ce qui garantit une application légère et rapide.
+
+    Stockage de préférences : DataStore Preferences pour thèmes, mode de définition, filtres de cohérence, options de geste (shake), et sélection thématique persistée.
+
+3.1. Accessibilité & Qualité
+
+    Accessibilité (WCAG) : Toutes les actions possèdent une description (contentDescription); ordre de focus logique; contraste suffisant dans les trois thèmes.
+
+    États de chargement/erreur : Squelettes de chargement pour listes; erreurs récupérables avec action « Réessayer ».
+
+    Performance : Génération quasi‑instantanée (<150ms perçus) même avec CSVs volumineux; seuil/débounce du shake ajustés; indexation/caching des tags pour réduire les coûts par génération.
+
+    Tests :
+        - Unitaires pour règles de génération et composeDefinition (modes TECH/POETIC, mapping POS)
+        - Intégration pour GeneratorService (avec données déterministes)
+        - Instrumentés pour partage/copier, navigation (barre inférieure, pop‑to‑root, mise en évidence de Détail), et one‑time hint shake
+        - Parsing CSV (guillemets, lignes vides)
 
 4. Évolutions Futures (Roadmap Potentielle)
 
@@ -170,4 +190,6 @@ Le Néologotron se veut plus qu'un simple générateur aléatoire. C'est un outi
 
     L'Expérience Initiale (Onboarding) : L'application est originale. Il faudra guider l'utilisateur lors de la première ouverture avec un mini-tutoriel de 3 écrans expliquant le concept : "1. Combinez des mots anciens. 2. Créez des idées nouvelles. 3. Partagez vos inventions."
 
-    Performance : La génération doit être quasi-instantanée pour procurer un sentiment de fluidité et encourager l'exploration rapide. Le choix d'une base de données locale est excellent pour cela.
+    Performance : La génération doit être quasi-instantanée pour procurer un sentiment de fluidité et encourager l'exploration rapide. Le choix d'une base de données locale est excellent pour cela. Prévoir indexation des tags et profilage du seuil/débounce du shake.
+
+    Attribution : S'assurer que les références publiques mentionnent correctement Jean‑Pierre Petit pour le « Logotron », tout en citant l'inspiration Oulipo séparément.

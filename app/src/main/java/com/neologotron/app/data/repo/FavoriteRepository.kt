@@ -30,4 +30,8 @@ class FavoriteRepository @Inject constructor(
     suspend fun list(): List<FavoriteEntity> = withContext(Dispatchers.IO) { dao.listAll() }
 
     suspend fun get(word: String): FavoriteEntity? = withContext(Dispatchers.IO) { dao.getByWord(word) }
+
+    suspend fun removeById(id: Long) = withContext(Dispatchers.IO) { dao.deleteById(id) }
+
+    suspend fun insert(entity: FavoriteEntity) = withContext(Dispatchers.IO) { dao.insert(entity) }
 }

@@ -67,6 +67,10 @@
     <string name="option_shake_generate">Secouer pour générer</string>
     <string name="option_haptic_on_shake">Retour haptique lors du secouement</string>
     <string name="msg_shake_hint">Secouement détecté — vous pouvez désactiver le retour haptique dans Paramètres.</string>
+    <string name="action_undo">Annuler</string>
+    <string name="msg_history_deleted">Élément supprimé</string>
+    <string name="msg_favorite_deleted">Favori supprimé</string>
+    <string name="action_delete">Supprimer</string>
 
     <!-- Onboarding (French) -->
     <string name="onboarding_title">Bienvenue dans Néologotron</string>

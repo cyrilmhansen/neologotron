@@ -221,10 +221,47 @@ This summarizes the required screens, core interactions, and implementation mile
 - M7: Onboarding implemented; polish/a11y/performance ongoing.
 
 ### Prioritized Next Steps (Accepted)
-1) Thematic weighting: multi‑tag intersection priority, bias factor, fallback behavior; add unit tests
-2) History/Favorites polish: swipe‑to‑remove with undo; consider persisting morph metadata to enable Detail live recompute from these sources
-3) Loading/error/a11y: skeletons for History/Favorites; repository error snackbars with retry; content descriptions and contrast verification across themes
+1) Thematic weighting: favor multi‑tag intersections, apply bias factors per match count, define fallback when no selected tags match; add unit tests
+2) History/Favorites polish: implement swipe‑to‑remove with undo; persist morph metadata to enable Detail live recompute from these sources; add migration
+3) Loading/error/A11y: skeletons for History/Favorites; repository error snackbars with retry; content descriptions and contrast verification across themes
 4) Definition composer: expand suffix/root templates; improve phrasing; add tests
-5) Performance: tune shake sensitivity/debounce, and generator latency under large CSVs
+5) Performance: tune shake sensitivity/debounce; cache tag indexes; maintain generator latency under large CSVs
 6) Tests: GeneratorService integration tests; seeding/CSV parsing edge cases; basic navigation tests
 7) Data curation: expand/validate CSVs; simple validation tooling; optional CI for instrumented tests
+
+---
+
+## Execution Plan Update — 2025‑08‑30
+
+- Thematic weighting (M4 refinement)
+  - Implement overlap‑count based weighting across prefixes/roots/suffixes. Items matching more selected tags/domains receive higher selection weight; fallback to single‑tag, then unfiltered if none match. Keep immediate apply on chip toggle and persisted selection.
+  - Acceptance: with two tags selected, items matching both are significantly favored; empty selection behaves current way.
+
+- History/Favorites UX + Metadata (M3 refinement)
+  - Add SwipeToDismiss with snackbar Undo; deletion is optimistic with 5s undo window. Persist morph metadata (prefix/root/suffix forms + gloss/templates) in History/Favorites to enable live recompute in Detail.
+  - DB: bump Room version to 5, add migration; backfill leaves metadata null for legacy rows.
+  - Acceptance: swipe removes, Undo restores; opening Detail from History/Favorites recomputes definition when metadata present, otherwise uses stored definition.
+
+- Loading/Error/A11y (M7 polish)
+  - Introduce UiState (loading/error/data) for History/Favorites; show skeleton rows during load; on error, show retry snackbar and keep UI responsive.
+  - Add contentDescription to main actionable icons (favorite, share, copy, def‑mode chips); verify contrast for all three themes; ensure logical focus order.
+  - Acceptance: TalkBack announces controls; visible skeletons; recoverable error with retry.
+
+- Definition Composer (M1 completion)
+  - Expand templates per suffix POS (nom, nom_agent, adj, verb derivatives); refine action verb mapping; improve FR phrasing for POETIC.
+  - Acceptance: tests assert sensible outputs for common combinations; templates are parsed and selected per mode.
+
+- Performance & Caching
+  - Build in‑memory tag indexes in LexemeRepository; avoid scanning full tables per generation; invalidate on reseed.
+  - Tune shake threshold/debounce and make threshold configurable if necessary.
+  - Acceptance: generator remains <150ms perceived; shake doesn’t misfire in normal use.
+
+- Testing & Tooling
+  - Add integration tests for GeneratorService with deterministic data; add CSV parser tests (quotes, empty lines); add nav smoke test for bottom bar behavior and Detail tab highlighting.
+  - Add simple CSV validation utility/test to check tag normalization and template parsability.
+
+- Data Curation
+  - Expand `specs_wip/*.csv` and assets; normalize tag vocabulary (lowercase, singular/plural consistency); document rules for contributors.
+
+Specs alignment note
+- SPECS.MD updated to: correct « Logotron » attribution to Jean‑Pierre Petit; specify multi‑tag thematic weighting; require swipe‑to‑remove with undo; require morph metadata persistence for History/Favorites; add A11y, performance, and testing expectations.

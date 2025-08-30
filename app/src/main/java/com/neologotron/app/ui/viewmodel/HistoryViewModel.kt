@@ -22,5 +22,18 @@ class HistoryViewModel @Inject constructor(
     fun refresh() {
         viewModelScope.launch { _items.value = repo.recent() }
     }
-}
 
+    fun remove(id: Long) {
+        viewModelScope.launch {
+            runCatching { repo.delete(id) }
+            _items.value = repo.recent()
+        }
+    }
+
+    fun undoInsert(entity: HistoryEntity) {
+        viewModelScope.launch {
+            runCatching { repo.insert(entity.copy(id = 0)) }
+            _items.value = repo.recent()
+        }
+    }
+}

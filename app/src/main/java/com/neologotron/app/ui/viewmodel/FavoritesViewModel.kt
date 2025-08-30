@@ -22,5 +22,18 @@ class FavoritesViewModel @Inject constructor(
     fun refresh() {
         viewModelScope.launch { _items.value = repo.list() }
     }
-}
 
+    fun remove(id: Long) {
+        viewModelScope.launch {
+            runCatching { repo.removeById(id) }
+            _items.value = repo.list()
+        }
+    }
+
+    fun undoInsert(entity: FavoriteEntity) {
+        viewModelScope.launch {
+            runCatching { repo.insert(entity.copy(id = 0)) }
+            _items.value = repo.list()
+        }
+    }
+}

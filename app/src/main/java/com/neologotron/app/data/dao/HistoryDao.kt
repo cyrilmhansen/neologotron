@@ -19,4 +19,10 @@ interface HistoryDao {
 
     @Query("DELETE FROM history")
     suspend fun clear()
+
+    @Query("DELETE FROM history WHERE id = :id")
+    suspend fun deleteById(id: Long)
+
+    @Query("SELECT * FROM history WHERE id = :id LIMIT 1")
+    suspend fun getById(id: Long): HistoryEntity?
 }

@@ -33,6 +33,7 @@ composeUi = { module = "androidx.compose.ui:ui" }
 composeUiGraphics = { module = "androidx.compose.ui:ui-graphics" }
 composeUiToolingPreview = { module = "androidx.compose.ui:ui-tooling-preview" }
 composeMaterial3 = { module = "androidx.compose.material3:material3" }
+composeMaterial = { module = "androidx.compose.material:material" }
 navigationCompose = { module = "androidx.navigation:navigation-compose", version = "2.7.7" }
 materialIconsExtended = { module = "androidx.compose.material:material-icons-extended" }
 activityCompose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
