@@ -123,12 +123,46 @@ fun WordTheatreHost() {
                     )
                 }
                 composable(Route.Thematic.value) {
-                    ThematicScreen(onOpenDetail = { w -> navController.navigate(Route.Detail.build(w, Route.Thematic)) })
+                    ThematicScreen(
+                        onOpenDetail = { w, def, decomp, pform, rform, sform, rgloss, rconn, spos, sdef, stags ->
+                            navController.navigate(
+                                Route.Detail.build(
+                                    w,
+                                    Route.Thematic,
+                                    def = def,
+                                    decomp = decomp,
+                                    pform = pform,
+                                    rform = rform,
+                                    sform = sform,
+                                    rgloss = rgloss,
+                                    rconn = rconn,
+                                    spos = spos,
+                                    sdef = sdef,
+                                    stags = stags,
+                                )
+                            )
+                        }
+                    )
                 }
                 composable(Route.Workshop.value) {
                     WorkshopScreen(
-                        onOpenDetail = { w, def, decomp ->
-                            navController.navigate(Route.Detail.build(w, Route.Workshop, def = def, decomp = decomp))
+                        onOpenDetail = { w, def, decomp, pform, rform, sform, rgloss, rconn, spos, sdef, stags ->
+                            navController.navigate(
+                                Route.Detail.build(
+                                    w,
+                                    Route.Workshop,
+                                    def = def,
+                                    decomp = decomp,
+                                    pform = pform,
+                                    rform = rform,
+                                    sform = sform,
+                                    rgloss = rgloss,
+                                    rconn = rconn,
+                                    spos = spos,
+                                    sdef = sdef,
+                                    stags = stags,
+                                )
+                            )
                         },
                     )
                 }
@@ -147,6 +181,14 @@ fun WordTheatreHost() {
                         navArgument(Route.Detail.fromArg) { type = NavType.StringType; defaultValue = "" },
                         navArgument(Route.Detail.defArg) { type = NavType.StringType; defaultValue = "" },
                         navArgument(Route.Detail.decompArg) { type = NavType.StringType; defaultValue = "" },
+                        navArgument(Route.Detail.pformArg) { type = NavType.StringType; defaultValue = "" },
+                        navArgument(Route.Detail.rformArg) { type = NavType.StringType; defaultValue = "" },
+                        navArgument(Route.Detail.sformArg) { type = NavType.StringType; defaultValue = "" },
+                        navArgument(Route.Detail.rglossArg) { type = NavType.StringType; defaultValue = "" },
+                        navArgument(Route.Detail.rconnArg) { type = NavType.StringType; defaultValue = "" },
+                        navArgument(Route.Detail.sposArg) { type = NavType.StringType; defaultValue = "" },
+                        navArgument(Route.Detail.sdefArg) { type = NavType.StringType; defaultValue = "" },
+                        navArgument(Route.Detail.stagsArg) { type = NavType.StringType; defaultValue = "" },
                     ),
                 ) {
                     WordDetailScreen(onBack = { navController.popBackStack() })

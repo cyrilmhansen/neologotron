@@ -11,7 +11,6 @@
     <string name="title_detail">Word Detail</string>
 
     <string name="action_generate">Generate</string>
-    <string name="action_apply">Apply</string>
     <string name="action_reset">Reset</string>
     <string name="action_open_thematic">Open Thematic</string>
     <string name="action_open_workshop">Open Workshop</string>
@@ -53,6 +52,21 @@
     <string name="about_links">Learn more: Logotron (Jean‑Pierre Petit), Oulipo and literary experiments.</string>
     <string name="about_version">Version: %1$s</string>
     <string name="msg_select_all_parts">Select a prefix, a root and a suffix</string>
+    <string name="label_def_mode">Definition mode</string>
+    <string name="mode_technical">Technical</string>
+    <string name="mode_poetic">Poetic</string>
+    <string name="mode_selected_technical">(technical)</string>
+    <string name="mode_selected_poetic">(poetic)</string>
+    <string name="label_theme">Theme</string>
+    <string name="theme_minimal">Minimal</string>
+    <string name="theme_retro">Retro 80\'s</string>
+    <string name="theme_cyberpunk">Cyberpunk</string>
+    <string name="theme_dark">Dark theme</string>
+    <string name="label_options">Options</string>
+    <string name="option_coherence_filters">Coherence filters</string>
+    <string name="option_shake_generate">Shake to generate</string>
+    <string name="option_haptic_on_shake">Haptic feedback on shake</string>
+    <string name="msg_shake_hint">Shake detected — you can disable haptic feedback in Settings.</string>
     
     <!-- Onboarding (default English to be translated) -->
     <string name="onboarding_title">Welcome to Neologotron</string>

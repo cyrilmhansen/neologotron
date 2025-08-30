@@ -2,10 +2,12 @@ package com.neologotron.app.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.ContentCopy
@@ -24,11 +26,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -38,6 +43,14 @@ import com.neologotron.app.ui.copyToClipboard
 import com.neologotron.app.ui.shareWord
 import com.neologotron.app.ui.viewmodel.MainViewModel
 import kotlinx.coroutines.launch
+import com.neologotron.app.domain.generator.GeneratorRules
+import androidx.compose.material3.AssistChip
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
+import androidx.compose.runtime.DisposableEffect
+import kotlin.math.sqrt
 
 @Composable
 fun MainScreen(
@@ -48,9 +61,14 @@ fun MainScreen(
     val word by vm.word.collectAsState()
     val definition by vm.definition.collectAsState()
     val isFavorite by vm.isFavorite.collectAsState()
+    val defMode by vm.definitionMode.collectAsState(initial = GeneratorRules.DefinitionMode.TECHNICAL)
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
+    val haptics = LocalHapticFeedback.current
     val scope = rememberCoroutineScope()
+    val shakeEnabled by vm.shakeEnabled.collectAsState(initial = false)
+    val hapticOnShake by vm.hapticOnShake.collectAsState(initial = true)
+    val shakeHintShown by vm.shakeHintShown.collectAsState(initial = false)
 
     LaunchedEffect(Unit) {
         vm.favoriteToggled.collect { added ->
@@ -63,6 +81,44 @@ fun MainScreen(
                 )
             }
         }
+    }
+
+    // Shake-to-generate
+    val sensorManager = LocalContext.current.getSystemService(SensorManager::class.java)
+    val accelerometer = remember { sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) }
+    val debounceMs = 1200L
+    val threshold = 2.7f // g-force threshold
+    var lastShakeTime by remember { mutableStateOf(0L) }
+    DisposableEffect(shakeEnabled, accelerometer) {
+        if (!shakeEnabled || sensorManager == null || accelerometer == null) return@DisposableEffect onDispose {}
+        val listener = object : SensorEventListener {
+            override fun onSensorChanged(event: SensorEvent) {
+                val x = event.values[0]
+                val y = event.values[1]
+                val z = event.values[2]
+                val gX = x / SensorManager.GRAVITY_EARTH
+                val gY = y / SensorManager.GRAVITY_EARTH
+                val gZ = z / SensorManager.GRAVITY_EARTH
+                val gForce = sqrt((gX * gX + gY * gY + gZ * gZ).toDouble()).toFloat()
+                val now = System.currentTimeMillis()
+                if (gForce > threshold && now - lastShakeTime > debounceMs) {
+                    lastShakeTime = now
+                    if (hapticOnShake) {
+                        haptics.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                    }
+                    if (!shakeHintShown) {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(context.getString(R.string.msg_shake_hint))
+                        }
+                        vm.markShakeHintShown()
+                    }
+                    vm.generate()
+                }
+            }
+            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+        }
+        sensorManager.registerListener(listener, accelerometer, SensorManager.SENSOR_DELAY_UI)
+        onDispose { sensorManager.unregisterListener(listener) }
     }
 
     Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { innerPadding ->
@@ -110,6 +166,23 @@ fun MainScreen(
                 }) {
                     Icon(Icons.Filled.ContentCopy, contentDescription = stringResource(id = R.string.action_copy_definition))
                 }
+            }
+            Row(modifier = Modifier.padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text(text = stringResource(id = R.string.label_def_mode), modifier = Modifier.padding(end = 8.dp))
+                AssistChip(
+                    onClick = { vm.setDefinitionMode(GeneratorRules.DefinitionMode.TECHNICAL) },
+                    label = { Text(stringResource(id = R.string.mode_technical)) },
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                AssistChip(
+                    onClick = { vm.setDefinitionMode(GeneratorRules.DefinitionMode.POETIC) },
+                    label = { Text(stringResource(id = R.string.mode_poetic)) },
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(text = when (defMode) {
+                    GeneratorRules.DefinitionMode.TECHNICAL -> stringResource(id = R.string.mode_selected_technical)
+                    GeneratorRules.DefinitionMode.POETIC -> stringResource(id = R.string.mode_selected_poetic)
+                }, style = MaterialTheme.typography.labelSmall)
             }
             Button(onClick = { vm.generate() }, modifier = Modifier.padding(top = 24.dp)) {
                 Text(text = stringResource(id = R.string.action_generate))

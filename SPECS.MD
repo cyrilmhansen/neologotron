@@ -46,6 +46,8 @@ Le Néologotron se veut plus qu'un simple générateur aléatoire. C'est un outi
 
         Mode Semi-Guidé ("Thématique") : L'utilisateur choisit une ou plusieurs catégories (tags sémantiques) pour orienter la génération vers un champ lexical précis. L'algorithme piochera alors en priorité dans les morphèmes correspondants.
 
+        Comportement d'application immédiate : Les sélections de tags sont persistées (DataStore) et appliquées instantanément à la génération (pas de bouton « Appliquer »). Une action « Réinitialiser » permet d'effacer la sélection. Un bouton « Aperçu dans Détail » peut ouvrir un aperçu sans enregistrer dans l'historique.
+
         Mode Atelier ("Manuel") : L'utilisateur sélectionne manuellement chaque composant (préfixe, racine, suffixe) depuis des listes pour forger son propre mot.
 
     2.1.3. Filtres de Cohérence Linguistique :
@@ -113,6 +115,12 @@ Le Néologotron se veut plus qu'un simple générateur aléatoire. C'est un outi
             Thème Cyberpunk : Tons néon (magenta, cyan), effets de "glitch".
 
         Paramètres du Générateur : Option pour activer/désactiver les filtres de cohérence, choisir le mode de définition par défaut (technique/poétique).
+
+    2.3.4. Thématique – Détails UI :
+
+        Disposition des tags : Affichage des chips dans une grille fluide (FlowRow) avec retour à la ligne automatique pour exposer l'ensemble des tags.
+
+        Retour immédiat : Le tap sur un chip applique instantanément le filtre (pas de bouton « Appliquer »), avec persistance de la sélection. Un bouton « Réinitialiser » efface la sélection. « Aperçu dans Détail » reste disponible.
 
 3. Spécifications Techniques
 

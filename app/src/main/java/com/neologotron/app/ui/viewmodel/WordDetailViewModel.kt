@@ -6,6 +6,9 @@ import androidx.lifecycle.viewModelScope
 import com.neologotron.app.data.repo.FavoriteRepository
 import com.neologotron.app.data.repo.HistoryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import com.neologotron.app.data.repo.SettingsRepository
+import com.neologotron.app.domain.generator.GeneratorRules
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -17,12 +20,21 @@ import javax.inject.Inject
 class WordDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val history: HistoryRepository,
-    private val favorites: FavoriteRepository
+    private val favorites: FavoriteRepository,
+    private val settings: SettingsRepository,
 ) : ViewModel() {
 
     private val wordArg: String = savedStateHandle.get<String>("word").orEmpty()
     private val defArg: String = savedStateHandle.get<String>("def").orEmpty()
     private val decompArg: String = savedStateHandle.get<String>("decomp").orEmpty()
+    private val pformArg: String = savedStateHandle.get<String>("pform").orEmpty()
+    private val rformArg: String = savedStateHandle.get<String>("rform").orEmpty()
+    private val sformArg: String = savedStateHandle.get<String>("sform").orEmpty()
+    private val rglossArg: String = savedStateHandle.get<String>("rgloss").orEmpty()
+    private val rconnArg: String = savedStateHandle.get<String>("rconn").orEmpty()
+    private val sposArg: String = savedStateHandle.get<String>("spos").orEmpty()
+    private val sdefArg: String = savedStateHandle.get<String>("sdef").orEmpty()
+    private val stagsArg: String = savedStateHandle.get<String>("stags").orEmpty()
 
     private val _word = MutableStateFlow(wordArg)
     val word: StateFlow<String> = _word
@@ -44,6 +56,37 @@ class WordDetailViewModel @Inject constructor(
 
     init {
         refresh()
+        // Recompute on-the-fly when settings change and morph metadata is available
+        viewModelScope.launch {
+            combine(settings.definitionMode, settings.coherenceFilters) { mode, filters ->
+                Pair(mode, filters)
+            }.collect { (mode, filters) ->
+                if (rformArg.isNotBlank() && sformArg.isNotBlank()) {
+                    val wordBuild = GeneratorRules.composeWord(
+                        prefixForm = pformArg,
+                        rootForm = rformArg,
+                        suffixForm = sformArg,
+                        connectorPref = rconnArg.ifBlank { null },
+                        useFilters = filters,
+                    )
+                    val newWord = wordBuild.word
+                    val newDef = GeneratorRules.composeDefinition(
+                        rootGloss = rglossArg.ifBlank { rformArg },
+                        suffixPosOut = sposArg.ifBlank { null },
+                        defTemplate = sdefArg.ifBlank { null },
+                        tags = stagsArg.ifBlank { null },
+                        mode = mode,
+                    )
+                    _word.value = newWord
+                    _definition.value = newDef
+                    _decomposition.value = listOf(pformArg, rformArg, sformArg).filter { it.isNotBlank() }.joinToString(" + ")
+                    _mode.value = when (mode) {
+                        GeneratorRules.DefinitionMode.TECHNICAL -> "technical"
+                        GeneratorRules.DefinitionMode.POETIC -> "poetic"
+                    }
+                }
+            }
+        }
     }
 
     fun refresh() {

@@ -10,11 +10,17 @@ object GeneratorRules {
         prefixForm: String,
         rootForm: String,
         suffixForm: String,
-        connectorPref: String?
+        connectorPref: String?,
+        useFilters: Boolean = true,
     ): WordBuild {
         val pref = prefixForm.trim().trimEnd('-')
         var root = rootForm.trim().trimEnd('-')
         var suff = suffixForm.trim().trimStart('-')
+
+        if (!useFilters) {
+            val word = pref + root + suff
+            return WordBuild(word, 1.0)
+        }
 
         val connector = (connectorPref ?: "").trim()
         val needsElision = connector.isEmpty() && (startsWithVowel(root) || startsWithSilentH(root)) && endsWithVowel(pref)
@@ -111,4 +117,3 @@ object GeneratorRules {
     private fun endsWithVowel(s: String): Boolean = s.lastOrNull()?.lowercaseChar()?.let { it in vowels } ?: false
     private val vowels = setOf('a','e','i','o','u','y','é','è','ê','ë','ï','î','ô','û','ù')
 }
-

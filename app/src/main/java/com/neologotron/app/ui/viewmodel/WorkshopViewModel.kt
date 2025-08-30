@@ -9,6 +9,7 @@ import com.neologotron.app.data.repo.LexemeRepository
 import com.neologotron.app.data.repo.HistoryRepository
 import com.neologotron.app.domain.generator.GeneratorRules
 import com.neologotron.app.domain.generator.GeneratorService
+import com.neologotron.app.data.repo.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,7 +21,8 @@ import javax.inject.Inject
 class WorkshopViewModel @Inject constructor(
     private val repo: LexemeRepository,
     private val generator: GeneratorService,
-    private val history: HistoryRepository
+    private val history: HistoryRepository,
+    private val settings: SettingsRepository
 ) : ViewModel() {
     private val _prefixes = MutableStateFlow<List<PrefixEntity>>(emptyList())
     val prefixes: StateFlow<List<PrefixEntity>> = _prefixes
@@ -49,11 +51,15 @@ class WorkshopViewModel @Inject constructor(
     private val _previewDecomposition = MutableStateFlow("")
     val previewDecomposition: StateFlow<String> = _previewDecomposition.asStateFlow()
 
+    private val _filtersEnabled = MutableStateFlow(true)
+    val filtersEnabled: StateFlow<Boolean> = _filtersEnabled.asStateFlow()
+
     init {
         viewModelScope.launch {
             _prefixes.value = repo.listPrefixesByTag("").take(10)
             _roots.value = repo.listRootsByTag("").take(10)
             _suffixes.value = repo.listSuffixesByTag("").take(10)
+            settings.coherenceFilters.collect { enabled -> _filtersEnabled.value = enabled }
         }
     }
 
@@ -95,7 +101,7 @@ class WorkshopViewModel @Inject constructor(
         val r = _selectedRoot.value
         val s = _selectedSuffix.value
         if (p != null && r != null && s != null) {
-            val word = GeneratorRules.composeWord(p.form, r.form, s.form, r.connectorPref).word
+            val word = GeneratorRules.composeWord(p.form, r.form, s.form, r.connectorPref, useFilters = _filtersEnabled.value).word
             val def = GeneratorRules.composeDefinition(r.gloss, s.posOut, s.defTemplate, s.tags)
             _previewWord.value = word
             _previewDefinition.value = def
@@ -107,26 +113,38 @@ class WorkshopViewModel @Inject constructor(
         }
     }
 
-    fun previewSelectedAndOpen(onOpenDetail: (String, String?, String?) -> Unit) {
+    fun previewSelectedAndOpen(onOpenDetail: (String, String?, String?, String?, String?, String?, String?, String?, String?, String?, String?) -> Unit) {
         val p = _selectedPrefix.value
         val r = _selectedRoot.value
         val s = _selectedSuffix.value
         if (p == null || r == null || s == null) return
-        val word = GeneratorRules.composeWord(p.form, r.form, s.form, r.connectorPref).word
+        val word = GeneratorRules.composeWord(p.form, r.form, s.form, r.connectorPref, useFilters = _filtersEnabled.value).word
         val def = GeneratorRules.composeDefinition(r.gloss, s.posOut, s.defTemplate, s.tags)
         val decomp = "${p.form} + ${r.form} + ${s.form}"
         _previewWord.value = word
         _previewDefinition.value = def
         _previewDecomposition.value = decomp
-        onOpenDetail(word, def, decomp)
+        onOpenDetail(
+            word,
+            def,
+            decomp,
+            p.form,
+            r.form,
+            s.form,
+            r.gloss,
+            r.connectorPref,
+            s.posOut,
+            s.defTemplate,
+            s.tags,
+        )
     }
 
-    fun commitAndOpen(onOpenDetail: (String, String?, String?) -> Unit) {
+    fun commitAndOpen(onOpenDetail: (String, String?, String?, String?, String?, String?, String?, String?, String?, String?, String?) -> Unit) {
         val p = _selectedPrefix.value
         val r = _selectedRoot.value
         val s = _selectedSuffix.value
         if (p == null || r == null || s == null) return
-        val word = GeneratorRules.composeWord(p.form, r.form, s.form, r.connectorPref).word
+        val word = GeneratorRules.composeWord(p.form, r.form, s.form, r.connectorPref, useFilters = _filtersEnabled.value).word
         val def = GeneratorRules.composeDefinition(r.gloss, s.posOut, s.defTemplate, s.tags)
         val decomp = "${p.form} + ${r.form} + ${s.form}"
         _previewWord.value = word
@@ -134,7 +152,21 @@ class WorkshopViewModel @Inject constructor(
         _previewDecomposition.value = decomp
         viewModelScope.launch {
             runCatching { history.add(word, def, decomp, mode = "manual") }
-                .onSuccess { onOpenDetail(word, null, null) }
+                .onSuccess {
+                    onOpenDetail(
+                        word,
+                        null,
+                        null,
+                        p.form,
+                        r.form,
+                        s.form,
+                        r.gloss,
+                        r.connectorPref,
+                        s.posOut,
+                        s.defTemplate,
+                        s.tags,
+                    )
+                }
         }
     }
 }

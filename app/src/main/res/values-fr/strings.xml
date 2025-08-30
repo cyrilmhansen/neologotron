@@ -11,7 +11,6 @@
     <string name="title_detail">Détail du mot</string>
 
     <string name="action_generate">Générer</string>
-    <string name="action_apply">Appliquer</string>
     <string name="action_reset">Réinitialiser</string>
     <string name="action_open_thematic">Ouvrir Thématique</string>
     <string name="action_open_workshop">Ouvrir Atelier</string>
@@ -53,6 +52,21 @@
     <string name="about_links">En savoir plus : Logotron (Jean‑Pierre Petit), Oulipo et expérimentations littéraires.</string>
     <string name="about_version">Version: %1$s</string>
     <string name="msg_select_all_parts">Sélectionnez un préfixe, une racine et un suffixe</string>
+    <string name="label_def_mode">Mode de définition</string>
+    <string name="mode_technical">Technique</string>
+    <string name="mode_poetic">Poétique</string>
+    <string name="mode_selected_technical">(technique)</string>
+    <string name="mode_selected_poetic">(poétique)</string>
+    <string name="label_theme">Thème</string>
+    <string name="theme_minimal">Minimaliste</string>
+    <string name="theme_retro">Rétro 80\'s</string>
+    <string name="theme_cyberpunk">Cyberpunk</string>
+    <string name="theme_dark">Thème sombre</string>
+    <string name="label_options">Options</string>
+    <string name="option_coherence_filters">Filtres de cohérence</string>
+    <string name="option_shake_generate">Secouer pour générer</string>
+    <string name="option_haptic_on_shake">Retour haptique lors du secouement</string>
+    <string name="msg_shake_hint">Secouement détecté — vous pouvez désactiver le retour haptique dans Paramètres.</string>
 
     <!-- Onboarding (French) -->
     <string name="onboarding_title">Bienvenue dans Néologotron</string>

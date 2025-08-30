@@ -2,7 +2,7 @@ package com.neologotron.app.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -21,9 +21,11 @@ import androidx.compose.ui.unit.dp
 import com.neologotron.app.R
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.neologotron.app.ui.viewmodel.ThematicViewModel
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun ThematicScreen(onOpenDetail: (String) -> Unit, vm: ThematicViewModel = hiltViewModel()) {
+fun ThematicScreen(onOpenDetail: (String, String?, String?, String?, String?, String?, String?, String?, String?, String?, String?) -> Unit, vm: ThematicViewModel = hiltViewModel()) {
     val tags by vm.tags.collectAsState()
     val selected by vm.selected.collectAsState()
     Column(
@@ -34,23 +36,13 @@ fun ThematicScreen(onOpenDetail: (String) -> Unit, vm: ThematicViewModel = hiltV
     ) {
         Text(text = stringResource(id = R.string.title_thematic), style = MaterialTheme.typography.headlineSmall)
         Spacer(modifier = Modifier.height(16.dp))
-        val rowSpacing = 8.dp
-        Row(horizontalArrangement = Arrangement.spacedBy(rowSpacing)) {
-            tags.take(5).forEach { tag ->
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            tags.forEach { tag ->
                 FilterChip(selected = selected.contains(tag), onClick = { vm.toggle(tag) }, label = { Text(tag) })
             }
         }
-        if (tags.size > 5) {
-            Spacer(modifier = Modifier.height(16.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(rowSpacing)) {
-                tags.drop(5).take(5).forEach { tag ->
-                    FilterChip(selected = selected.contains(tag), onClick = { vm.toggle(tag) }, label = { Text(tag) })
-                }
-            }
-        }
         Spacer(modifier = Modifier.height(24.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Button(onClick = { vm.apply() }) { Text(text = stringResource(id = R.string.action_apply)) }
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Button(onClick = { vm.reset() }) { Text(text = stringResource(id = R.string.action_reset)) }
             Button(onClick = { vm.generateAndOpen(onOpenDetail) }) { Text(text = stringResource(id = R.string.action_open_detail_preview)) }
         }

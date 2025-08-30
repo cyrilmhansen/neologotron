@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -21,6 +22,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.Text
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.RadioButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -38,11 +40,13 @@ import com.neologotron.app.R
 import com.neologotron.app.ui.copyToClipboard
 import com.neologotron.app.ui.shareWord
 import com.neologotron.app.ui.viewmodel.WordDetailViewModel
+import com.neologotron.app.ui.viewmodel.SettingsViewModel
+import com.neologotron.app.domain.generator.GeneratorRules
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WordDetailScreen(onBack: () -> Unit, vm: WordDetailViewModel = hiltViewModel()) {
+fun WordDetailScreen(onBack: () -> Unit, vm: WordDetailViewModel = hiltViewModel(), settingsVm: SettingsViewModel = hiltViewModel()) {
     val word by vm.word.collectAsState()
     val definition by vm.definition.collectAsState()
     val decomposition by vm.decomposition.collectAsState()
@@ -50,6 +54,7 @@ fun WordDetailScreen(onBack: () -> Unit, vm: WordDetailViewModel = hiltViewModel
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val defMode by settingsVm.definitionMode.collectAsState(initial = GeneratorRules.DefinitionMode.TECHNICAL)
 
     LaunchedEffect(Unit) {
         vm.favoriteToggled.collect { added ->
@@ -116,6 +121,15 @@ fun WordDetailScreen(onBack: () -> Unit, vm: WordDetailViewModel = hiltViewModel
             Text(text = if (decomposition.isNotBlank()) decomposition else stringResource(id = R.string.placeholder_decomposition))
 
             Spacer(modifier = Modifier.height(24.dp))
+            Text(text = stringResource(id = R.string.label_def_mode))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                RadioButton(selected = defMode == GeneratorRules.DefinitionMode.TECHNICAL, onClick = { settingsVm.setDefinitionMode(GeneratorRules.DefinitionMode.TECHNICAL) })
+                Text(text = stringResource(id = R.string.mode_technical))
+                Spacer(modifier = Modifier.width(8.dp))
+                RadioButton(selected = defMode == GeneratorRules.DefinitionMode.POETIC, onClick = { settingsVm.setDefinitionMode(GeneratorRules.DefinitionMode.POETIC) })
+                Text(text = stringResource(id = R.string.mode_poetic))
+            }
+            Spacer(modifier = Modifier.height(8.dp))
             Button(onClick = { shareWord(context, word, definition) }) { Text(text = stringResource(id = R.string.action_share)) }
             Spacer(modifier = Modifier.height(8.dp))
             Button(onClick = { vm.toggleFavorite() }) { Text(text = stringResource(id = if (isFavorite) R.string.action_unfavorite else R.string.action_favorite)) }

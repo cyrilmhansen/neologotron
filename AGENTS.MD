@@ -150,6 +150,9 @@ This summarizes the required screens, core interactions, and implementation mile
 
 — Definition default mode will be persisted in settings and surfaced on Main/Detail. Share/copy is considered complete for MVP. Image-card generation remains post‑MVP as previously decided.
 
+- Thematic selection applies immediately on chip toggle; the previous Apply button was removed. Reset remains available.
+- Detail now recomputes word/definition live when opened from Thématique/Atelier by passing morph metadata via nav args; History/Favorites still show stored values (future enhancement to persist morph metadata if desired).
+
 ---
 
 ## Newly Completed (This Session)
@@ -179,6 +182,18 @@ This summarizes the required screens, core interactions, and implementation mile
 
 ---
 
+## Newly Completed (This Session)
+- Themes & settings (M5 foundation): DataStore‑backed preferences (theme style Minimal/Retro80s/Cyberpunk, dark theme); `AppTheme` applies across the app.
+- Settings UI: Toggles for definition mode, coherence filters, shake‑to‑generate, and haptic on shake.
+- Definition mode toggle (Main + Detail): Persists preference; generator uses selected mode; Workshop preview respects mode when metadata available.
+- Coherence filters wiring: Preference now gates elision/liaison/duplicate boundary rules in `GeneratorRules`; applied in Main/Thematic generation and Workshop preview.
+- Detail live recompute: Extended `Route.Detail` and `WordResult` to carry morph metadata; Detail recomputes word/definition on settings changes when metadata is present (from Thématique/Atelier).
+- Shake‑to‑generate: Accelerometer listener with debounce; respects settings; optional haptic feedback and a one‑time snackbar hint about toggling haptics.
+- Thematic UX: FlowRow chip layout (wraps all tags); immediate persistence and OptionsStore sync; removed Apply button; Reset maintained; persisted selection loaded on start.
+- Housekeeping: Removed unused `action_apply` string (both locales); added instrumentation test `ShakeHintInstrumentedTest` for one‑time hint flag.
+
+---
+
 ## Assessment Snapshot – Implementation Status and Gaps
 
 ### Current State (Summary)
@@ -189,28 +204,27 @@ This summarizes the required screens, core interactions, and implementation mile
 - Share/Copy: Implemented with instrumentation tests.
 
 ### Gaps vs AGENTS.MD Milestones
-- M1 filters/composer: Coherence rules exist but need refinement; Definition mode not exposed in UI nor persisted.
-- M2 gestures: Shake-to-generate not implemented.
-- M4 thematic: Tag UI shows subset only; selection not persisted; weighting for multi-tag not tuned.
-- M5 themes/settings: Only a basic theme stub; no theme variants or persisted preferences.
+- M1 filters/composer: Base rules wired to setting; further refinement and additional templates remain.
+- M2 gestures: Shake‑to‑generate implemented; future: sensitivity setting and a11y review.
+- M4 thematic: Tag layout polished and persisted; weighting for multi‑tag remains to be tuned.
+- M5 themes/settings: Theme variants and persistence implemented; future: typography tokens and more nuanced palettes.
 - Cross-cut polish: No swipe/undo in History, limited loading/error states, a11y/contrast/content descriptions need pass.
 
 ### Milestone Status (Quick View)
 - M0: Complete (schema + seed).
 - M1: Partial (needs rule refinements + tests; definition mode integration).
-- M2: Partial (main UI done; gestures pending).
+- M2: Mostly complete (gestures implemented; polish pending).
 - M3: Mostly complete (add swipe/undo polish).
 - M4: Baseline complete; improve tag UX/weighting and persist selection.
-- M5: Not started (themes + settings + persistence).
+- M5: Implemented (themes + settings + persistence baseline).
 - M6: Complete (share/copy).
 - M7: Onboarding implemented; polish/a11y/performance ongoing.
 
 ### Prioritized Next Steps (Accepted)
-1) Themes & Settings (DataStore + 3 themes + toggles)
-2) Definition Mode UI + persistence + composer improvements
-3) Thematic biasing UX + weighting + persistence
-4) History swipe/undo and refresh behavior
-5) Shake-to-generate (sensors + debounce)
-6) Loading/error states and a11y pass
-7) Tests for generator/service/seeding and simple navigation
-8) CSV curation and validation; optional CI enhancement for instrumented tests
+1) Thematic weighting: multi‑tag intersection priority, bias factor, fallback behavior; add unit tests
+2) History/Favorites polish: swipe‑to‑remove with undo; consider persisting morph metadata to enable Detail live recompute from these sources
+3) Loading/error/a11y: skeletons for History/Favorites; repository error snackbars with retry; content descriptions and contrast verification across themes
+4) Definition composer: expand suffix/root templates; improve phrasing; add tests
+5) Performance: tune shake sensitivity/debounce, and generator latency under large CSVs
+6) Tests: GeneratorService integration tests; seeding/CSV parsing edge cases; basic navigation tests
+7) Data curation: expand/validate CSVs; simple validation tooling; optional CI for instrumented tests
