@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Neologotron</string>
+    <string name="title_main">Théâtre</string>
+    <string name="title_history">Historique</string>
+    <string name="title_favorites">Favoris</string>
+    <string name="title_settings">Paramètres</string>
+    <string name="title_debug">Debug</string>
+    <string name="title_thematic">Thématique</string>
+    <string name="title_workshop">Atelier</string>
+    <string name="title_detail">Détail du mot</string>
+
+    <string name="action_generate">Générer</string>
+    <string name="action_apply">Appliquer</string>
+    <string name="action_reset">Réinitialiser</string>
+    <string name="action_open_thematic">Ouvrir Thématique</string>
+    <string name="action_open_workshop">Ouvrir Atelier</string>
+    <string name="action_open_debug">Ouvrir Debug</string>
+    <string name="action_open_about">À propos</string>
+    <string name="action_open_detail_preview">Aperçu dans Détail</string>
+    <string name="action_select_prefix">Préfixe</string>
+    <string name="action_select_root">Racine</string>
+    <string name="action_select_suffix">Suffixe</string>
+    <string name="action_compose_word">Forger le mot</string>
+    <string name="action_share">Partager</string>
+    <string name="action_favorite">Ajouter aux favoris</string>
+    <string name="action_unfavorite">Retirer des favoris</string>
+    <string name="action_copy_word">Copier le mot</string>
+    <string name="action_copy_definition">Copier la définition</string>
+    <string name="action_back">Retour</string>
+    <string name="hint_search">Recherche…</string>
+
+    <string name="placeholder_word">Néologisme</string>
+    <string name="placeholder_definition">Définition poétique ou technique apparaitra ici</string>
+    <string name="placeholder_history">Votre historique s’affichera ici</string>
+    <string name="placeholder_favorites">Vos favoris s’afficheront ici</string>
+    <string name="placeholder_settings">Options de thème et préférences</string>
+    <string name="label_preview">Aperçu</string>
+    <string name="label_definition">Définition</string>
+    <string name="label_etymology">Étymologie</string>
+    <string name="placeholder_decomposition">[préfixe] + [racine] + [suffixe]</string>
+    <string name="label_db_build_time">DB build time</string>
+    <string name="action_reset_db">Réinitialiser la base</string>
+    <string name="label_resetting">Réinitialisation…</string>
+    <string name="msg_favorite_added">Ajouté aux favoris</string>
+    <string name="msg_favorite_removed">Retiré des favoris</string>
+    <string name="msg_copied">Copié dans le presse-papiers</string>
+    <string name="title_about">À propos</string>
+    <string name="about_intro">Néologotron est un hommage ludique à la création de mots.</string>
+    <string name="about_credit">Le « Logotron » a été inventé par Jean‑Pierre Petit (France, 1977). Néologotron s’en inspire librement et s’inscrit aussi dans l’esprit des expérimentations littéraires de l’Oulipo.</string>
+    <string name="about_links">En savoir plus : Logotron (Jean‑Pierre Petit), Oulipo et expérimentations littéraires.</string>
+    <string name="about_version">Version: %1$s</string>
+    <string name="msg_select_all_parts">Sélectionnez un préfixe, une racine et un suffixe</string>
+
+    <!-- Onboarding (French) -->
+    <string name="onboarding_title">Bienvenue dans Néologotron</string>
+    <string name="onboarding_btn_next">Suivant</string>
+    <string name="onboarding_btn_skip">Passer</string>
+    <string name="onboarding_btn_get_started">Commencer</string>
+
+    <string name="onboarding_page_combine_title">Combiner</string>
+    <string name="onboarding_page_combine_body">Mélangez préfixes, racines et suffixes pour forger des néologismes ludiques.</string>
+
+    <string name="onboarding_page_create_title">Créer</string>
+    <string name="onboarding_page_create_body">Façonnez un mot, ajoutez une définition et explorez son étymologie.</string>
+
+    <string name="onboarding_page_share_title">Partager</string>
+    <string name="onboarding_page_share_body">Copiez, ajoutez aux favoris ou partagez vos créations avec des amis.</string>
+</resources>
+
