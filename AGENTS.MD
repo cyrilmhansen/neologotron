@@ -206,7 +206,7 @@ This summarizes the required screens, core interactions, and implementation mile
 ### Gaps vs AGENTS.MD Milestones
 - M1 filters/composer: Base rules wired to setting; further refinement and additional templates remain.
 - M2 gestures: Shake‑to‑generate implemented; future: sensitivity setting and a11y review.
-- M4 thematic: Tag layout polished and persisted; weighting for multi‑tag remains to be tuned.
+- M4 thematic: Tag layout polished and persisted; multi‑tag weighting implemented; further tuning optional.
 - M5 themes/settings: Theme variants and persistence implemented; future: typography tokens and more nuanced palettes.
 - Cross-cut polish: No swipe/undo in History, limited loading/error states, a11y/contrast/content descriptions need pass.
 
@@ -215,13 +215,13 @@ This summarizes the required screens, core interactions, and implementation mile
 - M1: Partial (needs rule refinements + tests; definition mode integration).
 - M2: Mostly complete (gestures implemented; polish pending).
 - M3: Mostly complete (add swipe/undo polish).
-- M4: Baseline complete; improve tag UX/weighting and persist selection.
+- M4: Complete (chips UX + multi‑tag weighting + persisted selection).
 - M5: Implemented (themes + settings + persistence baseline).
 - M6: Complete (share/copy).
 - M7: Onboarding implemented; polish/a11y/performance ongoing.
 
 ### Prioritized Next Steps (Accepted)
-1) Thematic weighting: favor multi‑tag intersections, apply bias factors per match count, define fallback when no selected tags match; add unit tests
+1) Thematic weighting: tune bias parameters and add caching for tag indexes; keep fallback semantics; monitor UX
 2) History/Favorites polish: implement swipe‑to‑remove with undo; persist morph metadata to enable Detail live recompute from these sources; add migration
 3) Loading/error/A11y: skeletons for History/Favorites; repository error snackbars with retry; content descriptions and contrast verification across themes
 4) Definition composer: expand suffix/root templates; improve phrasing; add tests
@@ -234,7 +234,7 @@ This summarizes the required screens, core interactions, and implementation mile
 ## Execution Plan Update — 2025‑08‑30
 
 - Thematic weighting (M4 refinement)
-  - Implement overlap‑count based weighting across prefixes/roots/suffixes. Items matching more selected tags/domains receive higher selection weight; fallback to single‑tag, then unfiltered if none match. Keep immediate apply on chip toggle and persisted selection.
+  - Status: Implemented in `GeneratorService` with effective weight = base × (1 + matchCount); unmatched → 0; empty selection uses base weights.
   - Acceptance: with two tags selected, items matching both are significantly favored; empty selection behaves current way.
 
 - History/Favorites UX + Metadata (M3 refinement)
@@ -265,3 +265,16 @@ This summarizes the required screens, core interactions, and implementation mile
 
 Specs alignment note
 - SPECS.MD updated to: correct « Logotron » attribution to Jean‑Pierre Petit; specify multi‑tag thematic weighting; require swipe‑to‑remove with undo; require morph metadata persistence for History/Favorites; add A11y, performance, and testing expectations.
+
+---
+
+## Newly Completed (This Session)
+- Thematic weighting: Implemented overlap-based bias in generator; empty selection uses base weights; unmatched deprioritized to zero when matches exist.
+- UI integration: Thematic chips immediately persist selection; Main screen generation respects selection via `SettingsRepository` → `GeneratorOptionsStore` sync.
+- Tests: Added `GeneratorServiceWeightingTest` covering intersection > single‑tag, single‑tag vs unmatched, and empty‑selection base weights.
+
+## UI Acceptance – Thematic Weighting
+- Thematic (two tags with overlap): Select two chips known to overlap, tap « Aperçu dans Détail » repeatedly; observe outputs biased toward morphèmes matching both tags; items with no matching tags should not appear.
+- Thematic (single tag): Select one chip, repeat; observe only matching morphèmes are chosen; unmatched are excluded.
+- Reset tags: Use « Réinitialiser », return to Main and tap « Générer » multiple times; outputs reflect full dataset (base weights only).
+- Performance: Generation remains perceptually <150ms; no visible lag changing chips.

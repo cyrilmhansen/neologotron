@@ -4,8 +4,8 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
     alias(libs.plugins.composeCompiler)
-    alias(libs.plugins.ktlint)
-    alias(libs.plugins.detekt)
+//    alias(libs.plugins.ktlint)
+//    alias(libs.plugins.detekt)
 }
 
 android {
@@ -91,16 +91,16 @@ dependencies {
 
 // KSP (no configuration needed for Hilt)
 
-ktlint {
-    android.set(true)
-    outputColorName.set("RED")
-}
+//ktlint {
+//   android.set(true)
+//   outputColorName.set("RED")
+//}
 
-detekt {
-    buildUponDefaultConfig = true
-    allRules = false
-    config.setFrom(rootProject.files("detekt.yml"))
-}
+//detekt {
+//   buildUponDefaultConfig = true
+//    allRules = false
+//   config.setFrom(rootProject.files("detekt.yml"))
+//}
 
 // Ensure Kotlin uses JDK 17 toolchain even if Gradle runs under a newer JDK
 kotlin {

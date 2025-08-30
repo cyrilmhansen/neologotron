@@ -35,17 +35,24 @@ class GeneratorService @Inject constructor(
         mode: GeneratorRules.DefinitionMode = GeneratorRules.DefinitionMode.TECHNICAL,
         useFilters: Boolean = true,
     ): WordResult {
-        val chosenTag = tags.shuffled().firstOrNull().orEmpty()
-        val prefixes = if (chosenTag.isNotBlank()) lexemes.listPrefixesByTag(chosenTag) else lexemes.listPrefixesByTag("")
-        val roots = if (chosenTag.isNotBlank()) lexemes.listRootsByTag(chosenTag) else lexemes.listRootsByTag("")
-        val suffixes = if (chosenTag.isNotBlank()) lexemes.listSuffixesByTag(chosenTag) else lexemes.listSuffixesByTag("")
+        val selected = tags.map { it.trim().lowercase() }.filter { it.isNotBlank() }.toSet()
+        // Fetch complete sets to allow multi-tag weighting; repository orders by base weight already
+        val prefixes = lexemes.listPrefixesByTag("")
+        val roots = lexemes.listRootsByTag("")
+        val suffixes = lexemes.listSuffixesByTag("")
 
-        val p = weightedRandom(prefixes) { it.weight }
-            ?: throw IllegalStateException("No prefixes available")
-        val r = weightedRandom(roots) { it.weight }
-            ?: throw IllegalStateException("No roots available")
-        val s = weightedRandom(suffixes) { it.weight }
-            ?: throw IllegalStateException("No suffixes available")
+        val p = weightedRandom(prefixes) { pe ->
+            effectiveWeight(base = pe.weight, rawTags = pe.tags, selected = selected)
+        } ?: throw IllegalStateException("No prefixes available")
+
+        val r = weightedRandom(roots) { re ->
+            // For roots, we treat `domain` as tag-like field
+            effectiveWeight(base = re.weight, rawTags = re.domain, selected = selected)
+        } ?: throw IllegalStateException("No roots available")
+
+        val s = weightedRandom(suffixes) { se ->
+            effectiveWeight(base = se.weight, rawTags = se.tags, selected = selected)
+        } ?: throw IllegalStateException("No suffixes available")
 
         val composed = compose(p, r, s, useFilters)
         val word = composed.word
@@ -67,6 +74,20 @@ class GeneratorService @Inject constructor(
             suffixDefTemplate = s.defTemplate,
             suffixTags = s.tags,
         )
+    }
+
+    private fun effectiveWeight(base: Double?, rawTags: String?, selected: Set<String>): Double {
+        val baseW = (base ?: 1.0).coerceAtLeast(0.0)
+        if (selected.isEmpty()) return baseW
+        val itemTags = rawTags.orEmpty()
+            .split(',')
+            .map { it.trim().lowercase() }
+            .filter { it.isNotBlank() }
+            .toSet()
+        val matchCount = itemTags.intersect(selected).size
+        // If at least one item in the collection matches, unmatched should be heavily deprioritized.
+        // We return 0.0 for no matches and scale by (1 + matchCount) otherwise.
+        return if (matchCount == 0) 0.0 else baseW * (1.0 + matchCount)
     }
 
     private fun compose(
