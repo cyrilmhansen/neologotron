@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.neologotron.app.data.db.AppDatabase
 import com.neologotron.app.data.repo.AdminRepository
+import com.neologotron.app.data.repo.OnboardingRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,7 +16,8 @@ import javax.inject.Inject
 @HiltViewModel
 class DebugViewModel @Inject constructor(
     private val db: AppDatabase,
-    private val admin: AdminRepository
+    private val admin: AdminRepository,
+    private val onboarding: OnboardingRepository,
 ) : ViewModel() {
     private val _dbBuildTimeText = MutableStateFlow("—")
     val dbBuildTimeText: StateFlow<String> = _dbBuildTimeText
@@ -44,5 +46,10 @@ class DebugViewModel @Inject constructor(
                 .also { _resetting.value = false }
         }
     }
-}
 
+    fun resetOnboarding() {
+        viewModelScope.launch {
+            runCatching { onboarding.reset() }
+        }
+    }
+}

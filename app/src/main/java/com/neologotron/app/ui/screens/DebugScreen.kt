@@ -12,18 +12,30 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
+import androidx.compose.runtime.rememberCoroutineScope
 import com.neologotron.app.R
 import com.neologotron.app.ui.viewmodel.DebugViewModel
 
 @Composable
-fun DebugScreen(vm: DebugViewModel = hiltViewModel()) {
+fun DebugScreen(
+    vm: DebugViewModel = hiltViewModel(),
+    onShowMessage: (String) -> Unit = {},
+) {
     val buildTime by vm.dbBuildTimeText.collectAsState()
     val resetting by vm.resetting.collectAsState()
+    val scope = rememberCoroutineScope()
+    var onboardingDisabled by remember { mutableStateOf(false) }
+    val onboardingResetMsg = stringResource(id = R.string.msg_onboarding_reset)
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -43,6 +55,20 @@ fun DebugScreen(vm: DebugViewModel = hiltViewModel()) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(text = stringResource(id = R.string.label_resetting))
         }
+        Spacer(modifier = Modifier.height(24.dp))
+        Button(
+            onClick = {
+                vm.resetOnboarding()
+                onShowMessage(onboardingResetMsg)
+                scope.launch {
+                    onboardingDisabled = true
+                    delay(1200)
+                    onboardingDisabled = false
+                }
+            },
+            enabled = !onboardingDisabled,
+        ) {
+            Text(text = stringResource(id = R.string.action_reset_onboarding))
+        }
     }
 }
-

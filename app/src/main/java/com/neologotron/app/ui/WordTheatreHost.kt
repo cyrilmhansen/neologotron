@@ -6,13 +6,17 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import kotlinx.coroutines.launch
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -39,6 +43,8 @@ fun WordTheatreHost() {
     val navController = rememberNavController()
     val onboardingVm: OnboardingViewModel = hiltViewModel()
     val startDest = remember { mutableStateOf<String?>(null) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
     LaunchedEffect(Unit) {
         val done = onboardingVm.checkComplete()
         startDest.value = if (done) Route.Main.value else Route.Onboarding.value
@@ -46,6 +52,7 @@ fun WordTheatreHost() {
     val startDestination = startDest.value
     if (startDestination != null) {
         Scaffold(
+            snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
             bottomBar = {
                 val backStack by navController.currentBackStackEntryAsState()
                 val currentRoute = backStack?.destination?.route
@@ -125,7 +132,13 @@ fun WordTheatreHost() {
                         },
                     )
                 }
-                composable(Route.Debug.value) { DebugScreen() }
+                composable(Route.Debug.value) {
+                    DebugScreen(
+                        onShowMessage = { msg ->
+                            scope.launch { snackbarHostState.showSnackbar(message = msg) }
+                        }
+                    )
+                }
                 composable(Route.About.value) { AboutScreen(onBack = { navController.popBackStack() }) }
                 composable(
                     route = Route.Detail.value,
@@ -142,4 +155,3 @@ fun WordTheatreHost() {
         }
     }
 }
-

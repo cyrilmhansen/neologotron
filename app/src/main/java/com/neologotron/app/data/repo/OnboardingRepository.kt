@@ -27,5 +27,10 @@ class OnboardingRepository @Inject constructor(
             prefs[key] = true
         }
     }
-}
 
+    suspend fun reset() {
+        context.dataStore.edit { prefs ->
+            prefs[key] = false
+        }
+    }
+}

@@ -42,6 +42,8 @@
     <string name="label_db_build_time">DB build time</string>
     <string name="action_reset_db">Reset database</string>
     <string name="label_resetting">Resetting…</string>
+    <string name="action_reset_onboarding">Reset onboarding</string>
+    <string name="msg_onboarding_reset">Onboarding will show at next start</string>
     <string name="msg_favorite_added">Added to favorites</string>
     <string name="msg_favorite_removed">Removed from favorites</string>
     <string name="msg_copied">Copied to clipboard</string>

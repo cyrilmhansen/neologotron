@@ -42,6 +42,8 @@
     <string name="label_db_build_time">DB build time</string>
     <string name="action_reset_db">Réinitialiser la base</string>
     <string name="label_resetting">Réinitialisation…</string>
+    <string name="action_reset_onboarding">Réinitialiser l’onboarding</string>
+    <string name="msg_onboarding_reset">L’onboarding s’affichera au prochain démarrage</string>
     <string name="msg_favorite_added">Ajouté aux favoris</string>
     <string name="msg_favorite_removed">Retiré des favoris</string>
     <string name="msg_copied">Copié dans le presse-papiers</string>
@@ -67,4 +69,3 @@
     <string name="onboarding_page_share_title">Partager</string>
     <string name="onboarding_page_share_body">Copiez, ajoutez aux favoris ou partagez vos créations avec des amis.</string>
 </resources>
-
