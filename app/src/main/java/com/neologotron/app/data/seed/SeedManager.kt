@@ -116,31 +116,37 @@ class SeedManager @Inject constructor(
         return result
     }
 
-    private fun parseCsvLine(line: String): List<String>? {
-        if (line.isBlank()) return null
-        val fields = mutableListOf<String>()
-        val sb = StringBuilder()
-        var inQuotes = false
-        var i = 0
-        while (i < line.length) {
-            val c = line[i]
-            when (c) {
-                '"' -> {
-                    if (inQuotes && i + 1 < line.length && line[i + 1] == '"') {
-                        sb.append('"'); i++
-                    } else {
-                        inQuotes = !inQuotes
-                    }
-                }
-                ',' -> {
-                    if (inQuotes) sb.append(c) else { fields.add(sb.toString()); sb.setLength(0) }
-                }
-                else -> sb.append(c)
-            }
-            i++
-        }
-        fields.add(sb.toString())
-        return fields
-    }
+
 }
 
+// Exposed for unit testing and reuse. Parses a single CSV line into fields.
+// Rules:
+// - Commas inside quotes are preserved
+// - Double quotes inside quoted fields are unescaped ("")
+// - Blank lines return null
+internal fun parseCsvLine(line: String): List<String>? {
+    if (line.isBlank()) return null
+    val fields = mutableListOf<String>()
+    val sb = StringBuilder()
+    var inQuotes = false
+    var i = 0
+    while (i < line.length) {
+        val c = line[i]
+        when (c) {
+            '"' -> {
+                if (inQuotes && i + 1 < line.length && line[i + 1] == '"') {
+                    sb.append('"'); i++
+                } else {
+                    inQuotes = !inQuotes
+                }
+            }
+            ',' -> {
+                if (inQuotes) sb.append(c) else { fields.add(sb.toString()); sb.setLength(0) }
+            }
+            else -> sb.append(c)
+        }
+        i++
+    }
+    fields.add(sb.toString())
+    return fields
+}

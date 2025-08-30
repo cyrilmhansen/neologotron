@@ -1,0 +1,3 @@
+id,form,alt_forms,gloss,origin,domain,connector_pref,examples,weight,root_lang,proto_root,ety_desc,ety_lineage,semantic_field,sources
+root_morpho,morpho-,,forme,translingue,langage,o,morphologie,1.0,mul,,"Du grec μορφή (morphḗ, « forme »).",translingue < grec,langage,wiktionary:fr::morpho-#combining form
+root_photo,photo-,,lumière,grec,physics,o,,1.0,grc,,"Du grec ancien φῶς (phôs, « lumière »).",translingue < grec,physics,wiktionary:fr::photo-#prefix

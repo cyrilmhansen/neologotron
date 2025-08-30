@@ -44,12 +44,12 @@ import com.neologotron.app.ui.shareWord
 import com.neologotron.app.ui.viewmodel.MainViewModel
 import kotlinx.coroutines.launch
 import com.neologotron.app.domain.generator.GeneratorRules
-import androidx.compose.material3.AssistChip
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.material3.FilterChip
 import kotlin.math.sqrt
 
 @Composable
@@ -169,20 +169,17 @@ fun MainScreen(
             }
             Row(modifier = Modifier.padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text(text = stringResource(id = R.string.label_def_mode), modifier = Modifier.padding(end = 8.dp))
-                AssistChip(
+                FilterChip(
+                    selected = defMode == GeneratorRules.DefinitionMode.TECHNICAL,
                     onClick = { vm.setDefinitionMode(GeneratorRules.DefinitionMode.TECHNICAL) },
-                    label = { Text(stringResource(id = R.string.mode_technical)) },
+                    label = { Text(stringResource(id = R.string.mode_technical)) }
                 )
-                Spacer(modifier = Modifier.width(4.dp))
-                AssistChip(
+                Spacer(modifier = Modifier.width(8.dp))
+                FilterChip(
+                    selected = defMode == GeneratorRules.DefinitionMode.POETIC,
                     onClick = { vm.setDefinitionMode(GeneratorRules.DefinitionMode.POETIC) },
-                    label = { Text(stringResource(id = R.string.mode_poetic)) },
+                    label = { Text(stringResource(id = R.string.mode_poetic)) }
                 )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(text = when (defMode) {
-                    GeneratorRules.DefinitionMode.TECHNICAL -> stringResource(id = R.string.mode_selected_technical)
-                    GeneratorRules.DefinitionMode.POETIC -> stringResource(id = R.string.mode_selected_poetic)
-                }, style = MaterialTheme.typography.labelSmall)
             }
             Button(onClick = { vm.generate() }, modifier = Modifier.padding(top = 24.dp)) {
                 Text(text = stringResource(id = R.string.action_generate))

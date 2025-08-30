@@ -90,6 +90,12 @@ Le Néologotron se veut plus qu'un simple générateur aléatoire. C'est un outi
 
             Gestes intuitifs : Le swipe (gauche/droite) pour naviguer dans l'historique récent. Le shake (secouer le téléphone) pour générer un nouveau mot.
 
+        Mode de définition (Technique/Poétique) :
+
+            Contrôle à deux états via FilterChips Material3 avec état sélectionné explicite (choix d’un composant stable plutôt qu’un composant segmenté expérimental).
+
+            Sélection persistée (DataStore) et appliquée immédiatement au moteur; contrôle identique sur l’Écran principal et l’Écran Détail.
+
     2.3.2. Fonctionnalités d'Interaction :
 
         Favoris : Une icône "cœur" ou "étoile" pour sauvegarder un mot apprécié dans une liste dédiée.
@@ -151,10 +157,10 @@ Le Néologotron se veut plus qu'un simple générateur aléatoire. C'est un outi
     Performance : Génération quasi‑instantanée (<150ms perçus) même avec CSVs volumineux; seuil/débounce du shake ajustés; indexation/caching des tags pour réduire les coûts par génération.
 
     Tests :
-        - Unitaires pour règles de génération et composeDefinition (modes TECH/POETIC, mapping POS)
-        - Intégration pour GeneratorService (avec données déterministes)
+        - Unitaires pour règles de génération et composeDefinition (modes TECH/POETIC, mapping POS et synonymes FR/EN)
+        - Intégration pour GeneratorService avec DAO en mémoire (élision, duplication consonne ON/OFF via filtres, sélection de template par mode)
         - Instrumentés pour partage/copier, navigation (barre inférieure, pop‑to‑root, mise en évidence de Détail), et one‑time hint shake
-        - Parsing CSV (guillemets, lignes vides)
+        - Parsing CSV (guillemets, guillemets échappés "" dans champs cités, virgules dans guillemets, lignes vides)
 
 4. Évolutions Futures (Roadmap Potentielle)
 
@@ -214,3 +220,10 @@ Mise à Jour Spécification — 30 août 2025
 - Performance
   - Caching mémoire dans `LexemeRepository` pour jeux complets et par tag (préfixes/racines/suffixes), invalidé lors d’un reseed.
   - Journalisation des latences de génération (DEBUG uniquement) avec alerte si total > 150ms; mesure séparée « compose » vs « total ».
+
+- UI — Contrôle du mode de définition
+  - Écran Principal et Détail utilisent des FilterChips pour afficher/sélectionner le mode (Technique/Poétique) avec état sélectionné explicite; persistance immédiate; recompute live en Détail si métadonnées présentes. Le composant segmenté Material3 a été écarté (expérimental/non garanti par le BOM courant).
+
+- Tests complémentaires
+  - Intégration pour `GeneratorService` avec DAO en mémoire (élision, duplication consonne ON/OFF via filtres, sélection de template par mode).
+  - Parsing CSV: tests couvrant virgules dans guillemets, guillemets doubles échappés et lignes vides; helper `parseCsvLine` exposé (internal top‑level) pour testabilité.

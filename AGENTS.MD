@@ -296,3 +296,18 @@ Specs alignment note
 
 ## Notes
 - DB reset on upgrade due to `fallbackToDestructiveMigration()`; acceptable for MVP but we can add a proper migration later to preserve local data.
+
+---
+
+## Newly Completed (This Session)
+- Definition mode UI: Replaced ad‑hoc chips with clear two‑state FilterChips showing selection on both Main and Detail for consistency and a11y; persists via Settings.
+- Generator integration tests: Added deterministic, in‑memory DAO tests for `GeneratorService` to validate elision, filter toggles, and template selection per mode.
+- CSV parsing tests: Added `SeedParserTest` covering commas in quotes, escaped quotes, and blank lines; exposed `parseCsvLine` as an internal top‑level helper for testability.
+- POS normalization (composer): Broadened recognition to French/EN synonyms (e.g., adjectif/adj., adverbe/adv., verbe/verb/v, subst/nominal/n, agentif) without changing existing outputs.
+- Fix: Resolved a compilation issue after exposing the CSV parser by cleaning an extra closing brace in `SeedManager`.
+
+Rationale
+- SegmentedButton (Material3) was considered but is experimental/unavailable under the current BOM; FilterChips provide a stable, accessible control with clear selected state.
+
+Acceptance — Def Mode Control
+- Main and Detail show two chips (Technique/Poétique) with exactly one selected at a time; tapping updates mode immediately and persists; Detail recomputes definition live when morph metadata is present.

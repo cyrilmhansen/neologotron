@@ -22,7 +22,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.Text
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.RadioButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -121,13 +120,19 @@ fun WordDetailScreen(onBack: () -> Unit, vm: WordDetailViewModel = hiltViewModel
             Text(text = if (decomposition.isNotBlank()) decomposition else stringResource(id = R.string.placeholder_decomposition))
 
             Spacer(modifier = Modifier.height(24.dp))
-            Text(text = stringResource(id = R.string.label_def_mode))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                RadioButton(selected = defMode == GeneratorRules.DefinitionMode.TECHNICAL, onClick = { settingsVm.setDefinitionMode(GeneratorRules.DefinitionMode.TECHNICAL) })
-                Text(text = stringResource(id = R.string.mode_technical))
+                Text(text = stringResource(id = R.string.label_def_mode), modifier = Modifier.padding(end = 8.dp))
+                androidx.compose.material3.FilterChip(
+                    selected = defMode == GeneratorRules.DefinitionMode.TECHNICAL,
+                    onClick = { settingsVm.setDefinitionMode(GeneratorRules.DefinitionMode.TECHNICAL) },
+                    label = { Text(stringResource(id = R.string.mode_technical)) }
+                )
                 Spacer(modifier = Modifier.width(8.dp))
-                RadioButton(selected = defMode == GeneratorRules.DefinitionMode.POETIC, onClick = { settingsVm.setDefinitionMode(GeneratorRules.DefinitionMode.POETIC) })
-                Text(text = stringResource(id = R.string.mode_poetic))
+                androidx.compose.material3.FilterChip(
+                    selected = defMode == GeneratorRules.DefinitionMode.POETIC,
+                    onClick = { settingsVm.setDefinitionMode(GeneratorRules.DefinitionMode.POETIC) },
+                    label = { Text(stringResource(id = R.string.mode_poetic)) }
+                )
             }
             Spacer(modifier = Modifier.height(8.dp))
             Button(onClick = { shareWord(context, word, definition) }) { Text(text = stringResource(id = R.string.action_share)) }

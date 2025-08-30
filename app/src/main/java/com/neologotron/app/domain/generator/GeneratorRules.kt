@@ -14,13 +14,19 @@ object GeneratorRules {
         val parts = raw.split('/', ',', ';', ' ').filter { it.isNotBlank() }
         if (parts.isEmpty()) return CanonPos.UNKNOWN
         fun mapOne(p: String): CanonPos = when {
-            p.startsWith("adj") -> CanonPos.ADJECTIVE
-            p.startsWith("adv") -> CanonPos.ADVERB
+            // Adjective variants
+            p.startsWith("adj") || p.startsWith("adjectif") || p == "adj." -> CanonPos.ADJECTIVE
+            // Adverb variants
+            p.startsWith("adv") || p.startsWith("adverbe") || p == "adv." -> CanonPos.ADVERB
+            // Verb variants (FR/EN)
             p.startsWith("verb") || p.startsWith("verbe") || p == "v" -> CanonPos.VERB
-            p.contains("agent") -> CanonPos.AGENT_NOUN
+            // Agentive noun variants
+            p.contains("agent") || p.contains("agentif") -> CanonPos.AGENT_NOUN
+            // Action/result nouns
             p.contains("action") -> CanonPos.ACTION_NOUN
             p.contains("result") || p.contains("résultat") || p.contains("resultat") -> CanonPos.RESULT_NOUN
-            p.startsWith("nom") -> CanonPos.NOUN
+            // Noun variants
+            p.startsWith("nom") || p.startsWith("subst") || p.startsWith("nominal") || p == "n" -> CanonPos.NOUN
             else -> CanonPos.UNKNOWN
         }
         val mapped = parts.map { mapOne(it) }
