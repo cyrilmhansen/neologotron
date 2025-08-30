@@ -31,6 +31,7 @@ import com.neologotron.app.ui.UiState
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Scaffold
+import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.remember
 
@@ -51,7 +52,11 @@ fun ThematicScreen(onOpenDetail: (String, String?, String?, String?, String?, St
             if (res == androidx.compose.material3.SnackbarResult.ActionPerformed) vm.refreshTags()
         }
     }
-    Scaffold(snackbarHost = { SnackbarHost(snackbarHost) }) { innerPadding ->
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHost) },
+        containerColor = Color.Transparent,
+        contentColor = MaterialTheme.colorScheme.onBackground
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()

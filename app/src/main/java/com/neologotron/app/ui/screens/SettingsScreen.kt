@@ -35,6 +35,8 @@ fun SettingsScreen(onOpenDebug: () -> Unit, onOpenAbout: () -> Unit, vm: Setting
     val filters by vm.coherenceFilters.collectAsState()
     val shake by vm.shakeToGenerate.collectAsState()
     val weight by vm.weightingIntensity.collectAsState()
+    val animated by vm.animatedBackgroundsEnabled.collectAsState()
+    val bgIntensity by vm.animatedBackgroundsIntensity.collectAsState()
 
     val scroll = rememberScrollState()
     Column(
@@ -92,6 +94,29 @@ fun SettingsScreen(onOpenDebug: () -> Unit, onOpenAbout: () -> Unit, vm: Setting
             val haptic by vm.hapticOnShake.collectAsState()
             Switch(checked = haptic, onCheckedChange = { vm.setHapticOnShake(it) })
             Text(text = stringResource(id = R.string.option_haptic_on_shake))
+        }
+
+        // Animated backgrounds
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(text = stringResource(id = R.string.label_animated_backgrounds))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Switch(checked = animated, onCheckedChange = { vm.setAnimatedBackgroundsEnabled(it) })
+            Text(text = stringResource(id = R.string.option_animated_backgrounds))
+        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(text = stringResource(id = R.string.label_background_intensity), modifier = Modifier.padding(end = 8.dp))
+        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            RadioButton(enabled = animated, selected = bgIntensity == com.neologotron.app.ui.AnimatedBackgroundIntensity.LOW, onClick = { vm.setAnimatedBackgroundsIntensity(com.neologotron.app.ui.AnimatedBackgroundIntensity.LOW) })
+            Text(text = stringResource(id = R.string.intensity_low))
+        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            RadioButton(enabled = animated, selected = bgIntensity == com.neologotron.app.ui.AnimatedBackgroundIntensity.MEDIUM, onClick = { vm.setAnimatedBackgroundsIntensity(com.neologotron.app.ui.AnimatedBackgroundIntensity.MEDIUM) })
+            Text(text = stringResource(id = R.string.intensity_medium))
+        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            RadioButton(enabled = animated, selected = bgIntensity == com.neologotron.app.ui.AnimatedBackgroundIntensity.HIGH, onClick = { vm.setAnimatedBackgroundsIntensity(com.neologotron.app.ui.AnimatedBackgroundIntensity.HIGH) })
+            Text(text = stringResource(id = R.string.intensity_high))
         }
 
         Spacer(modifier = Modifier.height(16.dp))

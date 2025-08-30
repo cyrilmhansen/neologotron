@@ -79,7 +79,11 @@ fun WorkshopScreen(
             if (res == androidx.compose.material3.SnackbarResult.ActionPerformed) vm.refreshInitial()
         }
     }
-    androidx.compose.material3.Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { innerPadding ->
+    androidx.compose.material3.Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        containerColor = androidx.compose.ui.graphics.Color.Transparent,
+        contentColor = androidx.compose.material3.MaterialTheme.colorScheme.onBackground
+    ) { innerPadding ->
     Column(
         modifier = Modifier
             .fillMaxSize()

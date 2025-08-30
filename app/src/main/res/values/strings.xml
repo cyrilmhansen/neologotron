@@ -79,6 +79,14 @@
     <string name="label_loading">Loading…</string>
     <string name="action_retry">Retry</string>
     <string name="error_generic">Load error</string>
+
+    <!-- Animated backgrounds settings -->
+    <string name="label_animated_backgrounds">Animated backgrounds</string>
+    <string name="option_animated_backgrounds">Enable animated backgrounds</string>
+    <string name="label_background_intensity">Background intensity</string>
+    <string name="intensity_low">Low</string>
+    <string name="intensity_medium">Medium</string>
+    <string name="intensity_high">High</string>
     
     <!-- Onboarding (default English to be translated) -->
     <string name="onboarding_title">Welcome to Neologotron</string>

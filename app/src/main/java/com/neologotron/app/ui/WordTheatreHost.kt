@@ -5,6 +5,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.Text
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -37,6 +38,7 @@ import com.neologotron.app.ui.screens.ThematicScreen
 import com.neologotron.app.ui.screens.WorkshopScreen
 import com.neologotron.app.ui.screens.WordDetailScreen
 import com.neologotron.app.ui.viewmodel.OnboardingViewModel
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun WordTheatreHost() {
@@ -53,6 +55,8 @@ fun WordTheatreHost() {
     if (startDestination != null) {
         Scaffold(
             snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+            containerColor = Color.Transparent,
+            contentColor = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
             bottomBar = {
                 val backStack by navController.currentBackStackEntryAsState()
                 val currentRoute = backStack?.destination?.route
@@ -65,7 +69,11 @@ fun WordTheatreHost() {
                     else -> currentRoute
                 } ?: Route.Main.value
                 if (currentRoute != Route.Onboarding.value && currentRoute != null) {
-                    NavigationBar {
+                    NavigationBar(
+                        containerColor = Color.Transparent,
+                        tonalElevation = 0.dp,
+                        contentColor = androidx.compose.material3.MaterialTheme.colorScheme.onBackground
+                    ) {
                         NavItems.bottomBar.forEach { item ->
                             val route = item.route.value
                             NavigationBarItem(

@@ -80,6 +80,14 @@
     <string name="action_retry">Réessayer</string>
     <string name="error_generic">Erreur de chargement</string>
 
+    <!-- Paramètres: fonds animés -->
+    <string name="label_animated_backgrounds">Fonds animés</string>
+    <string name="option_animated_backgrounds">Activer les fonds animés</string>
+    <string name="label_background_intensity">Intensité du fond</string>
+    <string name="intensity_low">Faible</string>
+    <string name="intensity_medium">Moyenne</string>
+    <string name="intensity_high">Élevée</string>
+
     <!-- Onboarding (French) -->
     <string name="onboarding_title">Bienvenue dans Néologotron</string>
     <string name="onboarding_btn_next">Suivant</string>

@@ -311,3 +311,26 @@ Rationale
 
 Acceptance — Def Mode Control
 - Main and Detail show two chips (Technique/Poétique) with exactly one selected at a time; tapping updates mode immediately and persists; Detail recomputes definition live when morph metadata is present.
+
+---
+
+## Newly Completed (This Session)
+— Animated shader backgrounds (Themes)
+- Settings: Added "Animated backgrounds" toggle and intensity (Low/Medium/High) persisted via DataStore; surfaced in Settings.
+- Root integration: New `ThemedBackground` composable wraps the app, rendering behind a fully transparent chrome (Surface, Scaffold, TopAppBars, BottomBar).
+- AGSL on API 33+:
+  - Retro 80's shader: soft scanlines + film grain + light jitter; opacity blended over theme background to preserve legibility.
+  - Cyberpunk shader: pulsing I/O blocks with dust/shine; fine grain + vignette; parameterized speed/spread/size; opacity blended.
+- Fallback paths: API < 33 → subtle gradient; Animated OFF → solid `MaterialTheme.colorScheme.background` paint.
+- Accessibility: Respects system "Reduce animations" by freezing time (no motion); background still rendered.
+- Contrast fixes: Set explicit `contentColor = onBackground` for all screens/bars; fixed prior black‑on‑black in Minimal theme and onboarding. Bottom bar/top bars are transparent without tonal elevation.
+- Bug fixes: Resolved AGSL type error (fract on float2), moved shader creation out of draw scope, removed duplicate imports; ensured no @Composable calls inside draw.
+
+Acceptance — Animated Backgrounds
+- With toggle ON (API 33+): background animates smoothly; UI text/icons remain readable; switching intensity updates subtly.
+- With toggle OFF: static solid theme background; no black‑on‑black anywhere.
+- With Reduce Animations ON: shaders render a static frame; no time advance.
+
+Follow‑ups
+- Optionally add battery saver pause and a debug slider for shader opacity/speed.
+- Tune Minimal fallback gradient for light theme variant (if added later).

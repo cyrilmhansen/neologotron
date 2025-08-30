@@ -29,6 +29,8 @@ class SettingsRepository @Inject constructor(
     private val shakeHintShownKey = booleanPreferencesKey("shake_hint_shown")
     private val selectedTagsKey = stringPreferencesKey("selected_thematic_tags")
     private val weightingIntensityKey = floatPreferencesKey("weighting_intensity")
+    private val animatedBackgroundsKey = booleanPreferencesKey("animated_backgrounds_enabled")
+    private val animatedBgIntensityKey = stringPreferencesKey("animated_backgrounds_intensity")
 
     val theme: Flow<ThemeStyle> = context.settingsStore.data.map { p ->
         when (p[themeKey]) {
@@ -55,6 +57,8 @@ class SettingsRepository @Inject constructor(
         p[selectedTagsKey]?.split(',')?.map { it.trim() }?.filter { it.isNotBlank() }?.toSet() ?: emptySet()
     }
     val weightingIntensity: Flow<Float> = context.settingsStore.data.map { p -> p[weightingIntensityKey] ?: 1.0f }
+    val animatedBackgroundsEnabled: Flow<Boolean> = context.settingsStore.data.map { p -> p[animatedBackgroundsKey] ?: false }
+    val animatedBackgroundsIntensity: Flow<String> = context.settingsStore.data.map { p -> p[animatedBgIntensityKey] ?: "MEDIUM" }
 
     suspend fun setTheme(style: ThemeStyle) { context.settingsStore.edit { it[themeKey] = style.name } }
     suspend fun setDarkTheme(enabled: Boolean) { context.settingsStore.edit { it[darkKey] = enabled } }
@@ -68,4 +72,6 @@ class SettingsRepository @Inject constructor(
         context.settingsStore.edit { it[selectedTagsKey] = serialized }
     }
     suspend fun setWeightingIntensity(value: Float) { context.settingsStore.edit { it[weightingIntensityKey] = value } }
+    suspend fun setAnimatedBackgroundsEnabled(enabled: Boolean) { context.settingsStore.edit { it[animatedBackgroundsKey] = enabled } }
+    suspend fun setAnimatedBackgroundsIntensity(value: String) { context.settingsStore.edit { it[animatedBgIntensityKey] = value } }
 }

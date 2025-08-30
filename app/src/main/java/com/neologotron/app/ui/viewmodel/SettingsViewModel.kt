@@ -4,12 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.neologotron.app.data.repo.SettingsRepository
 import com.neologotron.app.domain.generator.GeneratorRules
+import com.neologotron.app.ui.AnimatedBackgroundIntensity
 import com.neologotron.app.theme.ThemeStyle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 @HiltViewModel
@@ -24,6 +26,11 @@ class SettingsViewModel @Inject constructor(
     val hapticOnShake: StateFlow<Boolean> = repo.hapticOnShake.stateIn(viewModelScope, SharingStarted.Eagerly, true)
     val shakeHintShown: StateFlow<Boolean> = repo.shakeHintShown.stateIn(viewModelScope, SharingStarted.Eagerly, false)
     val weightingIntensity: StateFlow<Float> = repo.weightingIntensity.stateIn(viewModelScope, SharingStarted.Eagerly, 1.0f)
+    val animatedBackgroundsEnabled: StateFlow<Boolean> = repo.animatedBackgroundsEnabled.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+    val animatedBackgroundsIntensity: StateFlow<AnimatedBackgroundIntensity> =
+        repo.animatedBackgroundsIntensity
+            .map { s -> runCatching { AnimatedBackgroundIntensity.valueOf(s) }.getOrDefault(AnimatedBackgroundIntensity.MEDIUM) }
+            .stateIn(viewModelScope, SharingStarted.Eagerly, AnimatedBackgroundIntensity.MEDIUM)
 
     fun setTheme(style: ThemeStyle) { viewModelScope.launch { repo.setTheme(style) } }
     fun setDarkTheme(enabled: Boolean) { viewModelScope.launch { repo.setDarkTheme(enabled) } }
@@ -33,4 +40,6 @@ class SettingsViewModel @Inject constructor(
     fun setHapticOnShake(enabled: Boolean) { viewModelScope.launch { repo.setHapticOnShake(enabled) } }
     fun markShakeHintShown() { viewModelScope.launch { repo.setShakeHintShown(true) } }
     fun setWeightingIntensity(value: Float) { viewModelScope.launch { repo.setWeightingIntensity(value) } }
+    fun setAnimatedBackgroundsEnabled(enabled: Boolean) { viewModelScope.launch { repo.setAnimatedBackgroundsEnabled(enabled) } }
+    fun setAnimatedBackgroundsIntensity(value: AnimatedBackgroundIntensity) { viewModelScope.launch { repo.setAnimatedBackgroundsIntensity(value.name) } }
 }

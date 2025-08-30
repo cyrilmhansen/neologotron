@@ -148,6 +148,33 @@ Le Néologotron se veut plus qu'un simple générateur aléatoire. C'est un outi
 
     Stockage de préférences : DataStore Preferences pour thèmes, mode de définition, filtres de cohérence, options de geste (shake), et sélection thématique persistée.
 
+3.2. Fonds animés par shader (AGSL) — Implémentation V1.6
+
+    Portée : Enrichir les thèmes (Minimaliste, Rétro 80's, Cyberpunk) avec un fond animé optionnel.
+
+    Technique :
+        - API 33+ : AGSL via `RuntimeShader` et rendu dans un `Canvas` Jetpack Compose (composable `ThemedBackground`).
+        - API < 33 : dégradé statique/soft fallback (sans dépendances externes).
+        - Blend contrôlé : les shaders mélangent leur sortie avec `MaterialTheme.colorScheme.background` via un uniforme d’opacité (préserve la lisibilité).
+        - Respect "Réduire les animations" : le temps (`iTime`) est figé si l’option système désactive les animations.
+
+    Paramètres/Uniformes clés :
+        - `iResolution`, `iTime`, `iIntensity`, `uOpacity`, couleurs d’accent du thème et `uBgColor`.
+        - Rétro 80's : scanlines douces + grain + léger jitter horizontal.
+        - Cyberpunk : blocs I/O pulsants avec poussière/éclat, grain fin et vignette légère.
+
+    Paramètres utilisateur (DataStore + UI Paramètres) :
+        - `animated_backgrounds_enabled` (bool)
+        - `animated_backgrounds_intensity` (LOW | MEDIUM | HIGH)
+
+    Intégration UI :
+        - Chrome transparent (Surface/Scaffold/Top bars/Bottom bar) avec `contentColor = onBackground` pour garantir un contraste AA au‑dessus du fond.
+
+    Critères d’acceptation :
+        - Fond animé visible et fluide sur API 33+; pas de scintillement; lisibilité intacte.
+        - Fond statique lisible quand l’option est OFF ou sur API < 33.
+        - "Réduire les animations" fige l’animation; aucune régression de performance perceptible.
+
 3.1. Accessibilité & Qualité
 
     Accessibilité (WCAG) : Toutes les actions possèdent une description (contentDescription); ordre de focus logique; contraste suffisant dans les trois thèmes.
@@ -181,6 +208,10 @@ Le Néologotron se veut plus qu'un simple générateur aléatoire. C'est un outi
         Générateur d'Illustrations : Connexion à une API de génération d'images (type Stable Diffusion, Midjourney) pour créer une représentation visuelle du néologisme.
 
         Définitions Améliorées : Utilisation d'un modèle de langage léger (API type Gemini, etc.) pour des définitions poétiques encore plus riches.
+
+    V1.6 : Thèmes — Fonds animés par shader (LIVRÉ)
+
+        Implémenté selon 3.2 (AGSL + paramètres). Deux shaders fournis (Rétro 80's, Cyberpunk) avec repli et réglages d’intensité. Chrome transparent et `contentColor` explicite assurent la lisibilité.
 
     V3.0 : Outils Experts
 
