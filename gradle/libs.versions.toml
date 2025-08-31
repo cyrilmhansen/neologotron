@@ -16,6 +16,8 @@ material = "1.12.0"
 room = "2.6.1"
 hiltNavigationCompose = "1.2.0"
 datastore = "1.1.1"
+androidxTestCore = "1.5.0"
+robolectric = "4.11.1"
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -55,3 +57,5 @@ roomKtx = { module = "androidx.room:room-ktx", version.ref = "room" }
 roomCompiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 hiltNavigationCompose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 datastorePreferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
+androidxTestCore = { module = "androidx.test:core", version.ref = "androidxTestCore" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
