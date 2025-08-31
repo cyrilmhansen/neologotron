@@ -43,6 +43,15 @@ python3 etl/cli.py apply-review --run <timestamp>
   - `--domains science,medicine,tech`  (match tags/domain substrings)
   - `--show-all`  (not only “uncertain” entries)
 
+AI-assisted gloss refinement (local LLM)
+```
+python3 etl/cli.py prep-ai --run <timestamp> --count 20
+python3 etl/cli.py ai-run --run <timestamp> --endpoint http://localhost:11434/v1/chat/completions \
+  --model mistral --batch 4 --temperature 0.7 --max-tokens 200 --timeout 30
+python3 etl/cli.py import-ai --run <timestamp> --ai-jsonl etl/runs/<timestamp>/ai/output.jsonl
+```
+- `ai-run` streams responses and caches them under `etl/runs/<timestamp>/ai/cache/` so reruns reuse previous results.
+
 Reseed the app database
 - Open the app → Settings → Debug → “Reset database” to load the new seeds from assets.
 
