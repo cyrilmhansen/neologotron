@@ -80,6 +80,8 @@ dependencies {
     implementation(libs.datastorePreferences)
 
     testImplementation(libs.junit)
+    testImplementation(libs.androidxTestCore)
+    testImplementation(libs.robolectric)
     androidTestImplementation(platform(libs.composeBom))
     androidTestImplementation(libs.androidxJunit)
     androidTestImplementation(libs.espressoCore)

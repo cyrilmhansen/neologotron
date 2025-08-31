@@ -16,6 +16,7 @@ import com.neologotron.app.data.dao.PrefixDao
 import com.neologotron.app.data.dao.RootDao
 import com.neologotron.app.data.dao.SuffixDao
 import com.neologotron.app.data.db.AppDatabase
+import com.neologotron.app.data.db.Migrations
 import com.neologotron.app.data.seed.SeedManager
 
 @Module
@@ -29,7 +30,7 @@ object DatabaseModule {
     ): AppDatabase {
         val db =
             Room.databaseBuilder(context, AppDatabase::class.java, "neologotron.db")
-                .fallbackToDestructiveMigration() // safe for early MVP
+                .addMigrations(*Migrations.ALL)
                 .build()
         // Seed in background on first run
         Executors.newSingleThreadExecutor().execute {
