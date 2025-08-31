@@ -31,6 +31,7 @@ class SettingsViewModel @Inject constructor(
         repo.animatedBackgroundsIntensity
             .map { s -> runCatching { AnimatedBackgroundIntensity.valueOf(s) }.getOrDefault(AnimatedBackgroundIntensity.MEDIUM) }
             .stateIn(viewModelScope, SharingStarted.Eagerly, AnimatedBackgroundIntensity.MEDIUM)
+    val simpleMixerEnabled: StateFlow<Boolean> = repo.simpleMixerEnabled.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     fun setTheme(style: ThemeStyle) { viewModelScope.launch { repo.setTheme(style) } }
     fun setDarkTheme(enabled: Boolean) { viewModelScope.launch { repo.setDarkTheme(enabled) } }
@@ -42,4 +43,5 @@ class SettingsViewModel @Inject constructor(
     fun setWeightingIntensity(value: Float) { viewModelScope.launch { repo.setWeightingIntensity(value) } }
     fun setAnimatedBackgroundsEnabled(enabled: Boolean) { viewModelScope.launch { repo.setAnimatedBackgroundsEnabled(enabled) } }
     fun setAnimatedBackgroundsIntensity(value: AnimatedBackgroundIntensity) { viewModelScope.launch { repo.setAnimatedBackgroundsIntensity(value.name) } }
+    fun setSimpleMixerEnabled(enabled: Boolean) { viewModelScope.launch { repo.setSimpleMixerEnabled(enabled) } }
 }

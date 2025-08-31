@@ -82,6 +82,8 @@ Exemple de build : extraction du 2025‑08‑18 depuis le dump enwiktionary dat
     <string name="bias_normal">Normal</string>
     <string name="bias_high">Fort</string>
     <string name="bias_desc">Règle l’intensité du biais vers les tags sélectionnés : Faible = léger, Normal = équilibré, Fort = préférence marquée (surtout pour les intersections).</string>
+    <string name="label_simple_mixer">Mot‑linette (simple)</string>
+    <string name="option_simple_mixer">Activer la Mot‑linette (simple)</string>
     <string name="action_undo">Annuler</string>
     <string name="msg_history_deleted">Élément supprimé</string>
     <string name="msg_favorite_deleted">Favori supprimé</string>

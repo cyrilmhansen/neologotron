@@ -82,6 +82,8 @@ Example build: Extracted on 2025‑08‑18 from the enwiktionary dump dated 2025
     <string name="bias_normal">Normal</string>
     <string name="bias_high">High</string>
     <string name="bias_desc">Adjusts how strongly generation favors selected tags: Low = subtle, Normal = balanced, High = stronger multi‑tag bias.</string>
+    <string name="label_simple_mixer">Simple Word‑grinder</string>
+    <string name="option_simple_mixer">Enable Word‑grinder (Mot‑linette)</string>
     <string name="action_undo">Undo</string>
     <string name="msg_history_deleted">Item deleted</string>
     <string name="msg_favorite_deleted">Favorite deleted</string>

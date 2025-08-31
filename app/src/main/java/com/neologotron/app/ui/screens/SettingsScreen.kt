@@ -37,6 +37,7 @@ fun SettingsScreen(onOpenDebug: () -> Unit, onOpenAbout: () -> Unit, vm: Setting
     val weight by vm.weightingIntensity.collectAsState()
     val animated by vm.animatedBackgroundsEnabled.collectAsState()
     val bgIntensity by vm.animatedBackgroundsIntensity.collectAsState()
+    val simpleMixer by vm.simpleMixerEnabled.collectAsState()
 
     val scroll = rememberScrollState()
     Column(
@@ -137,6 +138,14 @@ fun SettingsScreen(onOpenDebug: () -> Unit, onOpenAbout: () -> Unit, vm: Setting
         Row(verticalAlignment = Alignment.CenterVertically) {
             RadioButton(selected = weight > 1.25f, onClick = { vm.setWeightingIntensity(1.5f) })
             Text(text = stringResource(id = R.string.bias_high))
+        }
+
+        // Simple Word Grinder (Moulinette simple)
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(text = stringResource(id = R.string.label_simple_mixer))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Switch(checked = simpleMixer, onCheckedChange = { vm.setSimpleMixerEnabled(it) })
+            Text(text = stringResource(id = R.string.option_simple_mixer))
         }
 
         Spacer(modifier = Modifier.height(24.dp))

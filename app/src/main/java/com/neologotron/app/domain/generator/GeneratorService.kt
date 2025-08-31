@@ -27,7 +27,8 @@ data class WordResult(
 @Singleton
 class GeneratorService @Inject constructor(
     private val lexemes: LexemeRepository,
-    private val history: HistoryRepository
+    private val history: HistoryRepository,
+    private val simple: SimpleMixer,
 ) {
     suspend fun generateRandom(
         tags: Set<String> = emptySet(),
@@ -97,6 +98,21 @@ class GeneratorService @Inject constructor(
             suffixDefTemplate = s.defTemplate,
             suffixTags = s.tags,
         )
+    }
+
+    suspend fun generateSimple(
+        tags: Set<String> = emptySet(),
+        saveToHistory: Boolean = true,
+        mode: GeneratorRules.DefinitionMode = GeneratorRules.DefinitionMode.TECHNICAL,
+    ): WordResult {
+        val r = simple.generate(tags)
+        if (saveToHistory) history.add(
+            word = r.word,
+            definition = r.definition,
+            decomposition = r.decomposition,
+            mode = "simple",
+        )
+        return r
     }
 
     companion object {

@@ -59,7 +59,13 @@ class MainViewModel @Inject constructor(
             val mode = definitionMode.first()
             val filters = settings.coherenceFilters.first()
             val intensity = settings.weightingIntensity.first().toDouble()
-            runCatching { generator.generateRandom(tags, saveToHistory = true, mode = mode, useFilters = filters, weightingIntensity = intensity) }
+            val simple = settings.simpleMixerEnabled.first()
+            val result = if (simple) {
+                runCatching { generator.generateSimple(tags, saveToHistory = true, mode = mode) }
+            } else {
+                runCatching { generator.generateRandom(tags, saveToHistory = true, mode = mode, useFilters = filters, weightingIntensity = intensity) }
+            }
+            result
                 .onSuccess {
                     lastResult = it
                     _word.value = it.word
