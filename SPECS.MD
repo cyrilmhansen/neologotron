@@ -192,6 +192,240 @@ Le Néologotron se veut plus qu'un simple générateur aléatoire. C'est un outi
         - Instrumentés pour partage/copier, navigation (barre inférieure, pop‑to‑root, mise en évidence de Détail), et one‑time hint shake
         - Parsing CSV (guillemets, guillemets échappés "" dans champs cités, virgules dans guillemets, lignes vides)
 
+3.3. Chaîne ETL (Wiktionary → CSV → App) – Implémentation V1
+
+    Objectif : Fournir une base morphologique riche (préfixes, racines, suffixes) à partir de Wiktionary via Kaikki/wiktextract, avec un flux reproductible et interactif.
+
+    Outils et scripts :
+        - `etl/cli.py` : Assistant interactif (wizard) qui télécharge les jeux de données, extrait le Translingual (mul), transforme, fusionne et exporte les CSV dans `app/src/main/assets/seed/`.
+            - Options : fusion FR+MUL par défaut (FR prioritaire), `--fr-only` pour ignorer MUL.
+            - Affichages : téléchargement avec taille/vitesse/ETA, spinner pendant les transformations, progression de filtrage MUL (l/s), progression sur la copie vers assets.
+        - `etl/wiktextract_to_neologotron.py` : Transforme un JSONL wiktextract/Kaikki en CSVs (préfixes/racines/suffixes). Filtrage « classical » basé sur l’étymologie (texte et lignage). Option `--mul-fallback-classical` pour accepter certains affixes Translingual.
+
+    Sources de données :
+        - FR : `https://kaikki.org/dictionary/downloads/fr/fr-extract.jsonl.gz`
+        - Toutes langues (brut) : `https://kaikki.org/dictionary/raw-wiktextract-data.jsonl.gz` (filtrage `lang_code=="mul"` pour Translingual).
+
+    Intégration App :
+        - Les CSV placés sous `app/src/main/assets/seed/` sont chargés au premier démarrage et via l’écran Debug → « Réinitialiser la base ».
+        - Les colonnes supplémentaires sont ignorées par l’app (compatibilité ascendante) : seules les 9 premières sont consommées.
+
+    Curation interactive :
+        - `python3 etl/cli.py review --run <ts>` : file « incertaine » (gloss court/manquant, origine/tags manquants, forme suspecte), actions accepter/éditer/rejeter.
+        - Filtres : `--origin-lang grc,la,mul`, `--domains science,medicine,tech`, `--show-all`.
+        - `apply-review` applique les décisions et met à jour les assets.
+
+    Conformité & Crédits :
+        - Contenu Wiktionary sous licence CC BY‑SA (4.0 pour la réutilisation). Attribution visible dans l’écran « À propos » (CC BY‑SA, citation wiktextract, liens Kaikki).
+        - Traçabilité : `etl/runs/<horodatage>/run.json` conserve les URLs des dumps, l’option `--fr-only`, etc.
+
+Annexes – Spécifications détaillées de la chaîne ETL
+
+Annexe A. Schémas CSV et sémantique des colonnes
+
+- Colonnes consommées par l’app (actuelles)
+  - Les 9 premières colonnes de chaque CSV seulement. Les colonnes étendues peuvent être présentes et seront ignorées par l’app (compatibilité ascendante).
+
+- Préfixes (`neologotron_prefixes.csv`)
+  - id: identifiant stable, unique (string)
+  - form: forme affichée, ex. « bio- » (string)
+  - alt_forms: variantes, séparées par « , » (nullable string)
+  - gloss: sens court (FR), concaténation de glosses (string)
+  - origin: langue d’origine affichée (ex. « grec », « latin ») (nullable string)
+  - connector: voyelle/consonne de liaison suggérée (ex. « o ») (nullable string)
+  - phon_rules: règles phono (texte libre, ex. assimilation) (nullable string)
+  - tags: catégories/lexiques (FR, « tech, médecine, science… ») (nullable string)
+  - weight: poids facultatif (double, nullable)
+  - Étendu (facultatif): ety_lang, ety_desc, ety_lineage, proto_form, ipa, attest_from, cognates, sources, examples
+
+- Racines (`neologotron_racines.csv`)
+  - id: identifiant stable, unique (string)
+  - form: forme affichée (string)
+  - alt_forms: variantes (nullable string)
+  - gloss: sens court (string)
+  - origin: langue d’origine affichée (nullable string)
+  - domain: domaine(s) (FR) (nullable string)
+  - connector_pref: liaison typique (ex. « o ») (nullable string)
+  - examples: dérivés/exemples (séparés par « ; ») (nullable string)
+  - weight: poids facultatif (double, nullable)
+  - Étendu: root_lang, proto_root, ety_desc, ety_lineage, semantic_field, sources
+
+- Suffixes (`neologotron_suffixes.csv`)
+  - id: identifiant stable, unique (string)
+  - form: forme affichée (ex. « -logie ») (string)
+  - alt_forms: variantes (nullable string)
+  - gloss: sens court (string)
+  - origin: langue d’origine affichée (nullable string)
+  - pos_out: partie du discours résultante (nullable string)
+  - def_template: modèle de définition (texte/template) (nullable string)
+  - tags: catégories/lexiques (FR) (nullable string)
+  - weight: poids facultatif (double, nullable)
+  - Étendu: ety_lang, ety_desc, ety_lineage, proto_form, ipa, attest_from, cognates, sources, examples
+
+Annexe B. Identité, génération d’ID et fusion FR+MUL
+
+- Clé d’identité logique (pour la fusion):
+  - type (préfixe/racine/suffixe) + `form` (exact, y compris tirets de tête/queue).
+  - Les `alt_forms` ne participent pas à l’identité.
+
+- Génération d’ID (dans l’ETL):
+  - Préfixe technique (`pre_`, `root_`, `suf_`) + `form` normalisée en minuscules alpha-numériques avec `_` pour les séparateurs; accents supprimés.
+  - Déduplication en suffixant un compteur si collision (ex. `_2`, `_3`).
+  - Les IDs produits peuvent différer entre exécutions si des collisions/insertions diffèrent; d’où la fusion par `form` en phase merge, pas par `id`.
+
+- Priorité et règles de fusion (FR vs MUL):
+  - Priorité aux lignes FR (fr-extract) sur conflit de `form`; les lignes MUL (Translingual) ne s’ajoutent que si `form` inexistant.
+  - Champs issus de FR conservent leur gloss/origin/tags; les champs étendus ne sont pas fusionnés à ce stade (V1 simple).
+  - Raison: FR fournit glosses FR et adéquation à l’app; MUL comble des manques de couverture (affixes/classiques, combinings).
+
+Annexe C. Règles de transformation et filtres
+
+- Détection du type (POS):
+  - S’appuie sur `pos`/`pos_title` (wiktextract/Kaikki, angl./localisé). Correspondances accent‑insensibles: « prefix(e) », « suffix(e) », « affix(e) », « combining form », « élément de composition/formant », « confix », etc.
+
+- Normalisation de `form`:
+  - Conserver les tirets de tête/queue pour marquer préfixes/suffixes (ex. « bio- », « -logie »).
+  - `alt_forms` : déduites de `forms[].form` différentes de `word`.
+
+- Gloss et tags/domaines:
+  - `gloss` = concaténation unique des `senses[].glosses` (séparateur « ; »).
+  - `tags/domain` = union de `senses[].topics` + `senses[].tags`, mappés vers quelques libellés FR (« biology »→« science », « medicine »→« médecine », « technology »→« tech », etc.).
+
+- Étymologie et origine:
+  - `ety_lang`: code normalisé (`fr`, `mul`, `grc`, `la`, `el`, `en`…), depuis `lang_code`/`lang`.
+  - `origin`: libellé FR affiché (ex. « grec », « latin ») dérivé de `ety_lang` ou inféré via lignage.
+  - `ety_desc`: `etymology_text`/`etymology_texts` nettoyés (liens/templ. retirés).
+  - `ety_lineage`: chaîne compacte type « fr < la < grc » quand `etymology_templates` disponibles (rare dans fr-extract). V1: fallback sur `ety_desc` pour la détection « classical ».
+
+- Filtre « classical » (par défaut):
+  - Conserve les entrées dont `origin`/`ety_lineage`/`ety_desc` font mention de grec/latin (mots‑clés: « grec », « latin », « grc », « la »).
+  - Option `--origin-filter none` pour garder tout.
+  - Option `--mul-fallback-classical`: pour `ety_lang==mul`, accepte les affixes « ressemblant à des affixes » (forme début/fin par tiret) en absence d’indices explicites.
+
+- Racines à partir du Translingual:
+  - `--roots-from-translingual`: duplique certaines entrées MUL (préfixes/suffixes) en racines quand l’étymologie suggère une origine classique, ou via fallback ci‑dessus.
+  - Les « combining forms »/« affix » en `mul/grc/la` deviennent des racines directement.
+
+- Connecteur (« o » etc.):
+  - Heuristique simple: si la `form` contient « o- » ou « -o- », suggérer `connector`/`connector_pref = "o"`. Éditable en revue.
+
+- Provenance (`sources`):
+  - Chaîne compacte `wiktionary:<site>:<pageid>:<word>#<pos>` quand disponible (ex. `wiktionary:fr:23456:-logie#suffix`).
+
+Annexe D. Validation, QA et garde‑fous
+
+- Validations d’export:
+  - En‑têtes exacts, colonnes obligatoires non vides (`id`, `form`, `gloss`).
+  - Valeurs numériques parsables (`weight`).
+  - Aucune ligne vide; CSVs encodés UTF‑8; guillemets correctement échappés.
+
+- Rapports et bornes:
+  - Compteurs par type (préfixes/racines/suffixes) et avant/après filtre « classical ».
+  - Statistiques fusion FR+MUL (ajouts MUL, totaux finaux).
+
+- Revue interactive (qualité):
+  - File « incertaine »: gloss court (<6), absence d’origine, tags/domain manquants, forme suspecte (majuscules).
+  - Filtres: `--origin-lang`, `--domains`, `--show-all`. Actions: accepter/éditer/rejeter; application via `apply-review`.
+
+    - Reproductibilité:
+        - `etl/runs/<horodatage>` conserve matières premières, CSVs intermédiaires, fusion, export, décisions de revue (`review/decisions.jsonl`) et `run.json`.
+        - Les IDs pouvant varier à la marge, la fusion/curation s’appuie sur `form` comme identité logique.
+
+Annexe E. Variantes d’affixes & politique de canonicalisation
+
+Objectif
+- Réduire les doublons et améliorer la qualité des combinaisons en regroupant les variantes d’un même « morphème idée » (allomorphes, romanisations, liaisons), tout en excluant par défaut les abréviations techniques peu naturelles en français.
+
+Familles de variantes (exemples non exhaustifs)
+- Assimilation/Allomorphes (préfixes latins)
+  - in- → im- (devant b/p/m), il- (devant l), ir- (devant r)
+  - ad- → ac-/af-/ag-/al-/an-/ap-/ar-/as-/at-
+  - con- → com-/col-/cor- ; syn- → sym- (devant b/p/m)
+  - e-/ex- selon la base
+- Romanisation/diacritiques et liaison grecque
+  - cephalo-/céphalo-, cardio-/cardi-, leuco-/leuko-, hémato-/hemato-, etc.
+  - Élément de liaison « o » (grec) présent/absent selon les mots
+- Paires sémantiques (suffixes proches)
+  - -logie (étude) ↔ -logue/-logiste (spécialiste)
+  - -phile ↔ -philie ; -phobe ↔ -phobie ; -isme ↔ -iste ; -ité (abstrait) ; -tion/-sion ; -eur/-euse ; -teur/-trice ; -if/-ive ; -al/-ale/-aux ; -able/-ible ; -eux/-euse (lat. -osus)
+- Abréviations techniques/notation scientifique (à exclure par défaut)
+  - D-/L-/R-/S-/(RS-)/DL- (stéréochimie)
+  - n- (nano-), m- (milli-), u- (μ/micro), z- (zepto-), r- (ronto-), my- (myria-), etc.
+
+Choix de conception (politique V1)
+- Canonicaliser par « idée morphologique »
+  - Choisir une forme canonique en français (FR) quand elle existe et est usuelle (diacritiques inclus) ; lister les autres variantes dans `alt_forms`.
+  - Exemple: canon « céphalo- » (ou « cephalo- » si l’usage l’exige), `alt_forms: cephalo-`.
+- Exclure par défaut les abréviations techniques
+  - Filtrer les entrées portant des tags `abbreviation`, `alt-of`, `informal`, `proscribed` du set standard.
+  - Conserver ces entrées dans un « mode expert » optionnel (futur) ou en `alt_forms` d’un canon pertinent.
+- Suffixes « paires »
+  - Conserver des gloses distinctes, et, si possible, fournir un `pos_out` indicatif pour orienter la définition (ex.: -logie → `noun`/`result_noun`, -logue → `agent_noun`).
+- Pondération
+  - Les variantes d’un même canon ne doivent pas sur‑pondérer la génération ; le poids s’applique au canon. Les `alt_forms` ne sont pas comptés comme entrées séparées.
+
+Application dans l’ETL (plan et implémentation)
+- Fichier d’équivalences (éditable): `etl/equiv_map.json`
+  - Format: `{ "canon": { "alt_forms": ["..."], "notes": "..." }, ... }`
+  - Entrées prévues: groupes in-/im-/il-/ir-, séries ad- assimilées, couples cephalo-/céphalo-, hémato-/hemato-, liaison « o », etc.
+- Filtre d’exclusion par tags (défaut)
+  - Wizard: activer par défaut un filtre `--exclude-tags abbreviation,alt-of,informal,proscribed` (BACKLOG), avec override en mode expert.
+  - Revue: priorité aux entrées marquées par ces tags pour « rejeter » ou rétrograder vers `alt_forms`.
+- Fusion FR+MUL
+  - FR prioritaire ; si seule MUL existe, appliquer l’équivalence (si connue) pour imposer le canon FR ; l’autre va dans `alt_forms`.
+- Génération (app)
+  - L’assimilation phonétique est traitée au moment de la composition (ex.: in- → im- devant b/p/m) plutôt que dupliquer des entrées ; `alt_forms` reste informatif.
+
+Heuristiques de revue (priorité)
+- Signaler en premier:
+  - `form` courts (1–2 chars) + tags `abbreviation`/`alt-of`
+  - Formes en MAJUSCULES (D-, L-, R-, S-, RS-, DL-)
+  - Romanisations sans diacritiques concurrentes à une forme FR
+  - Paires sémantiques suspectes (vérifier gloses courtes/cohérentes)
+
+Backlog (technique)
+- Ajouter au wizard: `--exclude-tags` (valeur par défaut) + `--include-tags-expert` pour rétablir les abréviations.
+- Implémenter `equiv_map.json` dans l’ETL: remonter les variantes en `alt_forms` du canon et dédupliquer par canon.
+- Tests unitaires pour la canonicalisation et la non‑duplication des variantes ; tests de parsing sur cas diacritiques.
+
+Annexe F. Préfixes très courts (1–3 caractères) – Politique
+
+Contexte
+- De nombreux préfixes 1–2 lettres proviennent d’abréviations SI (n-, m-, u-, z-, r-, q-) ou de notations (D-/L-/R-/S-/RS-/DL-). Ils sont peu naturels pour un usage ludique grand public.
+- D’autres courts sont très productifs en français (a-, co-, re-, dé-/de-, ex-, in- (+im-/il-/ir-)).
+
+Politique V1
+- Deny-list (exclusion par défaut): `D-`, `L-`, `R-`, `S-`, `RS-`, `DL-`, `n-`, `m-`, `u-`, `z-`, `r-`, `q-`.
+- Allow-list (préserver): `a-`, `co-`, `re-`, `dé-` (ou `de-`), `ex-`, `in-`, `im-`, `il-`, `ir-`, et canons courts utiles `bio-`, `geo-`, `pro-`.
+- Implémentation: fichier `etl/short_prefix_policy.json` (BACKLOG) et application dans le wizard.
+- Revue: prioriser l’audit des restes 1–2 lettres ; proposer exclusion ou rattachement en `alt_forms`.
+
+Annexe G. Préfixes multiples (enchaînés)
+
+Objectif
+- Permettre ponctuellement des combinaisons avec 2 préfixes consécutifs (ex.: co‑re‑X), pour enrichir la variété.
+
+Règles
+- OFF par défaut; toggle en Paramètres.
+- Sélection du second préfixe parmi la allow-list; distinct du premier; jamais une abréviation/notation.
+- Composition: appliquer les mêmes règles d’élision et d’assimilation phonétique que pour la jonction préfixe/racine.
+- Définition: reste basée sur racine + suffixe (glose courte) pour conserver la concision.
+
+Annexe H. IA d’assistance (traduction/summarisation/normalisation)
+
+Objectifs
+- Obtenir des gloses FR courtes et homogènes ; proposer pos_out (suffixes) ; signaler doublons/variantes/canons.
+
+Flux
+- Sélection d’un échantillon: `prep-ai` (JSONL + prompt), prompts FR prescriptifs avec exemples.
+- Import: `import-ai` applique les gloses/pos_out et écrit un plan d’actions `actions_todo.jsonl` (canonize, alt_form, rationale) et `edited_ids.txt`.
+- Revue ciblée: `review --ids-file edited_ids.txt`; application finale via `apply-review` (et, à venir, application des actions du plan).
+
+Intégration LLM locaux (BACKLOG)
+- Exposer un sous-commande `ai-run` (endpoint, modèle, lot, temperature, max_tokens, timeout) compatible ollama (localhost:11434), LM Studio (localhost:1234), llamafile (serveur local).
+- Cache des réponses (`runs/<ts>/ai/cache/`), reprise sur échec, limitation du débit, dry-run.
+- Stratégie multi-prompts: gloss‑only, gloss+pos, canon/alt/excl., plus prompts de raffinement (anti-“ou”, anti-anglicismes, clamp 80c).
+
 4. Évolutions Futures (Roadmap Potentielle)
 
     V1.5 : Améliorations Linguistiques

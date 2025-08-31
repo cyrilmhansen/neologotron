@@ -179,12 +179,23 @@ def clean_wiki_markup(s: str) -> str:
 
 
 def sense_gloss(entry: dict) -> Optional[str]:
+    def _sanitize(text: str) -> str:
+        # Remove wiki-style bullet remnants and collapse newlines
+        # Drop lines starting with '#' (e.g., '#* example …')
+        parts = re.split(r"[\r\n]+", text)
+        parts = [p.strip() for p in parts if p and not p.strip().startswith('#')]
+        out = " ".join(parts)
+        # Collapse multiple spaces
+        return re.sub(r"\s+", " ", out).strip()
+
     glosses: List[str] = []
     for s in entry.get("senses", []) or []:
         gs = s.get("glosses") or []
         if gs:
-            glosses.extend([g for g in gs if isinstance(g, str)])
-    g = join_unique(glosses, "; ")
+            for g in gs:
+                if isinstance(g, str):
+                    glosses.append(_sanitize(g))
+    g = join_unique([x for x in glosses if x], "; ")
     return g or None
 
 

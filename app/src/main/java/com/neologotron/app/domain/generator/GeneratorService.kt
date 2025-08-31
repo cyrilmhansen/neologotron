@@ -4,6 +4,7 @@ import com.neologotron.app.data.entity.RootEntity
 import com.neologotron.app.data.entity.SuffixEntity
 import com.neologotron.app.data.repo.HistoryRepository
 import com.neologotron.app.data.repo.LexemeRepository
+import android.util.Log
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.random.Random
@@ -127,7 +128,15 @@ class GeneratorService @Inject constructor(
     }
 
     private fun composeDefinition(r: RootEntity, s: SuffixEntity, mode: GeneratorRules.DefinitionMode): String {
-        return GeneratorRules.composeDefinition(r.gloss, s.posOut, s.defTemplate, s.tags, mode)
+        val root = (r.gloss.takeUnless { it.isBlank() } ?: r.form)
+        val def = GeneratorRules.composeDefinition(root, s.posOut, s.defTemplate, s.tags, mode).trim()
+        return if (def.isNotEmpty()) {
+            def
+        } else {
+            val fallback = "relatif à ${root}".trim()
+            Log.w(TAG, "Empty definition composed; using fallback | root='${root}' posOut='${s.posOut}' tags='${s.tags}'")
+            fallback
+        }
     }
 
     private fun <T> List<T>.randomOrNull(): T? = if (isEmpty()) null else this[Random.nextInt(size)]

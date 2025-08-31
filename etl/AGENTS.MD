@@ -174,6 +174,57 @@ End‑to‑end (using Kaikki JSONL) — interactive CLI
   - FR‑only run (skip MUL):
     - `python3 etl/cli.py wizard --fr-only`
 
+Post‑processing (gloss polishing)
+- Shorten and localize glosses for better on‑device display (and to prefer FR):
+  - `python3 etl/cli.py polish --run <timestamp> --max-chars 80 --map etl/gloss_map_fr.sample.json`
+- Behavior:
+  - Collapses multi‑clause glosses to the first clause; removes parentheticals; trims to `max-chars` with ellipsis.
+  - Applies optional phrase‑level FR mapping (customizable JSON). Does not call external services.
+- Future: an AI‑assisted mode can translate + summarize missing FR glosses; batch prompts per run and cache decisions, while keeping manual review in the loop.
+
+AI Import (apply AI results)
+- Prepare candidates + prompt:
+  - `python3 etl/cli.py prep-ai --run <timestamp> --count 10 --min-len 90`
+  - Produces `runs/<ts>/ai/candidates.jsonl` and `runs/<ts>/ai/prompt.txt`
+- After getting AI JSONL (one object per line: `{ id, short_gloss_fr, keep?, pos_out? }`), apply edits:
+  - `python3 etl/cli.py import-ai --run <timestamp> --ai-jsonl /path/to/ai.jsonl`
+  - Writes updated CSVs to `runs/<ts>/ai_imported/` and an IDs file `runs/<ts>/ai/edited_ids.txt`
+  - Review only edited entries:
+    - `python3 etl/cli.py review --run <timestamp> --ids-file runs/<ts>/ai/edited_ids.txt`
+  - Apply and export:
+    - `python3 etl/cli.py apply-review --run <timestamp>`
+
+AI Import – advanced actions (canon/alt/exclure)
+- `import-ai` reconnaît aussi (facultatifs) dans le JSONL IA:
+  - `duplicate_of` ou `alt_form_for`: propose une action `alt_form` vers `target_form`.
+  - `prefer_canon` (booléen): propose une action `canonize` pour faire de cette forme le canon FR.
+  - `rationale` (texte court): justification à afficher pendant la revue.
+- L’outil écrit un plan d’actions pour revue: `runs/<ts>/ai/actions_todo.jsonl`.
+- Flux recommandé: ouvrir `actions_todo.jsonl` pendant la revue et valider/rejeter les propositions; une étape future appliquera ces actions automatiquement (BACKLOG).
+
+Politique préfixes courts (1–3 caractères)
+- Deny-list (par défaut, exclu du set public): `D-`, `L-`, `R-`, `S-`, `RS-`, `DL-`, `n-`, `m-`, `u-`, `z-`, `r-`, `q-` (notations SI, stéréochimie…).
+- Allow-list explicite (préfixes courts utiles): `a-`, `co-`, `re-`, `dé-` (ou `de-`), `ex-`, `in-` (+ assimilations `im-`, `il-`, `ir-`), et canons fréquents `bio-`, `geo-`, `pro-`.
+- Implémentation prévue: fichier `etl/short_prefix_policy.json` et filtre appliqué dans le wizard (BACKLOG), plus revue prioritaire des 1–2 lettres restants.
+
+Préfixes multiples (enchaînés) — plan
+- Option expérimentale (OFF par défaut) pour composer `pref2 + pref1 + racine + suffixe` avec assimilation phonétique.
+- Sélection: `pref2` tiré de la allow-list, distinct de `pref1` et non abréviatif.
+- Définition: reste basée sur racine + suffixe (glosse courte). Toggle en Paramètres.
+
+LLM locaux (ollama / LM Studio / llamafile)
+- Objectif: permettre les étapes IA sans service externe, avec prompts multiples et lots maîtrisés.
+- Intégration (BACKLOG):
+  - Ajout d’un sous-commande `ai-run` configurable (endpoint HTTP, modèle, taille de lot, température, max tokens, timeout).
+  - Formats supportés: ollama (http://localhost:11434), LM Studio (http://localhost:1234), llamafile (binaire local avec serveur intégré).
+  - Cache de réponses sous `runs/<ts>/ai/cache/` (clé = hash(prompt+entrée)).
+  - Garde-fous: nombre de lignes max/s, reprise après échec, dry-run.
+
+Prochaines étapes (TODO)
+- Appliquer automatiquement `actions_todo.jsonl` (canonize/alt_form/exclude) ou générer un patch CSV pour revue.
+- Ajouter `short_prefix_policy.json` + filtre deny/allow dans le wizard, et test unitaire associé.
+- Étendre `prep-ai` avec prompt FR enrichi (exemples) et post-nettoyage optionnel (suppression “ou”, anglicismes).
+- Ajouter `ai-run` pour ollama/LM Studio/llamafile et un cache.
 End‑to‑end (local wiktextract) — planned CLI
 - Download the latest frwiktionary/enwiktionary XML dumps (bz2) and run wiktextract (consult the upstream README for exact flags).
 - `python3 etl/cli.py extract --wiktionary fr --dump frwiktionary-latest-pages-articles.xml.bz2 --out runs/<date>/jsonl/fr.jsonl`
@@ -239,4 +290,8 @@ Appendix: Useful Paths & References
 - Reader code: `app/src/main/java/com/neologotron/app/data/seed/SeedManager.kt`
 
 Status
-- Scripted transform exists and works with sample. This document defines the plan to scale it into an interactive, contributor‑friendly pipeline.
+- Scripted transform exists and works with sample. The interactive pipeline is implemented:
+  - `etl/cli.py wizard` downloads FR + MUL (from raw), transforms, merges, exports to app assets; `--fr-only` supported.
+  - Clean progress: single‑line download speed/ETA, spinner during transforms, filtered MUL scan progress, and copy progress.
+  - Interactive review: `review` + `apply-review` with filters (`--origin-lang`, `--domains`, `--show-all`).
+  - About screen attribution implemented with CC BY‑SA + wiktextract citation and Kaikki links.

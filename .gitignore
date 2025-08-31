@@ -63,3 +63,7 @@ etl/out_*/**/*.csv
 *.jsonl.gz
 
 etl/runs/
+searchbig.sh
+.gitignore
+.gitignore
+searchbig2.sh

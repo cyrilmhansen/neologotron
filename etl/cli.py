@@ -16,6 +16,7 @@ import argparse
 import csv
 import gzip
 import io
+import re
 import json
 import os
 import shutil
@@ -25,7 +26,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Tuple
 from urllib.request import urlopen, Request
-from subprocess import run, CalledProcessError
+from subprocess import run, CalledProcessError, Popen, PIPE
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -46,26 +47,69 @@ def _ensure_dir(p: Path) -> None:
     p.mkdir(parents=True, exist_ok=True)
 
 
+def _fmt_bytes(n: float) -> str:
+    units = ["B", "KB", "MB", "GB", "TB"]
+    i = 0
+    while n >= 1024 and i < len(units) - 1:
+        n /= 1024.0
+        i += 1
+    return f"{n:.1f} {units[i]}"
+
+
+def _fmt_eta(seconds: float) -> str:
+    if seconds <= 0 or seconds != seconds:
+        return "--:--"
+    m, s = divmod(int(seconds), 60)
+    h, m = divmod(m, 60)
+    if h:
+        return f"{h:d}:{m:02d}:{s:02d}"
+    return f"{m:d}:{s:02d}"
+
+
 def _download(url: str, dest: Path) -> None:
     print(f"Downloading:\n  URL: {url}\n  → {dest}")
     _ensure_dir(dest.parent)
     req = Request(url, headers={"User-Agent": "neologotron-etl/1.0"})
+    start = time.time()
     with urlopen(req) as r, open(dest, "wb") as f:
-        # Stream with a reasonable chunk to avoid memory peaks
-        total = 0
-        chunk = 1024 * 1024
-        last_report = time.time()
+        total_len = r.headers.get("Content-Length")
+        total_len = int(total_len) if total_len and total_len.isdigit() else None
+        downloaded = 0
+        chunk = 1024 * 512  # 512KB chunks
+        last_draw = 0.0
+        line_len = 0
         while True:
             buf = r.read(chunk)
             if not buf:
                 break
             f.write(buf)
-            total += len(buf)
+            downloaded += len(buf)
             now = time.time()
-            if now - last_report > 1.5:
-                print(f"  … {total/1_000_000:.1f} MB")
-                last_report = now
-    print(f"  Done: {dest.stat().st_size/1_000_000:.1f} MB")
+            if now - last_draw >= 0.25:  # redraw 4x/sec
+                elapsed = now - start
+                speed = downloaded / elapsed if elapsed > 0 else 0.0
+                if total_len:
+                    remain = total_len - downloaded
+                    eta = _fmt_eta(remain / speed if speed > 0 else 0)
+                    pct = f"{(downloaded/total_len)*100:5.1f}%"
+                    msg = f"  {pct} {_fmt_bytes(downloaded)}/{_fmt_bytes(total_len)}  at {_fmt_bytes(speed)}/s  ETA {eta}"
+                else:
+                    msg = f"  {_fmt_bytes(downloaded)}  at {_fmt_bytes(speed)}/s"
+                pad = max(0, line_len - len(msg))
+                sys.stdout.write("\r" + msg + (" " * pad))
+                sys.stdout.flush()
+                line_len = len(msg)
+                last_draw = now
+        # Final line
+        elapsed = max(0.001, time.time() - start)
+        speed = downloaded / elapsed
+        if total_len:
+            msg = f"  100.0% {_fmt_bytes(downloaded)}/{_fmt_bytes(total_len)}  at {_fmt_bytes(speed)}/s  ETA 0:00"
+        else:
+            msg = f"  {_fmt_bytes(downloaded)}  at {_fmt_bytes(speed)}/s"
+        pad = max(0, line_len - len(msg))
+        sys.stdout.write("\r" + msg + (" " * pad) + "\n")
+        sys.stdout.flush()
 
 
 def _filter_mul_lines(input_gz: Path, output_gz: Path) -> Tuple[int, int]:
@@ -75,21 +119,37 @@ def _filter_mul_lines(input_gz: Path, output_gz: Path) -> Tuple[int, int]:
     print(f"Filtering Translingual from:\n  {input_gz}\n  → {output_gz}")
     _ensure_dir(output_gz.parent)
     read = kept = 0
+    file_size = input_gz.stat().st_size if input_gz.exists() else None
+    start = time.time()
+    last_draw = 0.0
+    line_len = 0
     with gzip.open(input_gz, "rt", encoding="utf-8") as inp, gzip.open(output_gz, "wt", encoding="utf-8") as outp:
-        for line in inp:
+        while True:
+            line = inp.readline()
+            if not line:
+                break
             read += 1
-            if not line.strip():
-                continue
-            try:
-                obj = json.loads(line)
-            except Exception:
-                continue
-            if obj.get("lang_code") == "mul":
-                kept += 1
-                # Write compact JSON line
-                outp.write(json.dumps(obj, ensure_ascii=False) + "\n")
-            if read % 500000 == 0:
-                print(f"  … scanned {read:,} lines; kept {kept:,}")
+            if line.strip():
+                try:
+                    obj = json.loads(line)
+                except Exception:
+                    obj = None
+                if obj and obj.get("lang_code") == "mul":
+                    kept += 1
+                    outp.write(json.dumps(obj, ensure_ascii=False) + "\n")
+            now = time.time()
+            if now - last_draw >= 0.5:  # redraw 2x/sec
+                elapsed = now - start
+                speed = read / elapsed if elapsed > 0 else 0.0
+                # Try to estimate percent by compressed bytes consumed if available via file position; gzip doesn't expose reliably, so show counts.
+                msg = f"  scanned {read:,} lines; kept {kept:,}  (~{speed:,.0f} l/s)"
+                pad = max(0, line_len - len(msg))
+                sys.stdout.write("\r" + msg + (" " * pad))
+                sys.stdout.flush()
+                line_len = len(msg)
+                last_draw = now
+    sys.stdout.write("\n")
+    sys.stdout.flush()
     print(f"  Kept {kept:,} / {read:,} lines")
     return read, kept
 
@@ -97,7 +157,7 @@ def _filter_mul_lines(input_gz: Path, output_gz: Path) -> Tuple[int, int]:
 def _run_transform(input_path: Path, out_dir: Path, *, lang: str, include_translingual: bool,
                    roots_from_translingual: bool = False, mul_fallback_classical: bool = False,
                    origin_filter: str = "classical") -> None:
-    """Invoke wiktextract_to_neologotron.py with the desired flags."""
+    """Invoke wiktextract_to_neologotron.py with a spinner until completion."""
     script = ETL_DIR / "wiktextract_to_neologotron.py"
     cmd = [sys.executable, str(script),
            "--input", str(input_path),
@@ -110,10 +170,43 @@ def _run_transform(input_path: Path, out_dir: Path, *, lang: str, include_transl
         cmd.append("--roots-from-translingual")
     if mul_fallback_classical:
         cmd.append("--mul-fallback-classical")
+
+    # Show spinner while the subprocess runs; capture output to print after
+    label = f"Transform {input_path.name} → {out_dir.name}"
     print("Running:", " ".join(cmd))
-    res = run(cmd)
-    if res.returncode != 0:
-        raise CalledProcessError(res.returncode, cmd)
+    p = Popen(cmd, stdout=PIPE, stderr=PIPE, text=True)
+    frames = ["⠋","⠙","⠹","⠸","⠼","⠴","⠦","⠧","⠇","⠏"]
+    i = 0
+    start = time.time()
+    line_len = 0
+    try:
+        while True:
+            ret = p.poll()
+            now = time.time()
+            elapsed = now - start
+            spinner = frames[i % len(frames)]
+            msg = f"  {spinner} {label}  elapsed {_fmt_eta(elapsed)}"
+            pad = max(0, line_len - len(msg))
+            sys.stdout.write("\r" + msg + (" " * pad))
+            sys.stdout.flush()
+            line_len = len(msg)
+            if ret is not None:
+                break
+            time.sleep(0.1)
+            i += 1
+        out, err = p.communicate()
+    finally:
+        # Clear spinner line
+        sys.stdout.write("\r" + (" " * line_len) + "\r")
+        sys.stdout.flush()
+
+    # Print subprocess output succinctly
+    if out:
+        sys.stdout.write(out)
+    if err:
+        sys.stderr.write(err)
+    if p.returncode != 0:
+        raise CalledProcessError(p.returncode, cmd)
 
 
 CSV_FILES = [
@@ -173,8 +266,45 @@ def _copy_to_assets(src_dir: Path) -> None:
     for name in CSV_FILES:
         src = src_dir / name
         dst = APP_SEED_DIR / name
-        print(f"Copying {src} → {dst}")
-        shutil.copyfile(src, dst)
+        print(f"Copying {src.name} → {dst}")
+        # Copy with progress
+        total = src.stat().st_size if src.exists() else 0
+        copied = 0
+        start = time.time()
+        last_draw = 0.0
+        line_len = 0
+        with open(src, "rb") as fsrc, open(dst, "wb") as fdst:
+            while True:
+                buf = fsrc.read(1024 * 1024)
+                if not buf:
+                    break
+                fdst.write(buf)
+                copied += len(buf)
+                now = time.time()
+                if now - last_draw >= 0.25:
+                    elapsed = now - start
+                    speed = copied / elapsed if elapsed > 0 else 0.0
+                    if total:
+                        eta = _fmt_eta((total - copied) / speed if speed > 0 else 0)
+                        pct = f"{(copied/total)*100:5.1f}%"
+                        msg = f"  {pct} {_fmt_bytes(copied)}/{_fmt_bytes(total)}  at {_fmt_bytes(speed)}/s  ETA {eta}"
+                    else:
+                        msg = f"  {_fmt_bytes(copied)}  at {_fmt_bytes(speed)}/s"
+                    pad = max(0, line_len - len(msg))
+                    sys.stdout.write("\r" + msg + (" " * pad))
+                    sys.stdout.flush()
+                    line_len = len(msg)
+                    last_draw = now
+        # Finalize line
+        elapsed = max(0.001, time.time() - start)
+        speed = copied / elapsed
+        if total:
+            msg = f"  100.0% {_fmt_bytes(copied)}/{_fmt_bytes(total)}  at {_fmt_bytes(speed)}/s  ETA 0:00"
+        else:
+            msg = f"  {_fmt_bytes(copied)}  at {_fmt_bytes(speed)}/s"
+        pad = max(0, line_len - len(msg))
+        sys.stdout.write("\r" + msg + (" " * pad) + "\n")
+        sys.stdout.flush()
 
 
 def _decisions_path(run_dir: Path) -> Path:
@@ -296,6 +426,13 @@ def cmd_review(args) -> int:
     if args.domains:
         domain_terms = [x.strip().lower() for x in args.domains.split(",") if x.strip()]
 
+    # Optional ID restriction
+    ids_set = None
+    if getattr(args, 'ids_file', None):
+        p = Path(args.ids_file)
+        if p.exists():
+            ids_set = {line.strip() for line in p.read_text(encoding='utf-8').splitlines() if line.strip()}
+
     for path in targets:
         if not path.exists():
             continue
@@ -310,11 +447,158 @@ def cmd_review(args) -> int:
                 text = (rec.get("domain") or rec.get("tags") or "").lower()
                 return any(t in text for t in domain_terms)
             rows = [r for r in rows if _has_domain(r)]
+        if ids_set is not None:
+            rows = [r for r in rows if (r.get('id') or '') in ids_set]
 
         reviewed = _review_loop(headers, rows, decisions, dec_path, args.limit, args.show_all)
         total += reviewed
     print(f"Saved decisions to: {dec_path}")
     print(f"Reviewed {total} entries")
+    return 0
+
+
+def cmd_import_ai(args) -> int:
+    run_dir = ETL_DIR / "runs" / args.run if args.run else _latest_run_dir()
+    if not run_dir or not run_dir.exists():
+        print("No run directory found. Run 'python etl/cli.py wizard' first.", file=sys.stderr)
+        return 2
+    merged_dir = run_dir / "merged"
+    out_dir = Path(args.out_dir) if args.out_dir else (run_dir / "ai_imported")
+    ai_path = Path(args.ai_jsonl)
+    if not ai_path.exists():
+        print(f"AI JSONL not found: {ai_path}", file=sys.stderr)
+        return 2
+
+    # Load AI suggestions
+    suggestions: Dict[str, Dict[str, str]] = {}
+    edited_ids: List[str] = []
+    actions_plan: List[Dict[str, str]] = []
+    with ai_path.open("r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                obj = json.loads(line)
+            except Exception:
+                continue
+            _id = (obj.get("id") or "").strip()
+            if not _id:
+                continue
+            if obj.get("keep") is False:
+                # Skip edits if explicitly rejected
+                continue
+            sg = (obj.get("short_gloss_fr") or obj.get("short_gloss") or "").strip()
+            po = (obj.get("pos_out") or "").strip()
+            dup = (obj.get("duplicate_of") or "").strip()
+            altfor = (obj.get("alt_form_for") or "").strip()
+            prefer = obj.get("prefer_canon")
+            rat = (obj.get("rationale") or "").strip()
+            suggestions[_id] = {"gloss": sg, "pos_out": po}
+            # Build an action plan entry if advanced fields present or keep==false was skipped above
+            action = None
+            target = None
+            if dup:
+                action = "alt_form"
+                target = dup
+            elif altfor:
+                action = "alt_form"
+                target = altfor
+            elif isinstance(prefer, bool):
+                action = "canonize" if prefer else None
+            if action:
+                actions_plan.append({
+                    "id": _id,
+                    "action": action,
+                    **({"target_form": target} if target else {}),
+                    **({"rationale": rat} if rat else {}),
+                })
+
+    if not suggestions:
+        print("No applicable AI suggestions found.")
+        return 0
+
+    # Index merged rows by id to enrich actions with form/type
+    id_to_meta: Dict[str, Dict[str, str]] = {}
+    for name in CSV_FILES:
+        path = merged_dir / name
+        if not path.exists():
+            continue
+        headers, rows = _load_csv(path)
+        typ = "prefix" if "prefixes" in name else ("suffix" if "suffixes" in name else "root")
+        for rec in rows:
+            rid = rec.get("id") or ""
+            if rid:
+                id_to_meta[rid] = {"form": rec.get("form") or "", "type": typ}
+
+    # Enrich actions_plan with form/type
+    for a in actions_plan:
+        meta = id_to_meta.get(a["id"], {})
+        if meta:
+            a.setdefault("form", meta.get("form", ""))
+            a.setdefault("type", meta.get("type", ""))
+
+    # Apply to CSVs (only gloss/pos_out). Canon/alt/exclude are written as a plan for review.
+    changed_total = 0
+    for name in CSV_FILES:
+        src = merged_dir / name
+        if not src.exists():
+            continue
+        headers, rows = _load_csv(src)
+        changed = 0
+        for rec in rows:
+            rid = rec.get("id") or ""
+            if rid in suggestions:
+                sug = suggestions[rid]
+                sg = sug.get("gloss") or ""
+                po = sug.get("pos_out") or ""
+                if sg:
+                    rec["gloss"] = sg
+                if po and "suffixes" in name:
+                    rec["pos_out"] = po
+                changed += 1
+                edited_ids.append(rid)
+        if changed:
+            _write_csv(out_dir / name, headers, rows)
+            changed_total += changed
+            print(f"  Applied AI to {name}: {changed} rows")
+        else:
+            # Still write original if other files changed, to keep set complete
+            if out_dir.exists():
+                _write_csv(out_dir / name, headers, rows)
+
+    if changed_total == 0:
+        print("No matching IDs from AI file were found in merged CSVs.")
+        # Still write actions plan if any
+        if actions_plan:
+            ai_dir = run_dir / "ai"
+            _ensure_dir(ai_dir)
+            plan_path = ai_dir / "actions_todo.jsonl"
+            with open(plan_path, "w", encoding="utf-8") as f:
+                for obj in actions_plan:
+                    f.write(json.dumps(obj, ensure_ascii=False) + "\n")
+            print(f"Wrote action plan: {plan_path}")
+        return 0
+
+    # Write IDs file for focused review
+    ai_dir = run_dir / "ai"
+    _ensure_dir(ai_dir)
+    ids_file = ai_dir / "edited_ids.txt"
+    ids_file.write_text("\n".join(edited_ids) + "\n", encoding="utf-8")
+    # Also write action plan file for canonicalisation/alt_forms/exclusion decisions
+    plan_path = ai_dir / "actions_todo.jsonl"
+    if actions_plan:
+        with open(plan_path, "w", encoding="utf-8") as f:
+            for obj in actions_plan:
+                f.write(json.dumps(obj, ensure_ascii=False) + "\n")
+    print(f"Wrote updated CSVs to: {out_dir}")
+    print("Review the edited entries only:")
+    print(f"  python3 etl/cli.py review --run {run_dir.name} --ids-file {ids_file}")
+    if actions_plan:
+        print("Additionally review canonicalisation/alt_forms/exclusion plan:")
+        print(f"  {plan_path}")
+    print("Then apply and export:")
+    print(f"  python3 etl/cli.py apply-review --run {run_dir.name}")
     return 0
 
 
@@ -382,6 +666,154 @@ def _write_csv(path: Path, headers: List[str], rows: List[Dict[str, str]]) -> No
         w = csv.DictWriter(f, fieldnames=headers)
         w.writeheader()
         w.writerows(rows)
+
+
+def _shorten_gloss(text: str, max_chars: int) -> str:
+    if not text:
+        return text
+    # Remove parenthetical segments and wiki bullets
+    s = re.sub(r"\([^)]*\)", "", text)
+    # Split at common separators and pick the first informative chunk
+    for sep in [';', '.', '—', ':']:
+        if sep in s:
+            s = s.split(sep, 1)[0]
+            break
+    s = re.sub(r"\s+", " ", s).strip().strip('"').strip()
+    if len(s) <= max_chars:
+        return s
+    # Trim at last space before limit and add ellipsis
+    cut = s.rfind(' ', 0, max_chars)
+    if cut < 0:
+        cut = max_chars
+    return s[:cut].rstrip() + "…"
+
+
+def _load_map(path: Path | None) -> Dict[str, str]:
+    if not path or not path.exists():
+        return {}
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def _apply_map(text: str, m: Dict[str, str]) -> str:
+    if not text or not m:
+        return text
+    # Exact phrase map first
+    if text in m:
+        return m[text]
+    # Try lowercase match
+    low = text.lower()
+    for k, v in m.items():
+        if low == k.lower():
+            return v
+    return text
+
+
+def cmd_polish(args) -> int:
+    run_dir = ETL_DIR / "runs" / args.run if args.run else _latest_run_dir()
+    if not run_dir or not run_dir.exists():
+        print("No run directory found. Run 'python etl/cli.py wizard' first.", file=sys.stderr)
+        return 2
+    merged_dir = run_dir / "merged"
+    out_dir = Path(args.out_dir) if args.out_dir else (run_dir / "polished")
+    fmap = _load_map(Path(args.map) if args.map else None)
+    total = 0
+    for name in CSV_FILES:
+        src = merged_dir / name
+        if not src.exists():
+            continue
+        headers, rows = _load_csv(src)
+        for rec in rows:
+            g = rec.get("gloss") or ""
+            g = _apply_map(g, fmap)
+            g = _shorten_gloss(g, args.max_chars)
+            rec["gloss"] = g
+        _write_csv(out_dir / name, headers, rows)
+        total += len(rows)
+        print(f"  Polished {name}: {len(rows)} rows (max {args.max_chars} chars)")
+    _copy_to_assets(out_dir)
+    print("Copied polished CSVs into app assets. Use Debug → Reset database to reload.")
+    return 0
+
+
+def _lang_hint_is_english(text: str) -> bool:
+    if not text:
+        return False
+    t = text.lower()
+    # Quick heuristic: common English stopwords and absence of accented chars
+    en_stops = {" the "," of "," and "," to "," in "," with "," for "," by "," from "," that "," which "," used "," use "," form "}
+    # pad with spaces to reduce false positives at boundaries
+    tt = f" {t} "
+    if any(w in tt for w in en_stops):
+        return True
+    # Likely French has « » or accented letters; if none present and many letters, might be EN
+    if not any(c in t for c in "àâäèéêëîïôöùûüçœ«»") and sum(ch.isalpha() for ch in t) >= 10:
+        return True
+    return False
+
+
+def cmd_prep_ai(args) -> int:
+    import random
+    run_dir = ETL_DIR / "runs" / args.run if args.run else _latest_run_dir()
+    if not run_dir or not run_dir.exists():
+        print("No run directory found. Run 'python etl/cli.py wizard' first.", file=sys.stderr)
+        return 2
+    merged_dir = run_dir / "merged"
+    ai_dir = run_dir / "ai"
+    _ensure_dir(ai_dir)
+
+    # Collect candidates from all CSVs
+    candidates: List[Dict[str, str]] = []
+    for name in CSV_FILES:
+        path = merged_dir / name
+        if not path.exists():
+            continue
+        headers, rows = _load_csv(path)
+        typ = "prefix" if "prefixes" in name else ("suffix" if "suffixes" in name else "root")
+        for rec in rows:
+            gloss = (rec.get("gloss") or "").strip()
+            ety = (rec.get("ety_lang") or rec.get("root_lang") or "").strip()
+            if len(gloss) >= args.min_len or _lang_hint_is_english(gloss) or ety.lower() in {"mul", "en"}:
+                candidates.append({
+                    "id": rec.get("id") or "",
+                    "type": typ,
+                    "form": rec.get("form") or "",
+                    "gloss": gloss,
+                    "ety_lang": ety,
+                })
+    random.shuffle(candidates)
+    pick = candidates[: max(0, args.count)]
+    out_jsonl = ai_dir / "candidates.jsonl"
+    with open(out_jsonl, "w", encoding="utf-8") as f:
+        for obj in pick:
+            f.write(json.dumps(obj, ensure_ascii=False) + "\n")
+    # Write a prompt template file for convenience
+    prompt = f"""
+You are helping refine morphological glosses for a French neologism generator (Neologotron).
+
+Given JSON Lines with fields:
+- id: string (stable identifier)
+- type: one of [prefix, root, suffix]
+- form: the morph form (e.g., "bio-", "-logie", "cephalo-")
+- gloss: current gloss (may be English or too long)
+- ety_lang: language code (e.g., fr, mul, grc, la)
+
+For each input line, output one JSON line with:
+- id: same as input
+- short_gloss_fr: concise French gloss (<= 80 chars), lower-case, noun/adjective phrase, no trailing period; suitable for composing definitions; avoid unnecessary "de/du/d'"
+- keep: true/false (false only if the entry is irrelevant for word-building)
+- pos_out (optional, suffix only): one of [adj, adv, verb, noun, agent_noun, action_noun, result_noun] when evident; otherwise omit
+
+Guidelines:
+- Do not invent etymology; only translate/summarize meaning.
+- Prefer compact fragments: prefixes → idea fragment (e.g., "eau", "au-dessus"); roots → key concept (e.g., "tête"); suffixes → product/type (e.g., "étude", "agent", "qualité").
+- Avoid full sentences, examples, or proper names. Keep neutrality.
+- No extra commentary. Output ONLY JSON lines.
+""".strip()
+    with open(ai_dir / "prompt.txt", "w", encoding="utf-8") as f:
+        f.write(prompt + "\n")
+    print(f"Prepared {len(pick)} AI candidates:\n  {out_jsonl}\nPrompt template:\n  {ai_dir / 'prompt.txt'}")
+    return 0
 
 
 def wizard(args=None) -> int:
@@ -464,10 +896,27 @@ def main() -> int:
     pr.add_argument("--origin-lang", help="comma-separated language codes to include (matches ety_lang/root_lang), e.g. 'grc,la,mul'")
     pr.add_argument("--domains", help="comma-separated domain/tag substrings to include, case-insensitive (e.g. 'science,medecine,tech')")
     pr.add_argument("--show-all", action="store_true", help="review all entries, not only 'uncertain'")
+    pr.add_argument("--ids-file", help="file with IDs (one per line) to restrict review to specific entries")
 
     pa = sub.add_parser("apply-review", help="Apply saved decisions to merged CSVs and export to app assets")
     pa.add_argument("--run", help="run timestamp under etl/runs; defaults to latest run")
     pa.add_argument("--out-dir", help="optional output dir (defaults to runs/<run>/export_reviewed)")
+
+    pp = sub.add_parser("polish", help="Shorten and optionally translate glosses, then copy to assets")
+    pp.add_argument("--run", help="run timestamp under etl/runs; defaults to latest run")
+    pp.add_argument("--max-chars", type=int, default=80, help="max characters for gloss (default: 80)")
+    pp.add_argument("--map", help="optional JSON mapping file for phrase→FR gloss replacements")
+    pp.add_argument("--out-dir", help="optional output dir (defaults to runs/<run>/polished)")
+
+    paip = sub.add_parser("prep-ai", help="Prepare a random set of EN/long glosses for AI polishing (no API calls)")
+    paip.add_argument("--run", help="run timestamp under etl/runs; defaults to latest run")
+    paip.add_argument("--count", type=int, default=10, help="number of candidates (default 10)")
+    paip.add_argument("--min-len", type=int, default=90, help="minimum gloss length to consider 'long' (default 90)")
+
+    paii = sub.add_parser("import-ai", help="Apply AI JSONL (id→short_gloss_fr,pos_out) into merged CSVs, then suggest review")
+    paii.add_argument("--run", help="run timestamp under etl/runs; defaults to latest run")
+    paii.add_argument("--ai-jsonl", required=True, help="path to AI output JSONL (fields: id, short_gloss_fr, keep?, pos_out?)")
+    paii.add_argument("--out-dir", help="optional output dir (defaults to runs/<run>/ai_imported)")
 
     args = ap.parse_args()
     if args.cmd == "wizard":
@@ -476,6 +925,12 @@ def main() -> int:
         return cmd_review(args)
     if args.cmd == "apply-review":
         return cmd_apply_review(args)
+    if args.cmd == "polish":
+        return cmd_polish(args)
+    if args.cmd == "prep-ai":
+        return cmd_prep_ai(args)
+    if args.cmd == "import-ai":
+        return cmd_import_ai(args)
     return 0
 
 
