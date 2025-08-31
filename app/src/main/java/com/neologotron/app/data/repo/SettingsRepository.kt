@@ -33,6 +33,7 @@ class SettingsRepository
         private val weightingIntensityKey = floatPreferencesKey("weighting_intensity")
         private val animatedBackgroundsKey = booleanPreferencesKey("animated_backgrounds_enabled")
         private val animatedBgIntensityKey = stringPreferencesKey("animated_backgrounds_intensity")
+        private val animatedBgDebugKey = floatPreferencesKey("animated_backgrounds_debug")
         private val simpleMixerKey = booleanPreferencesKey("simple_mixer_enabled")
 
         val theme: Flow<ThemeStyle> =
@@ -65,6 +66,7 @@ class SettingsRepository
         val weightingIntensity: Flow<Float> = context.settingsStore.data.map { p -> p[weightingIntensityKey] ?: 1.0f }
         val animatedBackgroundsEnabled: Flow<Boolean> = context.settingsStore.data.map { p -> p[animatedBackgroundsKey] ?: false }
         val animatedBackgroundsIntensity: Flow<String> = context.settingsStore.data.map { p -> p[animatedBgIntensityKey] ?: "MEDIUM" }
+        val animatedBackgroundsDebug: Flow<Float> = context.settingsStore.data.map { p -> p[animatedBgDebugKey] ?: 1.0f }
         val simpleMixerEnabled: Flow<Boolean> = context.settingsStore.data.map { p -> p[simpleMixerKey] ?: false }
 
         suspend fun setTheme(style: ThemeStyle) {
@@ -110,6 +112,10 @@ class SettingsRepository
 
         suspend fun setAnimatedBackgroundsIntensity(value: String) {
             context.settingsStore.edit { it[animatedBgIntensityKey] = value }
+        }
+
+        suspend fun setAnimatedBackgroundsDebug(value: Float) {
+            context.settingsStore.edit { it[animatedBgDebugKey] = value }
         }
 
         suspend fun setSimpleMixerEnabled(enabled: Boolean) {

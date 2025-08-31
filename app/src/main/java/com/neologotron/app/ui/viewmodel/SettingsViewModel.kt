@@ -43,6 +43,8 @@ class SettingsViewModel
             repo.animatedBackgroundsIntensity
                 .map { s -> runCatching { AnimatedBackgroundIntensity.valueOf(s) }.getOrDefault(AnimatedBackgroundIntensity.MEDIUM) }
                 .stateIn(viewModelScope, SharingStarted.Eagerly, AnimatedBackgroundIntensity.MEDIUM)
+        val animatedBackgroundsDebug: StateFlow<Float> =
+            repo.animatedBackgroundsDebug.stateIn(viewModelScope, SharingStarted.Eagerly, 1.0f)
         val simpleMixerEnabled: StateFlow<Boolean> = repo.simpleMixerEnabled.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
         fun setTheme(style: ThemeStyle) {
@@ -83,6 +85,10 @@ class SettingsViewModel
 
         fun setAnimatedBackgroundsIntensity(value: AnimatedBackgroundIntensity) {
             viewModelScope.launch { repo.setAnimatedBackgroundsIntensity(value.name) }
+        }
+
+        fun setAnimatedBackgroundsDebug(value: Float) {
+            viewModelScope.launch { repo.setAnimatedBackgroundsDebug(value) }
         }
 
         fun setSimpleMixerEnabled(enabled: Boolean) {

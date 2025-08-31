@@ -27,6 +27,7 @@ class MainActivity : ComponentActivity() {
                 val style by vm.theme.collectAsState()
                 val animated by vm.animatedBackgroundsEnabled.collectAsState()
                 val intensity by vm.animatedBackgroundsIntensity.collectAsState()
+                val debugFactor by vm.animatedBackgroundsDebug.collectAsState()
                 val reduceMotion = !ValueAnimator.areAnimatorsEnabled()
 
                 ThemedBackground(
@@ -34,6 +35,7 @@ class MainActivity : ComponentActivity() {
                     style = style,
                     intensity = intensity,
                     reduceMotion = reduceMotion,
+                    debugFactor = debugFactor,
                 ) {
                     Surface(
                         modifier = Modifier.fillMaxSize(),

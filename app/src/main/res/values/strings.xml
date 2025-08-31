@@ -99,6 +99,7 @@ Example build: Extracted on 2025‑08‑18 from the enwiktionary dump dated 2025
     <string name="intensity_low">Low</string>
     <string name="intensity_medium">Medium</string>
     <string name="intensity_high">High</string>
+    <string name="label_shader_debug">Shader debug (opacity/speed)</string>
     
     <!-- Onboarding (default English to be translated) -->
     <string name="onboarding_title">Welcome to Neologotron</string>
