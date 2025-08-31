@@ -45,10 +45,10 @@ import com.neologotron.app.ui.viewmodel.WorkshopViewModel
 
 @Composable
 fun WorkshopScreen(
-    onOpenDetail: (String, String?, String?, String?, String?, String?, String?, String?, String?, String?, String?) -> Unit,
+    onOpenDetail: (String, String?, String?, String?, String?, String?, String?, String?, String?, String?, String?, String?) ->
+        Unit,
     vm: WorkshopViewModel = hiltViewModel(),
-) {
-    val prefixes by vm.prefixes.collectAsState()
+)
     val roots by vm.roots.collectAsState()
     val suffixes by vm.suffixes.collectAsState()
     val uiState by vm.uiState.collectAsState()

@@ -26,6 +26,7 @@ class HistoryRepository
             suffixPosOut: String? = null,
             suffixDefTemplate: String? = null,
             suffixTags: String? = null,
+            sources: String? = null,
         ) = withContext(Dispatchers.IO) {
             dao.insert(
                 HistoryEntity(
@@ -42,6 +43,7 @@ class HistoryRepository
                     suffixPosOut = suffixPosOut,
                     suffixDefTemplate = suffixDefTemplate,
                     suffixTags = suffixTags,
+                    sources = sources,
                 ),
             )
         }

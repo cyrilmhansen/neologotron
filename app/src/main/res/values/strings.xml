@@ -37,6 +37,8 @@
     <string name="label_preview">Preview</string>
     <string name="label_definition">Definition</string>
     <string name="label_etymology">Etymology</string>
+    <string name="label_source">Source:</string>
+    <string name="wiktionary">Wiktionary</string>
     <string name="placeholder_decomposition">[prefix] + [root] + [suffix]</string>
     <string name="label_db_build_time">DB build time</string>
     <string name="action_reset_db">Reset database</string>

@@ -141,7 +141,7 @@ class WorkshopViewModel
         }
 
         fun previewSelectedAndOpen(
-            onOpenDetail: (String, String?, String?, String?, String?, String?, String?, String?, String?, String?, String?) -> Unit,
+            onOpenDetail: (String, String?, String?, String?, String?, String?, String?, String?, String?, String?, String?, String?) -> Unit,
         ) {
             val p = _selectedPrefix.value
             val r = _selectedRoot.value
@@ -165,11 +165,12 @@ class WorkshopViewModel
                 s.posOut,
                 s.defTemplate,
                 s.tags,
+                null,
             )
         }
 
         fun commitAndOpen(
-            onOpenDetail: (String, String?, String?, String?, String?, String?, String?, String?, String?, String?, String?) -> Unit,
+            onOpenDetail: (String, String?, String?, String?, String?, String?, String?, String?, String?, String?, String?, String?) -> Unit,
         ) {
             val p = _selectedPrefix.value
             val r = _selectedRoot.value
@@ -211,6 +212,7 @@ class WorkshopViewModel
                             s.posOut,
                             s.defTemplate,
                             s.tags,
+                            null,
                         )
                     }
             }

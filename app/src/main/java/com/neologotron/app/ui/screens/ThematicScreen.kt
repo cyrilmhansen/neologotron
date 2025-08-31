@@ -38,7 +38,7 @@ import com.neologotron.app.ui.viewmodel.ThematicViewModel
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ThematicScreen(
-    onOpenDetail: (String, String?, String?, String?, String?, String?, String?, String?, String?, String?, String?) -> Unit,
+    onOpenDetail: (String, String?, String?, String?, String?, String?, String?, String?, String?, String?, String?, String?) -> Unit,
     vm: ThematicViewModel = hiltViewModel(),
 ) {
     val tagsState by vm.tags.collectAsState()
