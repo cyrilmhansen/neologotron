@@ -27,12 +27,12 @@ data class WordResult(
 
 @Singleton
 class GeneratorService
-    @Inject
-    constructor(
-        private val lexemes: LexemeRepository,
-        private val history: HistoryRepository,
-        private val simple: SimpleMixer,
-    ) {
+@Inject
+constructor(
+    private val lexemes: LexemeRepository,
+    private val history: HistoryRepository,
+    private val simple: SimpleMixer? = null,
+) {
         suspend fun generateRandom(
             tags: Set<String> = emptySet(),
             saveToHistory: Boolean = true,
@@ -119,7 +119,7 @@ class GeneratorService
             saveToHistory: Boolean = true,
             mode: GeneratorRules.DefinitionMode = GeneratorRules.DefinitionMode.TECHNICAL,
         ): WordResult {
-            val r = simple.generate(tags)
+        val r = (simple ?: return generateRandom(tags, saveToHistory, mode)).generate(tags)
             if (saveToHistory) {
                 history.add(
                     word = r.word,
