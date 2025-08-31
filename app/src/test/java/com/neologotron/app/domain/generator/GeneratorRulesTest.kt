@@ -79,7 +79,7 @@ class GeneratorRulesTest {
     fun composeDefinition_defaults_for_adverb() {
         val tech = GeneratorRules.composeDefinition("lumière", "adv", null, mode = GeneratorRules.DefinitionMode.TECHNICAL)
         val poet = GeneratorRules.composeDefinition("lumière", "adv", null, mode = GeneratorRules.DefinitionMode.POETIC)
-        assertEquals("de manière liée à lumière", tech)
+        assertEquals("d'une manière liée à lumière", tech)
         assertEquals("d'une manière qui évoque lumière", poet)
     }
 
@@ -106,12 +106,92 @@ class GeneratorRulesTest {
     @Test
     fun composeDefinition_agent_noun_default_template() {
         val def = GeneratorRules.composeDefinition("lumière", "nom_agent", null, mode = GeneratorRules.DefinitionMode.TECHNICAL)
-        assertEquals("agent lié à lumière", def)
+        assertEquals("qui agit sur lumière", def)
     }
 
     @Test
     fun composeDefinition_composite_adj_nom_prefers_adj() {
         val def = GeneratorRules.composeDefinition("lumière", "adj/nom", null, mode = GeneratorRules.DefinitionMode.TECHNICAL)
         assertEquals("qui qualifie lumière", def)
+    }
+
+    @Test
+    fun composeDefinition_science_noun_uses_etude_and_elides_de() {
+        val def1 = GeneratorRules.composeDefinition("air", "nom", null, tags = "science", mode = GeneratorRules.DefinitionMode.TECHNICAL)
+        assertEquals("étude d'air", def1)
+        val def2 = GeneratorRules.composeDefinition("son", "nom", null, tags = "science", mode = GeneratorRules.DefinitionMode.TECHNICAL)
+        assertEquals("étude de son", def2)
+    }
+
+    @Test
+    fun composeDefinition_instrument_tag_prefers_instrument_template() {
+        val def = GeneratorRules.composeDefinition("lumière", "nom", null, tags = "instrument,tech", mode = GeneratorRules.DefinitionMode.TECHNICAL)
+        assertEquals("instrument qui agit sur lumière", def)
+    }
+
+    @Test
+    fun composeDefinition_medicine_tag_uses_medical_phrase() {
+        val def = GeneratorRules.composeDefinition("lumière", "nom", null, tags = "médecine", mode = GeneratorRules.DefinitionMode.TECHNICAL)
+        assertEquals("terme médical lié à lumière", def)
+    }
+
+    @Test
+    fun composeDefinition_biology_tag_uses_biological_phrase() {
+        val def = GeneratorRules.composeDefinition("lumière", "nom", null, tags = "biologie", mode = GeneratorRules.DefinitionMode.TECHNICAL)
+        assertEquals("phénomène biologique lié à lumière", def)
+    }
+
+    @Test
+    fun composeDefinition_technology_tag_uses_procede_technique_with_elision() {
+        val def = GeneratorRules.composeDefinition("air", "nom", null, tags = "technologie", mode = GeneratorRules.DefinitionMode.TECHNICAL)
+        assertEquals("procédé technique d'air", def)
+    }
+
+    @Test
+    fun composeDefinition_poetic_medicine_uses_tissus_douleur() {
+        val def = GeneratorRules.composeDefinition("air", "nom", null, tags = "medecine", mode = GeneratorRules.DefinitionMode.POETIC)
+        assertEquals("la douleur des tissus d'air", def)
+    }
+
+    @Test
+    fun composeDefinition_poetic_biology_uses_life_action_agent() {
+        val def = GeneratorRules.composeDefinition("lumière", "nom_agent", null, tags = "biologie", mode = GeneratorRules.DefinitionMode.POETIC)
+        assertEquals("la vie qui agit sur lumière", def)
+    }
+
+    @Test
+    fun composeDefinition_poetic_technology_uses_machine_action_agent() {
+        val def = GeneratorRules.composeDefinition("lumière", "nom_agent", null, tags = "informatique", mode = GeneratorRules.DefinitionMode.POETIC)
+        assertEquals("la machine qui agit sur lumière", def)
+    }
+
+    @Test
+    fun composeDefinition_poetic_society_uses_mouvement_social() {
+        val def = GeneratorRules.composeDefinition("langage", "nom", null, tags = "société", mode = GeneratorRules.DefinitionMode.POETIC)
+        assertEquals("le mouvement social lié à langage", def)
+    }
+
+    @Test
+    fun composeDefinition_poetic_place_uses_lieu_lie_a() {
+        val def = GeneratorRules.composeDefinition("lumière", "nom", null, tags = "lieu", mode = GeneratorRules.DefinitionMode.POETIC)
+        assertEquals("le lieu lié à lumière", def)
+    }
+
+    @Test
+    fun composeDefinition_inflammation_tag_uses_inflammation_phrase_with_elision() {
+        val def = GeneratorRules.composeDefinition("air", "nom", null, tags = "inflammation,medecine", mode = GeneratorRules.DefinitionMode.TECHNICAL)
+        assertEquals("inflammation d'air", def)
+    }
+
+    @Test
+    fun composeDefinition_pathologie_tag_uses_pathologie_phrase() {
+        val def = GeneratorRules.composeDefinition("son", "nom", null, tags = "pathologie,medecine", mode = GeneratorRules.DefinitionMode.TECHNICAL)
+        assertEquals("pathologie de son", def)
+    }
+
+    @Test
+    fun composeDefinition_society_tag_uses_social_phrase() {
+        val def = GeneratorRules.composeDefinition("langage", "nom", null, tags = "société", mode = GeneratorRules.DefinitionMode.TECHNICAL)
+        assertEquals("phénomène social lié à langage", def)
     }
 }

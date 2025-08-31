@@ -20,12 +20,12 @@ object GeneratorRules {
                 // Adverb variants
                 p.startsWith("adv") || p.startsWith("adverbe") || p == "adv." -> CanonPos.ADVERB
                 // Verb variants (FR/EN)
-                p.startsWith("verb") || p.startsWith("verbe") || p == "v" -> CanonPos.VERB
+                p.startsWith("verb") || p.startsWith("verbe") || p == "v" || p.contains("transitif") || p.contains("intransitif") -> CanonPos.VERB
                 // Agentive noun variants
-                p.contains("agent") || p.contains("agentif") -> CanonPos.AGENT_NOUN
+                p.contains("agent") || p.contains("agentif") || p.contains("profession") -> CanonPos.AGENT_NOUN
                 // Action/result nouns
-                p.contains("action") -> CanonPos.ACTION_NOUN
-                p.contains("result") || p.contains("résultat") || p.contains("resultat") -> CanonPos.RESULT_NOUN
+                p.contains("action") || p.contains("processus") -> CanonPos.ACTION_NOUN
+                p.contains("result") || p.contains("résultat") || p.contains("resultat") || p.contains("produit") -> CanonPos.RESULT_NOUN
                 // Noun variants
                 p.startsWith("nom") || p.startsWith("subst") || p.startsWith("nominal") || p == "n" -> CanonPos.NOUN
                 else -> CanonPos.UNKNOWN
@@ -95,41 +95,88 @@ object GeneratorRules {
         mode: DefinitionMode = DefinitionMode.TECHNICAL,
     ): String {
         val templates = defTemplate?.let { parseTemplates(it) }
-        val isPoetic = tags?.lowercase()?.contains("poétique") == true || tags?.lowercase()?.contains("poetique") == true
-        val isTech = tags?.lowercase()?.contains("tech") == true
+        val tagsLc = tags?.lowercase().orEmpty()
+        val isPoetic = tagsLc.contains("poétique") || tagsLc.contains("poetique")
+        val isTech = tagsLc.contains("tech") || tagsLc.contains("technique") || tagsLc.contains("science")
         val canonPos = normalizePos(suffixPosOut)
+        val deRoot = buildDe(rootGloss)
+
         // Fallback templates when none provided
         val defaultTpl =
             when (mode) {
                 DefinitionMode.TECHNICAL ->
                     when (canonPos) {
                         CanonPos.ADJECTIVE -> "qui qualifie {ROOT}"
-                        CanonPos.ADVERB -> "de manière liée à {ROOT}"
+                        CanonPos.ADVERB -> "d'une manière liée à {ROOT}"
                         CanonPos.VERB -> "{ACTION} {ROOT}"
-                        CanonPos.ACTION_NOUN -> "{ACTION} {ROOT}"
-                        CanonPos.RESULT_NOUN -> "{ACTION} {ROOT}"
-                        CanonPos.AGENT_NOUN -> "agent lié à {ROOT}"
-                        CanonPos.NOUN, CanonPos.UNKNOWN -> if (isTech) "{ACTION} de {ROOT}" else "relatif à {ROOT}"
+                        CanonPos.ACTION_NOUN -> "action {DE_ROOT}"
+                        CanonPos.RESULT_NOUN -> "résultat {DE_ROOT}"
+                        CanonPos.AGENT_NOUN -> "qui {ACTION} {ROOT}"
+                        CanonPos.NOUN, CanonPos.UNKNOWN ->
+                            when {
+                                tagsLc.contains("instrument") || tagsLc.contains("outil") ->
+                                    // For instruments, prefer a verb phrase even for noun POS
+                                    "instrument qui agit sur {ROOT}"
+                                // Domain-specific phrasing
+                                tagsLc.contains("inflammation") ->
+                                    "inflammation {DE_ROOT}"
+                                tagsLc.contains("pathologie") || tagsLc.contains("maladie") || tagsLc.contains("patho") ->
+                                    "pathologie {DE_ROOT}"
+                                tagsLc.contains("médecine") || tagsLc.contains("medecine") || tagsLc.contains("médical") || tagsLc.contains("medical") ->
+                                    "terme médical lié à {ROOT}"
+                                tagsLc.contains("biologie") || tagsLc.contains("biologique") || tagsLc.contains("bio") ->
+                                    "phénomène biologique lié à {ROOT}"
+                                tagsLc.contains("informatique") || tagsLc.contains("logiciel") || tagsLc.contains("numérique") || tagsLc.contains("numerique") ->
+                                    "processus informatique {DE_ROOT}"
+                                tagsLc.contains("technologie") || tagsLc.contains("technologique") ->
+                                    "procédé technique {DE_ROOT}"
+                                tagsLc.contains("science") || tagsLc.contains("discipline") || tagsLc.contains("étude") || tagsLc.contains("etude") || tagsLc.contains("logie") ->
+                                    "étude {DE_ROOT}"
+                                tagsLc.contains("société") || tagsLc.contains("societe") || tagsLc.contains("social") || tagsLc.contains("sociologie") ->
+                                    "phénomène social lié à {ROOT}"
+                                tagsLc.contains("lieu") || tagsLc.contains("toponyme") ->
+                                    "lieu lié à {ROOT}"
+                                isTech -> "{ACTION} {DE_ROOT}"
+                                else -> "relatif à {ROOT}"
+                            }
                     }
-                DefinitionMode.POETIC ->
-                    when (canonPos) {
-                        CanonPos.ADVERB -> "d'une manière qui évoque {ROOT}"
-                        else -> "qui évoque {ROOT}"
+                DefinitionMode.POETIC -> {
+                    // Tag-driven poetic defaults
+                    when {
+                        tagsLc.contains("inflammation") || tagsLc.contains("pathologie") || tagsLc.contains("maladie") || tagsLc.contains("médecine") || tagsLc.contains("medecine") || tagsLc.contains("médical") || tagsLc.contains("medical") ->
+                            "la douleur des tissus {DE_ROOT}"
+                        tagsLc.contains("biologie") || tagsLc.contains("biologique") || tagsLc.contains("bio") ->
+                            "la vie qui {ACTION} {ROOT}"
+                        tagsLc.contains("informatique") || tagsLc.contains("logiciel") || tagsLc.contains("numérique") || tagsLc.contains("numerique") || tagsLc.contains("technologie") || tagsLc.contains("technologique") ->
+                            "la machine qui {ACTION} {ROOT}"
+                        tagsLc.contains("société") || tagsLc.contains("societe") || tagsLc.contains("social") || tagsLc.contains("sociologie") ->
+                            "le mouvement social lié à {ROOT}"
+                        tagsLc.contains("lieu") || tagsLc.contains("toponyme") ->
+                            "le lieu lié à {ROOT}"
+                        else ->
+                            when (canonPos) {
+                                CanonPos.ADVERB -> "d'une manière qui évoque {ROOT}"
+                                else -> "qui évoque {ROOT}"
+                            }
                     }
+                }
             }
         val tpl = templates?.get(mode) ?: defTemplate ?: defaultTpl
         val action =
             when (canonPos) {
-                CanonPos.AGENT_NOUN -> "qui concerne"
+                CanonPos.AGENT_NOUN -> "agit sur"
                 CanonPos.NOUN -> "concerne"
                 CanonPos.ADJECTIVE -> "qualifie"
                 CanonPos.VERB -> "agir sur"
                 CanonPos.ACTION_NOUN -> "action de"
                 CanonPos.RESULT_NOUN -> "résultat de"
                 CanonPos.ADVERB -> "se rapporte à"
-                CanonPos.UNKNOWN -> "créer"
+                CanonPos.UNKNOWN -> "concerne"
             }
-        return tpl.replace("{ROOT}", rootGloss).replace("{ACTION}", action)
+        return tpl
+            .replace("{DE_ROOT}", deRoot)
+            .replace("{ROOT}", rootGloss)
+            .replace("{ACTION}", action)
     }
 
     private fun parseTemplates(raw: String): Map<DefinitionMode, String> {
@@ -186,4 +233,10 @@ object GeneratorRules {
     private fun endsWithVowel(s: String): Boolean = s.lastOrNull()?.lowercaseChar()?.let { it in vowels } ?: false
 
     private val vowels = setOf('a', 'e', 'i', 'o', 'u', 'y', 'é', 'è', 'ê', 'ë', 'ï', 'î', 'ô', 'û', 'ù')
+
+    private fun buildDe(root: String): String {
+        val first = root.firstOrNull()?.lowercaseChar() ?: return "de $root"
+        val elide = first in vowels || startsWithSilentH(root)
+        return if (elide) "d'" + root else "de $root"
+    }
 }
