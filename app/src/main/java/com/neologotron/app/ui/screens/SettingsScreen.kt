@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.Slider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -23,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.neologotron.app.R
+import com.neologotron.app.BuildConfig
 import com.neologotron.app.domain.generator.GeneratorRules
 import com.neologotron.app.theme.ThemeStyle
 import com.neologotron.app.ui.viewmodel.SettingsViewModel
@@ -41,6 +43,7 @@ fun SettingsScreen(
     val weight by vm.weightingIntensity.collectAsState()
     val animated by vm.animatedBackgroundsEnabled.collectAsState()
     val bgIntensity by vm.animatedBackgroundsIntensity.collectAsState()
+    val bgDebug by vm.animatedBackgroundsDebug.collectAsState()
     val simpleMixer by vm.simpleMixerEnabled.collectAsState()
 
     val scroll = rememberScrollState()
@@ -133,6 +136,11 @@ fun SettingsScreen(
                 vm.setAnimatedBackgroundsIntensity(com.neologotron.app.ui.AnimatedBackgroundIntensity.HIGH)
             })
             Text(text = stringResource(id = R.string.intensity_high))
+        }
+
+        if (BuildConfig.DEBUG) {
+            Text(text = stringResource(id = R.string.label_shader_debug))
+            Slider(value = bgDebug, onValueChange = { vm.setAnimatedBackgroundsDebug(it) }, valueRange = 0f..1f)
         }
 
         Spacer(modifier = Modifier.height(16.dp))

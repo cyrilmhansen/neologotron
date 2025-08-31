@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Paint as AndroidPaint
 import android.graphics.RuntimeShader
 import android.os.Build
+import android.os.PowerManager
 import kotlinx.coroutines.android.awaitFrame
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
@@ -32,7 +33,10 @@ fun ThemedBackground(
     style: ThemeStyle,
     intensity: AnimatedBackgroundIntensity = AnimatedBackgroundIntensity.MEDIUM,
     reduceMotion: Boolean = false,
+    debugFactor: Float = 1f,
     modifier: Modifier = Modifier,
+    debugPowerSaveOverride: Boolean? = null,
+    debugTimeListener: ((Float) -> Unit)? = null,
     content: @Composable BoxScope.() -> Unit,
 ) {
     Box(modifier = modifier.fillMaxSize()) {
@@ -43,17 +47,21 @@ fun ThemedBackground(
                 AnimatedBackgroundIntensity.HIGH -> 0.16f
             }
         var tSeconds by remember { mutableStateOf(0f) }
+        val context = LocalContext.current
+        val powerManager = remember { context.getSystemService(Context.POWER_SERVICE) as? PowerManager }
         // Drive time only when enabled and style needs it
-        LaunchedEffect(enabled, style, reduceMotion) {
+        LaunchedEffect(enabled, style, reduceMotion, debugPowerSaveOverride) {
             if (!enabled || reduceMotion) return@LaunchedEffect
             while (true) {
                 val frameTimeNanos = awaitFrame()
-                tSeconds = frameTimeNanos / 1_000_000_000f
+                val saving = debugPowerSaveOverride ?: powerManager?.isPowerSaveMode ?: false
+                if (!saving) {
+                    tSeconds = frameTimeNanos / 1_000_000_000f
+                }
+                debugTimeListener?.invoke(tSeconds)
             }
         }
-
         // Prepare shaders once in composable scope (source from resources, with assets override)
-        val context = LocalContext.current
         val retroShader: RuntimeShader? =
             remember {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -105,7 +113,7 @@ fun ThemedBackground(
             } else if (useRetroShader) {
                 val agsl = retroShader!!
                 agsl.setFloatUniform("iResolution", w, h)
-                agsl.setFloatUniform("iTime", tSeconds)
+                agsl.setFloatUniform("iTime", tSeconds * debugFactor)
                 agsl.setFloatUniform(
                     "iIntensity",
                     when (intensity) {
@@ -120,7 +128,7 @@ fun ThemedBackground(
                         AnimatedBackgroundIntensity.LOW -> 0.18f
                         AnimatedBackgroundIntensity.MEDIUM -> 0.26f
                         AnimatedBackgroundIntensity.HIGH -> 0.34f
-                    },
+                    } * debugFactor,
                 )
                 // Theme accent colors
                 val p = Color(0xFFFF6EC7)
@@ -134,7 +142,7 @@ fun ThemedBackground(
             } else if (useCyberShader) {
                 val agsl = cyberShader!!
                 agsl.setFloatUniform("iResolution", w, h)
-                agsl.setFloatUniform("iTime", tSeconds)
+                agsl.setFloatUniform("iTime", tSeconds * debugFactor)
                 agsl.setFloatUniform(
                     "iIntensity",
                     when (intensity) {
@@ -148,7 +156,7 @@ fun ThemedBackground(
                 // Base size roughly similar to the reference; scale with density
                 val sizeXY = 0.3f
                 agsl.setFloatUniform("uSize", sizeXY, sizeXY)
-                agsl.setFloatUniform("uSpeed", 0.7f)
+                agsl.setFloatUniform("uSpeed", 0.7f * debugFactor)
                 agsl.setFloatUniform("uYSpread", 1.6f)
                 agsl.setFloatUniform("uBasePulse", 0.33f)
                 // Magenta/Cyan accents for cyberpunk
@@ -163,7 +171,7 @@ fun ThemedBackground(
                         AnimatedBackgroundIntensity.LOW -> 0.16f
                         AnimatedBackgroundIntensity.MEDIUM -> 0.24f
                         AnimatedBackgroundIntensity.HIGH -> 0.32f
-                    },
+                    } * debugFactor,
                 )
 
                 val paint = AndroidPaint().apply { shader = agsl }
