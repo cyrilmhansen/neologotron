@@ -24,7 +24,8 @@ import sys
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Callable, Dict, Iterable, List, Tuple
+import hashlib
 from urllib.request import urlopen, Request
 from subprocess import run, CalledProcessError, Popen, PIPE
 
@@ -850,6 +851,84 @@ Guidelines:
     return 0
 
 
+def _ai_cache_key(text: str) -> str:
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def _ai_stream_request(endpoint: str, payload: Dict[str, object], timeout: float) -> Iterable[str]:
+    data = json.dumps(payload).encode("utf-8")
+    req = Request(endpoint, data=data, headers={"Content-Type": "application/json"})
+    with urlopen(req, timeout=timeout) as resp:
+        for line in resp:
+            yield line.decode("utf-8", errors="ignore")
+
+
+def _ai_fetch(prompt: str, args, cache_dir: Path,
+              request_fn: Callable[[str, Dict[str, object], float], Iterable[str]] | None = None) -> str:
+    key = _ai_cache_key(prompt)
+    cache_path = cache_dir / f"{key}.txt"
+    if cache_path.exists():
+        return cache_path.read_text("utf-8")
+    if request_fn is None:
+        request_fn = _ai_stream_request
+    payload = {
+        "model": args.model,
+        "prompt": prompt,
+        "temperature": args.temperature,
+        "max_tokens": args.max_tokens,
+        "stream": True,
+    }
+    text = "".join(request_fn(args.endpoint, payload, args.timeout))
+    cache_path.write_text(text, encoding="utf-8")
+    return text
+
+
+def _process_ai_batch(batch: List[str], tmpl: str, args, cache_dir: Path) -> List[str]:
+    out: List[str] = []
+    for line in batch:
+        prompt = f"{tmpl}\n{line}"
+        resp = _ai_fetch(prompt, args, cache_dir)
+        resp = resp.strip()
+        if resp:
+            out.append(resp)
+    return out
+
+
+def cmd_ai_run(args) -> int:
+    run_dir = ETL_DIR / "runs" / args.run if args.run else _latest_run_dir()
+    if not run_dir or not run_dir.exists():
+        print("No run directory found. Run 'python etl/cli.py wizard' first.", file=sys.stderr)
+        return 2
+    ai_dir = run_dir / "ai"
+    cand_path = ai_dir / "candidates.jsonl"
+    prompt_path = ai_dir / "prompt.txt"
+    if not cand_path.exists() or not prompt_path.exists():
+        print("AI candidates or prompt not found. Run 'python etl/cli.py prep-ai' first.", file=sys.stderr)
+        return 2
+    cache_dir = ai_dir / "cache"
+    _ensure_dir(cache_dir)
+    template = prompt_path.read_text("utf-8").strip()
+    out_path = ai_dir / "output.jsonl"
+    out_lines: List[str] = []
+    batch: List[str] = []
+    with cand_path.open("r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            batch.append(line)
+            if len(batch) >= args.batch:
+                out_lines.extend(_process_ai_batch(batch, template, args, cache_dir))
+                batch = []
+        if batch:
+            out_lines.extend(_process_ai_batch(batch, template, args, cache_dir))
+    with out_path.open("w", encoding="utf-8") as out:
+        for l in out_lines:
+            out.write(l + "\n")
+    print(f"Wrote AI output: {out_path}")
+    return 0
+
+
 def wizard(args=None) -> int:
     print("Neologotron ETL Wizard — guided end-to-end setup")
     print("This will: download FR + Translingual dumps, transform, merge, and export to the app.")
@@ -956,6 +1035,15 @@ def main() -> int:
     paip.add_argument("--count", type=int, default=10, help="number of candidates (default 10)")
     paip.add_argument("--min-len", type=int, default=90, help="minimum gloss length to consider 'long' (default 90)")
 
+    pair = sub.add_parser("ai-run", help="Call a local LLM on prepared candidates with caching")
+    pair.add_argument("--run", help="run timestamp under etl/runs; defaults to latest run")
+    pair.add_argument("--endpoint", required=True, help="HTTP endpoint for the model")
+    pair.add_argument("--model", required=True, help="model name")
+    pair.add_argument("--batch", type=int, default=1, help="number of prompts to process per batch")
+    pair.add_argument("--temperature", type=float, default=0.7, help="sampling temperature")
+    pair.add_argument("--max-tokens", type=int, default=128, help="maximum tokens to generate")
+    pair.add_argument("--timeout", type=float, default=60.0, help="request timeout in seconds")
+
     paii = sub.add_parser("import-ai", help="Apply AI JSONL (id→short_gloss_fr,pos_out) into merged CSVs, then suggest review")
     paii.add_argument("--run", help="run timestamp under etl/runs; defaults to latest run")
     paii.add_argument("--ai-jsonl", required=True, help="path to AI output JSONL (fields: id, short_gloss_fr, keep?, pos_out?)")
@@ -972,6 +1060,8 @@ def main() -> int:
         return cmd_polish(args)
     if args.cmd == "prep-ai":
         return cmd_prep_ai(args)
+    if args.cmd == "ai-run":
+        return cmd_ai_run(args)
     if args.cmd == "import-ai":
         return cmd_import_ai(args)
     return 0
