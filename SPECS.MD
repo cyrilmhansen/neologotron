@@ -426,6 +426,22 @@ Intégration LLM locaux (BACKLOG)
 - Cache des réponses (`runs/<ts>/ai/cache/`), reprise sur échec, limitation du débit, dry-run.
 - Stratégie multi-prompts: gloss‑only, gloss+pos, canon/alt/excl., plus prompts de raffinement (anti-“ou”, anti-anglicismes, clamp 80c).
 
+Annexe I. Générateur « Mot‑linette (simple) »
+
+Objectif
+- Produire des néologismes courts et lisibles à partir de mots FR usuels, sans affixes techniques.
+
+Implémentation
+- Assets: `lex/simple_lexicon.csv` (word,tags,register), `lex/simple_suffixes.csv` (suffix,tags).
+- Candidats: overlap (≥3), head+tail (≥4+4) dans les deux sens, liaison voyelle (« o ») en cas de collision C/C, hyphen join, ajout optionnel d’un suffixe (-rama, -phone, -gate…).
+- Score: prononçabilité (aucun paquet de ≥4 consonnes, voyelles présentes, « qu » valide), reconnaissabilité (LCS≥4 de chaque source), pénalité du tiret, longueur cible 6–14.
+- Fallback: trimming 14–16, hyphen join si nécessaire.
+- Intégration: `GeneratorService.generateSimple()` + toggle « Mot‑linette (simple) » dans Paramètres (OFF par défaut).
+
+Backlog
+- Étendre les lexiques (thèmes) et améliorer la phonotactique FR (bi/tri‑grammes rares).
+- Préfixes multiples (cf. annexe G) en option expérimentale.
+
 4. Évolutions Futures (Roadmap Potentielle)
 
     V1.5 : Améliorations Linguistiques

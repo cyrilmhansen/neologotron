@@ -295,3 +295,22 @@ Status
   - Clean progress: single‑line download speed/ETA, spinner during transforms, filtered MUL scan progress, and copy progress.
   - Interactive review: `review` + `apply-review` with filters (`--origin-lang`, `--domains`, `--show-all`).
   - About screen attribution implemented with CC BY‑SA + wiktextract citation and Kaikki links.
+
+Recent Progress (App + ETL)
+- Added a second generator mode “Mot‑linette (simple)” (aka Simple Word‑grinder):
+  - Toggle in Settings; off by default.
+  - New assets: `app/src/main/assets/lex/simple_lexicon.csv`, `app/src/main/assets/lex/simple_suffixes.csv`.
+  - Algorithm: overlap + head/tail + liaison voyelle + suffix option + scoring (prononçabilité + reconnaissabilité), hyphen fallback.
+  - Early feedback: many words improved; still tuning phonotactique/score.
+- LLM pipeline:
+  - `prep-ai` (candidates + FR prompt) → `import-ai` now records advanced actions (canon/alt/exclure) to `runs/<ts>/ai/actions_todo.jsonl`.
+  - `review --ids-file` allows focused human validation of edited IDs.
+- Lint/build:
+  - Enabled ktlint format pass + minor formatting fixes; detekt jvmTarget pinned to 17.
+  - .editorconfig: ignore Composable function-naming; disable test max line length.
+
+Open Issues / Needs
+- ETL canonicalisation: implement `equiv_map.json` and short prefix policy (`short_prefix_policy.json`) in the wizard (BACKLOG).
+- `import-ai`: add an auto‑apply step for `actions_todo.jsonl` (canonize/alt_form/exclude) with safety checks.
+- Simple mixer: improve phonotactics (bi/tri‑grammes FR), expand lexicon/themes, add small UI preview of sources.
+- Local LLMs: add `ai-run` (ollama/LM Studio/llamafile) with caching, batch size and retries.
