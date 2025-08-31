@@ -51,6 +51,16 @@
     <string name="about_credit">The “Logotron” was invented by Jean‑Pierre Petit (France, 1977). Neologotron is freely inspired by it and also aligns with the spirit of Oulipo’s literary experiments.</string>
     <string name="about_links">Learn more: Logotron (Jean‑Pierre Petit), Oulipo and literary experiments.</string>
     <string name="about_version">Version: %1$s</string>
+    <string name="about_sources_title">Sources &amp; Licenses</string>
+    <string name="about_sources_text">This app includes content from Wiktionary, available under the Creative Commons Attribution‑ShareAlike (CC BY‑SA) license. The data has been extracted using wiktextract and the Kaikki.org raw datasets. Our processing may modify, combine, and annotate the original content.
+
+• Wiktionary (French): https://fr.wiktionary.org/ — License: CC BY‑SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/)
+• wiktextract project: https://github.com/tatuylonen/wiktextract — Please cite: T. Ylonen, LREC 2022.
+• Kaikki.org raw data: https://kaikki.org/dictionary/rawdata.html
+  All languages (raw): https://kaikki.org/dictionary/raw-wiktextract-data.jsonl.gz
+  French extract: https://kaikki.org/dictionary/downloads/fr/fr-extract.jsonl.gz
+
+Example build: Extracted on 2025‑08‑18 from the enwiktionary dump dated 2025‑08‑02 using wiktextract (commits 0c45963, 3c020d2). See https://kaikki.org for details.</string>
     <string name="msg_select_all_parts">Select a prefix, a root and a suffix</string>
     <string name="label_def_mode">Definition mode</string>
     <string name="mode_technical">Technical</string>

@@ -69,6 +69,10 @@ fun AboutScreen(onBack: () -> Unit) {
             Spacer(modifier = Modifier.height(12.dp))
             Text(text = stringResource(id = R.string.about_links), style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Start)
             Spacer(modifier = Modifier.height(24.dp))
+            Text(text = stringResource(id = R.string.about_sources_title), style = MaterialTheme.typography.titleSmall)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = stringResource(id = R.string.about_sources_text), style = MaterialTheme.typography.bodySmall)
+            Spacer(modifier = Modifier.height(24.dp))
             val context = androidx.compose.ui.platform.LocalContext.current
             val version = try {
                 val pkg = context.packageManager.getPackageInfo(context.packageName, 0)

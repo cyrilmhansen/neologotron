@@ -579,6 +579,11 @@ def main() -> int:
         help="filter outputs by likely classical (Greek/Latin) origin (default: classical). Use 'none' to keep all."
     )
     ap.add_argument("--roots-from-translingual", action="store_true", help="treat Translingual classical prefixes/suffixes as roots as well")
+    ap.add_argument(
+        "--mul-fallback-classical",
+        action="store_true",
+        help="when filtering for classical, accept Translingual affix-looking forms even if etymology markers are missing"
+    )
     args = ap.parse_args()
 
     os.makedirs(args.out_dir, exist_ok=True)
@@ -698,15 +703,34 @@ def main() -> int:
     # Apply optional origin filter
     pre_counts = (len(prefixes), len(roots), len(suffixes))
     if args.origin_filter != "none":
-        def likely_classical(origin: Optional[str], lineage: Optional[str]) -> bool:
-            # Accept if origin or lineage mentions Greek/Latin; else drop
-            keys = ("grec", "latin", "grc", "la")
-            test = " ".join([str(origin or ""), str(lineage or "")]).lower()
-            return any(k in test for k in keys)
+        def _row_lang(row) -> Optional[str]:
+            # Prefix/Suffix rows carry ety_lang; Root rows carry root_lang
+            return getattr(row, "root_lang", None) or getattr(row, "ety_lang", None)
 
-        prefixes = [r for r in prefixes if likely_classical(r.origin, r.ety_lineage)]
-        suffixes = [r for r in suffixes if likely_classical(r.origin, r.ety_lineage)]
-        roots = [r for r in roots if likely_classical(r.origin, r.ety_lineage)]
+        def _looks_like_affix(form: Optional[str]) -> bool:
+            if not form:
+                return False
+            f = form.strip()
+            return f.startswith("-") or f.endswith("-")
+
+        def likely_classical_row(row) -> bool:
+            # Accept if origin/lineage/etymology text mention Greek/Latin; else maybe fallback
+            keys = ("grec", "latin", "grc", "la")
+            blob = " ".join([
+                str(getattr(row, "origin", "") or ""),
+                str(getattr(row, "ety_lineage", "") or ""),
+                str(getattr(row, "ety_desc", "") or ""),
+            ]).lower()
+            if any(k in blob for k in keys):
+                return True
+            # Fallback: allow Translingual affix-looking forms without explicit ety markers if requested
+            if args.mul_fallback_classical and _row_lang(row) == "mul" and _looks_like_affix(getattr(row, "form", None)):
+                return True
+            return False
+
+        prefixes = [r for r in prefixes if likely_classical_row(r)]
+        suffixes = [r for r in suffixes if likely_classical_row(r)]
+        roots = [r for r in roots if likely_classical_row(r)]
     post_counts = (len(prefixes), len(roots), len(suffixes))
     if args.debug:
         print(

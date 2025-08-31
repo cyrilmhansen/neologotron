@@ -51,6 +51,16 @@
     <string name="about_credit">Le « Logotron » a été inventé par Jean‑Pierre Petit (France, 1977). Néologotron s’en inspire librement et s’inscrit aussi dans l’esprit des expérimentations littéraires de l’Oulipo.</string>
     <string name="about_links">En savoir plus : Logotron (Jean‑Pierre Petit), Oulipo et expérimentations littéraires.</string>
     <string name="about_version">Version: %1$s</string>
+    <string name="about_sources_title">Sources &amp; licences</string>
+    <string name="about_sources_text">Cette application inclut des contenus issus du Wiktionnaire, disponibles sous licence Creative Commons Attribution‑Partage dans les Mêmes Conditions (CC BY‑SA). Les données ont été extraites à l’aide de wiktextract et des jeux de données bruts de Kaikki.org. Notre traitement peut modifier, combiner et annoter le contenu original.
+
+• Wiktionnaire (français) : https://fr.wiktionary.org/ — Licence : CC BY‑SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/)
+• Projet wiktextract : https://github.com/tatuylonen/wiktextract — À citer : T. Ylonen, LREC 2022.
+• Données brutes Kaikki.org : https://kaikki.org/dictionary/rawdata.html
+  Toutes langues (brut) : https://kaikki.org/dictionary/raw-wiktextract-data.jsonl.gz
+  Extrait français : https://kaikki.org/dictionary/downloads/fr/fr-extract.jsonl.gz
+
+Exemple de build : extraction du 2025‑08‑18 depuis le dump enwiktionary daté du 2025‑08‑02, via wiktextract (commits 0c45963, 3c020d2). Voir https://kaikki.org pour les détails.</string>
     <string name="msg_select_all_parts">Sélectionnez un préfixe, une racine et un suffixe</string>
     <string name="label_def_mode">Mode de définition</string>
     <string name="mode_technical">Technique</string>
