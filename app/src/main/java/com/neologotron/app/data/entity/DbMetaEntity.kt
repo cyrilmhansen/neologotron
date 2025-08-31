@@ -7,6 +7,5 @@ import androidx.room.PrimaryKey
 data class DbMetaEntity(
     @PrimaryKey val id: Int = 1,
     val createdAtMillis: Long,
-    val version: Int
+    val version: Int,
 )
-

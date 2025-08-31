@@ -4,7 +4,6 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class GeneratorRulesTest {
-
     @Test
     fun elides_prefix_vowel_when_no_connector_and_root_starts_with_vowel() {
         // bio- + aero- + -logie, with no connector, should drop trailing 'o' in prefix
@@ -86,8 +85,20 @@ class GeneratorRulesTest {
 
     @Test
     fun composeDefinition_action_and_result_nouns_map_actions() {
-        val act = GeneratorRules.composeDefinition("lumière", "nom_action", "tech:{ACTION} {ROOT}", mode = GeneratorRules.DefinitionMode.TECHNICAL)
-        val res = GeneratorRules.composeDefinition("lumière", "nom_resultat", "tech:{ACTION} {ROOT}", mode = GeneratorRules.DefinitionMode.TECHNICAL)
+        val act =
+            GeneratorRules.composeDefinition(
+                "lumière",
+                "nom_action",
+                "tech:{ACTION} {ROOT}",
+                mode = GeneratorRules.DefinitionMode.TECHNICAL,
+            )
+        val res =
+            GeneratorRules.composeDefinition(
+                "lumière",
+                "nom_resultat",
+                "tech:{ACTION} {ROOT}",
+                mode = GeneratorRules.DefinitionMode.TECHNICAL,
+            )
         assertEquals("action de lumière", act)
         assertEquals("résultat de lumière", res)
     }

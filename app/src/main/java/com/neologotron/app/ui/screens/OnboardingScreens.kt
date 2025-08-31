@@ -24,45 +24,50 @@ import com.neologotron.app.R
 import com.neologotron.app.ui.viewmodel.OnboardingViewModel
 
 @Composable
-fun OnboardingCombineScreen(onNext: () -> Unit, onSkip: () -> Unit) {
+fun OnboardingCombineScreen(
+    onNext: () -> Unit,
+    onSkip: () -> Unit,
+) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 24.dp, vertical = 32.dp),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(horizontal = 24.dp, vertical = 32.dp),
         verticalArrangement = Arrangement.SpaceBetween,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = stringResource(R.string.onboarding_title),
                 style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(bottom = 16.dp)
+                modifier = Modifier.padding(bottom = 16.dp),
             )
             Text(
                 text = stringResource(R.string.onboarding_page_combine_title),
                 style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(bottom = 8.dp)
+                modifier = Modifier.padding(bottom = 8.dp),
             )
             Text(
                 text = stringResource(R.string.onboarding_page_combine_body),
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
         }
 
         Column(modifier = Modifier.fillMaxWidth()) {
             Button(
                 onClick = onNext,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 8.dp),
-                contentPadding = PaddingValues(vertical = 12.dp)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp),
+                contentPadding = PaddingValues(vertical = 12.dp),
             ) { Text(stringResource(R.string.onboarding_btn_next)) }
             OutlinedButton(
                 onClick = onSkip,
                 modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(vertical = 12.dp)
+                contentPadding = PaddingValues(vertical = 12.dp),
             ) { Text(stringResource(R.string.onboarding_btn_skip)) }
         }
     }
@@ -71,23 +76,24 @@ fun OnboardingCombineScreen(onNext: () -> Unit, onSkip: () -> Unit) {
 @Composable
 fun OnboardingCreateScreen(onNext: () -> Unit) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 24.dp, vertical = 32.dp),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(horizontal = 24.dp, vertical = 32.dp),
         verticalArrangement = Arrangement.SpaceBetween,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = stringResource(R.string.onboarding_page_create_title),
                 style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(bottom = 8.dp)
+                modifier = Modifier.padding(bottom = 8.dp),
             )
             Text(
                 text = stringResource(R.string.onboarding_page_create_body),
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
         }
 
@@ -95,7 +101,7 @@ fun OnboardingCreateScreen(onNext: () -> Unit) {
             Button(
                 onClick = onNext,
                 modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(vertical = 12.dp)
+                contentPadding = PaddingValues(vertical = 12.dp),
             ) { Text(stringResource(R.string.onboarding_btn_next)) }
         }
     }
@@ -104,23 +110,24 @@ fun OnboardingCreateScreen(onNext: () -> Unit) {
 @Composable
 fun OnboardingShareScreen(onFinish: () -> Unit) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 24.dp, vertical = 32.dp),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(horizontal = 24.dp, vertical = 32.dp),
         verticalArrangement = Arrangement.SpaceBetween,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = stringResource(R.string.onboarding_page_share_title),
                 style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(bottom = 8.dp)
+                modifier = Modifier.padding(bottom = 8.dp),
             )
             Text(
                 text = stringResource(R.string.onboarding_page_share_body),
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
         }
 
@@ -128,7 +135,7 @@ fun OnboardingShareScreen(onFinish: () -> Unit) {
             Button(
                 onClick = onFinish,
                 modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(vertical = 12.dp)
+                contentPadding = PaddingValues(vertical = 12.dp),
             ) { Text(stringResource(R.string.onboarding_btn_get_started)) }
         }
     }
@@ -145,7 +152,7 @@ fun OnboardingFlow(onFinished: () -> Unit) {
                 onSkip = {
                     vm.markComplete()
                     onFinished()
-                }
+                },
             )
         }
         composable("create") {

@@ -11,31 +11,41 @@ import androidx.compose.ui.graphics.vector.ImageVector
 
 sealed class Route(val value: String) {
     data object Onboarding : Route("onboarding")
+
     data object Main : Route("main")
+
     data object History : Route("history")
+
     data object Favorites : Route("favorites")
+
     data object Settings : Route("settings")
+
     data object Thematic : Route("thematic")
+
     data object Workshop : Route("workshop")
+
     data object Debug : Route("debug")
+
     data object About : Route("about")
+
     data object Detail : Route(
         "detail/{word}?from={from}&def={def}&decomp={decomp}" +
             "&pform={pform}&rform={rform}&sform={sform}" +
-            "&rgloss={rgloss}&rconn={rconn}&spos={spos}&sdef={sdef}&stags={stags}"
+            "&rgloss={rgloss}&rconn={rconn}&spos={spos}&sdef={sdef}&stags={stags}",
     ) {
-        const val argName = "word"
-        const val fromArg = "from"
-        const val defArg = "def"
-        const val decompArg = "decomp"
-        const val pformArg = "pform"
-        const val rformArg = "rform"
-        const val sformArg = "sform"
-        const val rglossArg = "rgloss"
-        const val rconnArg = "rconn"
-        const val sposArg = "spos"
-        const val sdefArg = "sdef"
-        const val stagsArg = "stags"
+        val argName = "word"
+        val fromArg = "from"
+        val defArg = "def"
+        val decompArg = "decomp"
+        val pformArg = "pform"
+        val rformArg = "rform"
+        val sformArg = "sform"
+        val rglossArg = "rgloss"
+        val rconnArg = "rconn"
+        val sposArg = "spos"
+        val sdefArg = "sdef"
+        val stagsArg = "stags"
+
         fun build(
             word: String,
             from: Route? = null,
@@ -50,16 +60,17 @@ sealed class Route(val value: String) {
             sdef: String? = null,
             stags: String? = null,
         ): String {
-            val f = when (from) {
-                is Main -> Main.value
-                is History -> History.value
-                is Favorites -> Favorites.value
-                is Settings -> Settings.value
-                is Thematic -> Thematic.value
-                is Workshop -> Workshop.value
-                is Debug -> Debug.value
-                else -> ""
-            }
+            val f =
+                when (from) {
+                    is Main -> Main.value
+                    is History -> History.value
+                    is Favorites -> Favorites.value
+                    is Settings -> Settings.value
+                    is Thematic -> Thematic.value
+                    is Workshop -> Workshop.value
+                    is Debug -> Debug.value
+                    else -> ""
+                }
             val base = "detail/${Uri.encode(word)}"
             val params = mutableListOf<String>()
             if (f.isNotBlank()) params += "from=$f"
@@ -81,14 +92,15 @@ sealed class Route(val value: String) {
 data class NavItem(
     val route: Route,
     @StringRes val titleRes: Int,
-    val icon: ImageVector
+    val icon: ImageVector,
 )
 
 object NavItems {
-    val bottomBar = listOf(
-        NavItem(Route.Main, com.neologotron.app.R.string.title_main, Icons.Outlined.Home),
-        NavItem(Route.History, com.neologotron.app.R.string.title_history, Icons.Outlined.History),
-        NavItem(Route.Favorites, com.neologotron.app.R.string.title_favorites, Icons.Outlined.FavoriteBorder),
-        NavItem(Route.Settings, com.neologotron.app.R.string.title_settings, Icons.Outlined.Settings)
-    )
+    val bottomBar =
+        listOf(
+            NavItem(Route.Main, com.neologotron.app.R.string.title_main, Icons.Outlined.Home),
+            NavItem(Route.History, com.neologotron.app.R.string.title_history, Icons.Outlined.History),
+            NavItem(Route.Favorites, com.neologotron.app.R.string.title_favorites, Icons.Outlined.FavoriteBorder),
+            NavItem(Route.Settings, com.neologotron.app.R.string.title_settings, Icons.Outlined.Settings),
+        )
 }

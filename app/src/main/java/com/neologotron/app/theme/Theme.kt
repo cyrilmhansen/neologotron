@@ -13,44 +13,59 @@ import com.neologotron.app.ui.viewmodel.SettingsViewModel
 
 enum class ThemeStyle { MINIMAL, RETRO80S, CYBERPUNK }
 
-private fun minimalLight() = lightColorScheme(
-    primary = Color(0xFF1F1F1F),
-    secondary = Color(0xFF3A3A3A),
-    tertiary = Color(0xFF5E5E5E),
-)
-private fun minimalDark() = darkColorScheme(
-    primary = Color(0xFFE6E6E6),
-    secondary = Color(0xFFBDBDBD),
-    tertiary = Color(0xFF9E9E9E),
-)
+private fun minimalLight() =
+    lightColorScheme(
+        primary = Color(0xFF1F1F1F),
+        secondary = Color(0xFF3A3A3A),
+        tertiary = Color(0xFF5E5E5E),
+    )
 
-private fun retro80s() = darkColorScheme(
-    primary = Color(0xFFFF6EC7), // neon pink
-    secondary = Color(0xFF40E0D0), // turquoise
-    tertiary = Color(0xFF7DF9FF), // electric blue
-)
+private fun minimalDark() =
+    darkColorScheme(
+        primary = Color(0xFFE6E6E6),
+        secondary = Color(0xFFBDBDBD),
+        tertiary = Color(0xFF9E9E9E),
+    )
 
-private fun cyberpunk() = darkColorScheme(
-    primary = Color(0xFFFF00A6), // magenta
-    secondary = Color(0xFF00FFF0), // cyan
-    tertiary = Color(0xFFFFF000), // yellow-ish
-)
+private fun retro80s() =
+    darkColorScheme(
+        // neon pink
+        primary = Color(0xFFFF6EC7),
+        // turquoise
+        secondary = Color(0xFF40E0D0),
+        // electric blue
+        tertiary = Color(0xFF7DF9FF),
+    )
 
-private fun schemeFor(style: ThemeStyle, dark: Boolean): ColorScheme = when (style) {
-    ThemeStyle.MINIMAL -> if (dark) minimalDark() else minimalLight()
-    ThemeStyle.RETRO80S -> retro80s()
-    ThemeStyle.CYBERPUNK -> cyberpunk()
-}
+private fun cyberpunk() =
+    darkColorScheme(
+        // magenta
+        primary = Color(0xFFFF00A6),
+        // cyan
+        secondary = Color(0xFF00FFF0),
+        // yellow-ish
+        tertiary = Color(0xFFFFF000),
+    )
+
+private fun schemeFor(
+    style: ThemeStyle,
+    dark: Boolean,
+): ColorScheme =
+    when (style) {
+        ThemeStyle.MINIMAL -> if (dark) minimalDark() else minimalLight()
+        ThemeStyle.RETRO80S -> retro80s()
+        ThemeStyle.CYBERPUNK -> cyberpunk()
+    }
 
 @Composable
 fun NeologotronTheme(
     style: ThemeStyle,
     darkTheme: Boolean,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     MaterialTheme(
         colorScheme = schemeFor(style, darkTheme),
-        content = content
+        content = content,
     )
 }
 

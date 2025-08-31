@@ -1,7 +1,6 @@
 package com.neologotron.app.domain.generator
 
 object GeneratorRules {
-
     enum class DefinitionMode { TECHNICAL, POETIC }
 
     data class WordBuild(val word: String, val plausibility: Double)
@@ -13,34 +12,37 @@ object GeneratorRules {
         // Handle composite values like "adj/nom" or lists
         val parts = raw.split('/', ',', ';', ' ').filter { it.isNotBlank() }
         if (parts.isEmpty()) return CanonPos.UNKNOWN
-        fun mapOne(p: String): CanonPos = when {
-            // Adjective variants
-            p.startsWith("adj") || p.startsWith("adjectif") || p == "adj." -> CanonPos.ADJECTIVE
-            // Adverb variants
-            p.startsWith("adv") || p.startsWith("adverbe") || p == "adv." -> CanonPos.ADVERB
-            // Verb variants (FR/EN)
-            p.startsWith("verb") || p.startsWith("verbe") || p == "v" -> CanonPos.VERB
-            // Agentive noun variants
-            p.contains("agent") || p.contains("agentif") -> CanonPos.AGENT_NOUN
-            // Action/result nouns
-            p.contains("action") -> CanonPos.ACTION_NOUN
-            p.contains("result") || p.contains("résultat") || p.contains("resultat") -> CanonPos.RESULT_NOUN
-            // Noun variants
-            p.startsWith("nom") || p.startsWith("subst") || p.startsWith("nominal") || p == "n" -> CanonPos.NOUN
-            else -> CanonPos.UNKNOWN
-        }
+
+        fun mapOne(p: String): CanonPos =
+            when {
+                // Adjective variants
+                p.startsWith("adj") || p.startsWith("adjectif") || p == "adj." -> CanonPos.ADJECTIVE
+                // Adverb variants
+                p.startsWith("adv") || p.startsWith("adverbe") || p == "adv." -> CanonPos.ADVERB
+                // Verb variants (FR/EN)
+                p.startsWith("verb") || p.startsWith("verbe") || p == "v" -> CanonPos.VERB
+                // Agentive noun variants
+                p.contains("agent") || p.contains("agentif") -> CanonPos.AGENT_NOUN
+                // Action/result nouns
+                p.contains("action") -> CanonPos.ACTION_NOUN
+                p.contains("result") || p.contains("résultat") || p.contains("resultat") -> CanonPos.RESULT_NOUN
+                // Noun variants
+                p.startsWith("nom") || p.startsWith("subst") || p.startsWith("nominal") || p == "n" -> CanonPos.NOUN
+                else -> CanonPos.UNKNOWN
+            }
         val mapped = parts.map { mapOne(it) }
         // Priority: AGENT > ACTION > RESULT > VERB > ADJ > NOUN > UNKNOWN
-        val priority = listOf(
-            CanonPos.AGENT_NOUN,
-            CanonPos.ACTION_NOUN,
-            CanonPos.RESULT_NOUN,
-            CanonPos.VERB,
-            CanonPos.ADJECTIVE,
-            CanonPos.NOUN,
-            CanonPos.ADVERB,
-            CanonPos.UNKNOWN,
-        )
+        val priority =
+            listOf(
+                CanonPos.AGENT_NOUN,
+                CanonPos.ACTION_NOUN,
+                CanonPos.RESULT_NOUN,
+                CanonPos.VERB,
+                CanonPos.ADJECTIVE,
+                CanonPos.NOUN,
+                CanonPos.ADVERB,
+                CanonPos.UNKNOWN,
+            )
         return priority.firstOrNull { mapped.contains(it) } ?: CanonPos.UNKNOWN
     }
 
@@ -90,39 +92,43 @@ object GeneratorRules {
         suffixPosOut: String?,
         defTemplate: String?,
         tags: String? = null,
-        mode: DefinitionMode = DefinitionMode.TECHNICAL
+        mode: DefinitionMode = DefinitionMode.TECHNICAL,
     ): String {
         val templates = defTemplate?.let { parseTemplates(it) }
         val isPoetic = tags?.lowercase()?.contains("poétique") == true || tags?.lowercase()?.contains("poetique") == true
         val isTech = tags?.lowercase()?.contains("tech") == true
         val canonPos = normalizePos(suffixPosOut)
         // Fallback templates when none provided
-        val defaultTpl = when (mode) {
-            DefinitionMode.TECHNICAL -> when (canonPos) {
-                CanonPos.ADJECTIVE -> "qui qualifie {ROOT}"
-                CanonPos.ADVERB -> "de manière liée à {ROOT}"
-                CanonPos.VERB -> "{ACTION} {ROOT}"
-                CanonPos.ACTION_NOUN -> "{ACTION} {ROOT}"
-                CanonPos.RESULT_NOUN -> "{ACTION} {ROOT}"
-                CanonPos.AGENT_NOUN -> "agent lié à {ROOT}"
-                CanonPos.NOUN, CanonPos.UNKNOWN -> if (isTech) "{ACTION} de {ROOT}" else "relatif à {ROOT}"
+        val defaultTpl =
+            when (mode) {
+                DefinitionMode.TECHNICAL ->
+                    when (canonPos) {
+                        CanonPos.ADJECTIVE -> "qui qualifie {ROOT}"
+                        CanonPos.ADVERB -> "de manière liée à {ROOT}"
+                        CanonPos.VERB -> "{ACTION} {ROOT}"
+                        CanonPos.ACTION_NOUN -> "{ACTION} {ROOT}"
+                        CanonPos.RESULT_NOUN -> "{ACTION} {ROOT}"
+                        CanonPos.AGENT_NOUN -> "agent lié à {ROOT}"
+                        CanonPos.NOUN, CanonPos.UNKNOWN -> if (isTech) "{ACTION} de {ROOT}" else "relatif à {ROOT}"
+                    }
+                DefinitionMode.POETIC ->
+                    when (canonPos) {
+                        CanonPos.ADVERB -> "d'une manière qui évoque {ROOT}"
+                        else -> "qui évoque {ROOT}"
+                    }
             }
-            DefinitionMode.POETIC -> when (canonPos) {
-                CanonPos.ADVERB -> "d'une manière qui évoque {ROOT}"
-                else -> "qui évoque {ROOT}"
-            }
-        }
         val tpl = templates?.get(mode) ?: defTemplate ?: defaultTpl
-        val action = when (canonPos) {
-            CanonPos.AGENT_NOUN -> "qui concerne"
-            CanonPos.NOUN -> "concerne"
-            CanonPos.ADJECTIVE -> "qualifie"
-            CanonPos.VERB -> "agir sur"
-            CanonPos.ACTION_NOUN -> "action de"
-            CanonPos.RESULT_NOUN -> "résultat de"
-            CanonPos.ADVERB -> "se rapporte à"
-            CanonPos.UNKNOWN -> "créer"
-        }
+        val action =
+            when (canonPos) {
+                CanonPos.AGENT_NOUN -> "qui concerne"
+                CanonPos.NOUN -> "concerne"
+                CanonPos.ADJECTIVE -> "qualifie"
+                CanonPos.VERB -> "agir sur"
+                CanonPos.ACTION_NOUN -> "action de"
+                CanonPos.RESULT_NOUN -> "résultat de"
+                CanonPos.ADVERB -> "se rapporte à"
+                CanonPos.UNKNOWN -> "créer"
+            }
         return tpl.replace("{ROOT}", rootGloss).replace("{ACTION}", action)
     }
 
@@ -142,8 +148,16 @@ object GeneratorRules {
         return map
     }
 
-    private fun plausibility(prefix: String, root: String, suffix: String, connector: String): Double {
-        fun penalty(a: Char?, b: Char?): Double {
+    private fun plausibility(
+        prefix: String,
+        root: String,
+        suffix: String,
+        connector: String,
+    ): Double {
+        fun penalty(
+            a: Char?,
+            b: Char?,
+        ): Double {
             if (a == null || b == null) return 0.0
             val av = a.lowercaseChar() in vowels
             val bv = b.lowercaseChar() in vowels
@@ -170,5 +184,6 @@ object GeneratorRules {
     }
 
     private fun endsWithVowel(s: String): Boolean = s.lastOrNull()?.lowercaseChar()?.let { it in vowels } ?: false
-    private val vowels = setOf('a','e','i','o','u','y','é','è','ê','ë','ï','î','ô','û','ù')
+
+    private val vowels = setOf('a', 'e', 'i', 'o', 'u', 'y', 'é', 'è', 'ê', 'ë', 'ï', 'î', 'ô', 'û', 'ù')
 }

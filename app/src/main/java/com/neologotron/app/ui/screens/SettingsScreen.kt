@@ -28,7 +28,11 @@ import com.neologotron.app.theme.ThemeStyle
 import com.neologotron.app.ui.viewmodel.SettingsViewModel
 
 @Composable
-fun SettingsScreen(onOpenDebug: () -> Unit, onOpenAbout: () -> Unit, vm: SettingsViewModel = hiltViewModel()) {
+fun SettingsScreen(
+    onOpenDebug: () -> Unit,
+    onOpenAbout: () -> Unit,
+    vm: SettingsViewModel = hiltViewModel(),
+) {
     val theme by vm.theme.collectAsState()
     val dark by vm.darkTheme.collectAsState()
     val defMode by vm.definitionMode.collectAsState()
@@ -41,12 +45,13 @@ fun SettingsScreen(onOpenDebug: () -> Unit, onOpenAbout: () -> Unit, vm: Setting
 
     val scroll = rememberScrollState()
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(scroll)
-            .padding(24.dp),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(scroll)
+                .padding(24.dp),
         verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.Start
+        horizontalAlignment = Alignment.Start,
     ) {
         Text(text = stringResource(id = R.string.title_settings), style = MaterialTheme.typography.headlineSmall)
 
@@ -73,11 +78,15 @@ fun SettingsScreen(onOpenDebug: () -> Unit, onOpenAbout: () -> Unit, vm: Setting
         Spacer(modifier = Modifier.height(16.dp))
         Text(text = stringResource(id = R.string.label_def_mode))
         Row(verticalAlignment = Alignment.CenterVertically) {
-            RadioButton(selected = defMode == GeneratorRules.DefinitionMode.TECHNICAL, onClick = { vm.setDefinitionMode(GeneratorRules.DefinitionMode.TECHNICAL) })
+            RadioButton(selected = defMode == GeneratorRules.DefinitionMode.TECHNICAL, onClick = {
+                vm.setDefinitionMode(GeneratorRules.DefinitionMode.TECHNICAL)
+            })
             Text(text = stringResource(id = R.string.mode_technical))
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
-            RadioButton(selected = defMode == GeneratorRules.DefinitionMode.POETIC, onClick = { vm.setDefinitionMode(GeneratorRules.DefinitionMode.POETIC) })
+            RadioButton(selected = defMode == GeneratorRules.DefinitionMode.POETIC, onClick = {
+                vm.setDefinitionMode(GeneratorRules.DefinitionMode.POETIC)
+            })
             Text(text = stringResource(id = R.string.mode_poetic))
         }
 
@@ -108,15 +117,21 @@ fun SettingsScreen(onOpenDebug: () -> Unit, onOpenAbout: () -> Unit, vm: Setting
             Text(text = stringResource(id = R.string.label_background_intensity), modifier = Modifier.padding(end = 8.dp))
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
-            RadioButton(enabled = animated, selected = bgIntensity == com.neologotron.app.ui.AnimatedBackgroundIntensity.LOW, onClick = { vm.setAnimatedBackgroundsIntensity(com.neologotron.app.ui.AnimatedBackgroundIntensity.LOW) })
+            RadioButton(enabled = animated, selected = bgIntensity == com.neologotron.app.ui.AnimatedBackgroundIntensity.LOW, onClick = {
+                vm.setAnimatedBackgroundsIntensity(com.neologotron.app.ui.AnimatedBackgroundIntensity.LOW)
+            })
             Text(text = stringResource(id = R.string.intensity_low))
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
-            RadioButton(enabled = animated, selected = bgIntensity == com.neologotron.app.ui.AnimatedBackgroundIntensity.MEDIUM, onClick = { vm.setAnimatedBackgroundsIntensity(com.neologotron.app.ui.AnimatedBackgroundIntensity.MEDIUM) })
+            RadioButton(enabled = animated, selected = bgIntensity == com.neologotron.app.ui.AnimatedBackgroundIntensity.MEDIUM, onClick = {
+                vm.setAnimatedBackgroundsIntensity(com.neologotron.app.ui.AnimatedBackgroundIntensity.MEDIUM)
+            })
             Text(text = stringResource(id = R.string.intensity_medium))
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
-            RadioButton(enabled = animated, selected = bgIntensity == com.neologotron.app.ui.AnimatedBackgroundIntensity.HIGH, onClick = { vm.setAnimatedBackgroundsIntensity(com.neologotron.app.ui.AnimatedBackgroundIntensity.HIGH) })
+            RadioButton(enabled = animated, selected = bgIntensity == com.neologotron.app.ui.AnimatedBackgroundIntensity.HIGH, onClick = {
+                vm.setAnimatedBackgroundsIntensity(com.neologotron.app.ui.AnimatedBackgroundIntensity.HIGH)
+            })
             Text(text = stringResource(id = R.string.intensity_high))
         }
 
@@ -125,7 +140,7 @@ fun SettingsScreen(onOpenDebug: () -> Unit, onOpenAbout: () -> Unit, vm: Setting
         Text(
             text = stringResource(id = R.string.bias_desc),
             style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(bottom = 4.dp)
+            modifier = Modifier.padding(bottom = 4.dp),
         )
         Row(verticalAlignment = Alignment.CenterVertically) {
             RadioButton(selected = weight < 0.75f, onClick = { vm.setWeightingIntensity(0.5f) })

@@ -13,6 +13,5 @@ data class RootEntity(
     val domain: String?,
     val connectorPref: String?,
     val examples: String?,
-    val weight: Double?
+    val weight: Double?,
 )
-

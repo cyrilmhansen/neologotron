@@ -15,17 +15,17 @@ interface SuffixDao {
     suspend fun count(): Int
 
     @Query(
-        "SELECT * FROM suffixes ORDER BY (CASE WHEN weight IS NULL THEN 1 ELSE 0 END), weight DESC, id"
+        "SELECT * FROM suffixes ORDER BY (CASE WHEN weight IS NULL THEN 1 ELSE 0 END), weight DESC, id",
     )
     suspend fun getAll(): List<SuffixEntity>
 
     @Query(
-        "SELECT * FROM suffixes WHERE tags LIKE '%' || :tag || '%' ORDER BY (CASE WHEN weight IS NULL THEN 1 ELSE 0 END), weight DESC, id"
+        "SELECT * FROM suffixes WHERE tags LIKE '%' || :tag || '%' ORDER BY (CASE WHEN weight IS NULL THEN 1 ELSE 0 END), weight DESC, id",
     )
     suspend fun findByTag(tag: String): List<SuffixEntity>
 
     @Query(
-        "SELECT * FROM suffixes WHERE form LIKE '%' || :query || '%' ORDER BY (CASE WHEN weight IS NULL THEN 1 ELSE 0 END), weight DESC, id"
+        "SELECT * FROM suffixes WHERE form LIKE '%' || :query || '%' ORDER BY (CASE WHEN weight IS NULL THEN 1 ELSE 0 END), weight DESC, id",
     )
     suspend fun searchByForm(query: String): List<SuffixEntity>
 

@@ -16,12 +16,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -36,32 +36,34 @@ fun AboutScreen(onBack: () -> Unit) {
         topBar = {
             CenterAlignedTopAppBar(
                 title = { Text(text = stringResource(id = R.string.title_about)) },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color.Transparent,
-                    scrolledContainerColor = Color.Transparent,
-                    titleContentColor = MaterialTheme.colorScheme.onBackground,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onBackground,
-                    actionIconContentColor = MaterialTheme.colorScheme.onBackground
-                ),
+                colors =
+                    TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = Color.Transparent,
+                        scrolledContainerColor = Color.Transparent,
+                        titleContentColor = MaterialTheme.colorScheme.onBackground,
+                        navigationIconContentColor = MaterialTheme.colorScheme.onBackground,
+                        actionIconContentColor = MaterialTheme.colorScheme.onBackground,
+                    ),
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(id = R.string.action_back)
+                            contentDescription = stringResource(id = R.string.action_back),
                         )
                     }
-                }
+                },
             )
-        }
+        },
     ) { innerPadding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(24.dp)
-                .verticalScroll(rememberScrollState()),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(24.dp)
+                    .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.Start
+            horizontalAlignment = Alignment.Start,
         ) {
             Text(text = stringResource(id = R.string.about_intro), style = MaterialTheme.typography.bodyLarge)
             Spacer(modifier = Modifier.height(12.dp))
@@ -74,10 +76,13 @@ fun AboutScreen(onBack: () -> Unit) {
             Text(text = stringResource(id = R.string.about_sources_text), style = MaterialTheme.typography.bodySmall)
             Spacer(modifier = Modifier.height(24.dp))
             val context = androidx.compose.ui.platform.LocalContext.current
-            val version = try {
-                val pkg = context.packageManager.getPackageInfo(context.packageName, 0)
-                pkg.versionName ?: "—"
-            } catch (_: Throwable) { "—" }
+            val version =
+                try {
+                    val pkg = context.packageManager.getPackageInfo(context.packageName, 0)
+                    pkg.versionName ?: "—"
+                } catch (_: Throwable) {
+                    "—"
+                }
             Text(text = stringResource(id = R.string.about_version, version), style = MaterialTheme.typography.labelMedium)
         }
     }

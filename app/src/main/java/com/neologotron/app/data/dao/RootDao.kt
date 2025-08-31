@@ -15,17 +15,17 @@ interface RootDao {
     suspend fun count(): Int
 
     @Query(
-        "SELECT * FROM roots ORDER BY (CASE WHEN weight IS NULL THEN 1 ELSE 0 END), weight DESC, id"
+        "SELECT * FROM roots ORDER BY (CASE WHEN weight IS NULL THEN 1 ELSE 0 END), weight DESC, id",
     )
     suspend fun getAll(): List<RootEntity>
 
     @Query(
-        "SELECT * FROM roots WHERE domain LIKE '%' || :tag || '%' OR :tag = '' ORDER BY (CASE WHEN weight IS NULL THEN 1 ELSE 0 END), weight DESC, id"
+        "SELECT * FROM roots WHERE domain LIKE '%' || :tag || '%' OR :tag = '' ORDER BY (CASE WHEN weight IS NULL THEN 1 ELSE 0 END), weight DESC, id",
     )
     suspend fun findByDomain(tag: String): List<RootEntity>
 
     @Query(
-        "SELECT * FROM roots WHERE form LIKE '%' || :query || '%' ORDER BY (CASE WHEN weight IS NULL THEN 1 ELSE 0 END), weight DESC, id"
+        "SELECT * FROM roots WHERE form LIKE '%' || :query || '%' ORDER BY (CASE WHEN weight IS NULL THEN 1 ELSE 0 END), weight DESC, id",
     )
     suspend fun searchByForm(query: String): List<RootEntity>
 

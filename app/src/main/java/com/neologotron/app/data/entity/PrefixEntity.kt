@@ -13,6 +13,5 @@ data class PrefixEntity(
     val connector: String?,
     val phonRules: String?,
     val tags: String?,
-    val weight: Double?
+    val weight: Double?,
 )
-

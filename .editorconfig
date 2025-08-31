@@ -20,3 +20,9 @@ ij_kotlin_name_count_to_use_star_import_for_members = 999
 ktlint_code_style = ktlint_official
 ktlint_disabled_rules = no-wildcard-imports
 
+[**/src/test/**.kt]
+max_line_length = off
+
+[*.kt]
+ktlint_standard_function-naming_ignore_when_annotated_with = Composable
+ktlint_function_naming_ignore_when_annotated_with = Composable

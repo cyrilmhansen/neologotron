@@ -1,23 +1,24 @@
 package com.neologotron.app.ui
 
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.ui.graphics.Color
-import androidx.compose.material3.Text
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import kotlinx.coroutines.launch
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -35,10 +36,9 @@ import com.neologotron.app.ui.screens.MainScreen
 import com.neologotron.app.ui.screens.OnboardingFlow
 import com.neologotron.app.ui.screens.SettingsScreen
 import com.neologotron.app.ui.screens.ThematicScreen
-import com.neologotron.app.ui.screens.WorkshopScreen
 import com.neologotron.app.ui.screens.WordDetailScreen
+import com.neologotron.app.ui.screens.WorkshopScreen
 import com.neologotron.app.ui.viewmodel.OnboardingViewModel
-import androidx.compose.ui.unit.dp
 
 @Composable
 fun WordTheatreHost() {
@@ -61,18 +61,19 @@ fun WordTheatreHost() {
                 val backStack by navController.currentBackStackEntryAsState()
                 val currentRoute = backStack?.destination?.route
                 val bottomRoutes = NavItems.bottomBar.map { it.route.value }.toSet()
-                val selectedTabRoute = when (currentRoute) {
-                    Route.Detail.value -> {
-                        val from = backStack?.arguments?.getString(Route.Detail.fromArg)
-                        if (from != null && bottomRoutes.contains(from)) from else Route.Main.value
-                    }
-                    else -> currentRoute
-                } ?: Route.Main.value
+                val selectedTabRoute =
+                    when (currentRoute) {
+                        Route.Detail.value -> {
+                            val from = backStack?.arguments?.getString(Route.Detail.fromArg)
+                            if (from != null && bottomRoutes.contains(from)) from else Route.Main.value
+                        }
+                        else -> currentRoute
+                    } ?: Route.Main.value
                 if (currentRoute != Route.Onboarding.value && currentRoute != null) {
                     NavigationBar(
                         containerColor = Color.Transparent,
                         tonalElevation = 0.dp,
-                        contentColor = androidx.compose.material3.MaterialTheme.colorScheme.onBackground
+                        contentColor = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
                     ) {
                         NavItems.bottomBar.forEach { item ->
                             val route = item.route.value
@@ -147,9 +148,9 @@ fun WordTheatreHost() {
                                     spos = spos,
                                     sdef = sdef,
                                     stags = stags,
-                                )
+                                ),
                             )
-                        }
+                        },
                     )
                 }
                 composable(Route.Workshop.value) {
@@ -169,7 +170,7 @@ fun WordTheatreHost() {
                                     spos = spos,
                                     sdef = sdef,
                                     stags = stags,
-                                )
+                                ),
                             )
                         },
                     )
@@ -178,26 +179,60 @@ fun WordTheatreHost() {
                     DebugScreen(
                         onShowMessage = { msg ->
                             scope.launch { snackbarHostState.showSnackbar(message = msg) }
-                        }
+                        },
                     )
                 }
                 composable(Route.About.value) { AboutScreen(onBack = { navController.popBackStack() }) }
                 composable(
                     route = Route.Detail.value,
-                    arguments = listOf(
-                        navArgument(Route.Detail.argName) { type = NavType.StringType },
-                        navArgument(Route.Detail.fromArg) { type = NavType.StringType; defaultValue = "" },
-                        navArgument(Route.Detail.defArg) { type = NavType.StringType; defaultValue = "" },
-                        navArgument(Route.Detail.decompArg) { type = NavType.StringType; defaultValue = "" },
-                        navArgument(Route.Detail.pformArg) { type = NavType.StringType; defaultValue = "" },
-                        navArgument(Route.Detail.rformArg) { type = NavType.StringType; defaultValue = "" },
-                        navArgument(Route.Detail.sformArg) { type = NavType.StringType; defaultValue = "" },
-                        navArgument(Route.Detail.rglossArg) { type = NavType.StringType; defaultValue = "" },
-                        navArgument(Route.Detail.rconnArg) { type = NavType.StringType; defaultValue = "" },
-                        navArgument(Route.Detail.sposArg) { type = NavType.StringType; defaultValue = "" },
-                        navArgument(Route.Detail.sdefArg) { type = NavType.StringType; defaultValue = "" },
-                        navArgument(Route.Detail.stagsArg) { type = NavType.StringType; defaultValue = "" },
-                    ),
+                    arguments =
+                        listOf(
+                            navArgument(Route.Detail.argName) { type = NavType.StringType },
+                            navArgument(Route.Detail.fromArg) {
+                                type = NavType.StringType
+                                defaultValue = ""
+                            },
+                            navArgument(Route.Detail.defArg) {
+                                type = NavType.StringType
+                                defaultValue = ""
+                            },
+                            navArgument(Route.Detail.decompArg) {
+                                type = NavType.StringType
+                                defaultValue = ""
+                            },
+                            navArgument(Route.Detail.pformArg) {
+                                type = NavType.StringType
+                                defaultValue = ""
+                            },
+                            navArgument(Route.Detail.rformArg) {
+                                type = NavType.StringType
+                                defaultValue = ""
+                            },
+                            navArgument(Route.Detail.sformArg) {
+                                type = NavType.StringType
+                                defaultValue = ""
+                            },
+                            navArgument(Route.Detail.rglossArg) {
+                                type = NavType.StringType
+                                defaultValue = ""
+                            },
+                            navArgument(Route.Detail.rconnArg) {
+                                type = NavType.StringType
+                                defaultValue = ""
+                            },
+                            navArgument(Route.Detail.sposArg) {
+                                type = NavType.StringType
+                                defaultValue = ""
+                            },
+                            navArgument(Route.Detail.sdefArg) {
+                                type = NavType.StringType
+                                defaultValue = ""
+                            },
+                            navArgument(Route.Detail.stagsArg) {
+                                type = NavType.StringType
+                                defaultValue = ""
+                            },
+                        ),
                 ) {
                     WordDetailScreen(onBack = { navController.popBackStack() })
                 }

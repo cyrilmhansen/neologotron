@@ -13,6 +13,5 @@ data class SuffixEntity(
     val posOut: String?,
     val defTemplate: String?,
     val tags: String?,
-    val weight: Double?
+    val weight: Double?,
 )
-

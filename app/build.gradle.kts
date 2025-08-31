@@ -28,7 +28,7 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
         debug {
@@ -91,18 +91,18 @@ dependencies {
 
 // KSP (no configuration needed for Hilt)
 
-//ktlint {
+// ktlint {
 //   android.set(true)
 //   outputColorName.set("RED")
-//}
+// }
 
-//detekt {
+// detekt {
 //   buildUponDefaultConfig = true
-//    allRules = false
+//   allRules = false
 //   config.setFrom(rootProject.files("detekt.yml"))
-//}
+// }
 
 // Ensure Kotlin uses JDK 17 toolchain even if Gradle runs under a newer JDK
 kotlin {
-   // jvmToolchain(17)
+    // jvmToolchain(17)
 }

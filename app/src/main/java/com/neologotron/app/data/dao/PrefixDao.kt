@@ -15,17 +15,17 @@ interface PrefixDao {
     suspend fun count(): Int
 
     @Query(
-        "SELECT * FROM prefixes ORDER BY (CASE WHEN weight IS NULL THEN 1 ELSE 0 END), weight DESC, id"
+        "SELECT * FROM prefixes ORDER BY (CASE WHEN weight IS NULL THEN 1 ELSE 0 END), weight DESC, id",
     )
     suspend fun getAll(): List<PrefixEntity>
 
     @Query(
-        "SELECT * FROM prefixes WHERE tags LIKE '%' || :tag || '%' ORDER BY (CASE WHEN weight IS NULL THEN 1 ELSE 0 END), weight DESC, id"
+        "SELECT * FROM prefixes WHERE tags LIKE '%' || :tag || '%' ORDER BY (CASE WHEN weight IS NULL THEN 1 ELSE 0 END), weight DESC, id",
     )
     suspend fun findByTag(tag: String): List<PrefixEntity>
 
     @Query(
-        "SELECT * FROM prefixes WHERE form LIKE '%' || :query || '%' ORDER BY (CASE WHEN weight IS NULL THEN 1 ELSE 0 END), weight DESC, id"
+        "SELECT * FROM prefixes WHERE form LIKE '%' || :query || '%' ORDER BY (CASE WHEN weight IS NULL THEN 1 ELSE 0 END), weight DESC, id",
     )
     suspend fun searchByForm(query: String): List<PrefixEntity>
 
