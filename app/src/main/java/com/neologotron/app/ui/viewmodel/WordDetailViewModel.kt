@@ -47,6 +47,7 @@ class WordDetailViewModel
         private val sposArg: String = savedStateHandle.get<String>("spos").orEmpty()
         private val sdefArg: String = savedStateHandle.get<String>("sdef").orEmpty()
         private val stagsArg: String = savedStateHandle.get<String>("stags").orEmpty()
+        private val srcArg: String = savedStateHandle.get<String>("src").orEmpty()
 
         private val _word = MutableStateFlow(wordArg)
         val word: StateFlow<String> = _word
@@ -65,6 +66,9 @@ class WordDetailViewModel
 
         private val _favoriteToggled = MutableSharedFlow<Boolean>(extraBufferCapacity = 1)
         val favoriteToggled: SharedFlow<Boolean> = _favoriteToggled
+
+        private val _sources = MutableStateFlow(srcArg.ifBlank { null })
+        val sources: StateFlow<String?> = _sources
 
         private val _morphMeta =
             MutableStateFlow<MorphMeta?>(
@@ -126,6 +130,7 @@ class WordDetailViewModel
             viewModelScope.launch {
                 val latest = history.latestByWord(wordArg)
                 if (latest != null) {
+                    _sources.value = latest.sources
                     // If stored metadata exists, seed reactive recompute; else use stored strings
                     if (!latest.rootForm.isNullOrBlank() && !latest.suffixForm.isNullOrBlank()) {
                         _morphMeta.value =

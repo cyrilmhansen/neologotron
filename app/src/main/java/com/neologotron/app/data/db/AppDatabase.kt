@@ -17,7 +17,7 @@ import com.neologotron.app.data.entity.SuffixEntity
 
 @Database(
     entities = [PrefixEntity::class, RootEntity::class, SuffixEntity::class, HistoryEntity::class, DbMetaEntity::class, FavoriteEntity::class],
-    version = 5,
+    version = 6,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {

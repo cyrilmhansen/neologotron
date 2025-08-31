@@ -37,6 +37,8 @@
     <string name="label_preview">Aperçu</string>
     <string name="label_definition">Définition</string>
     <string name="label_etymology">Étymologie</string>
+    <string name="label_source">Source :</string>
+    <string name="wiktionary">Wiktionary</string>
     <string name="placeholder_decomposition">[préfixe] + [racine] + [suffixe]</string>
     <string name="label_db_build_time">DB build time</string>
     <string name="action_reset_db">Réinitialiser la base</string>

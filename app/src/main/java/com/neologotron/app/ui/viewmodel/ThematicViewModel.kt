@@ -67,7 +67,7 @@ class ThematicViewModel
         }
 
         fun generateAndOpen(
-            onOpenDetail: (String, String?, String?, String?, String?, String?, String?, String?, String?, String?, String?) -> Unit,
+            onOpenDetail: (String, String?, String?, String?, String?, String?, String?, String?, String?, String?, String?, String?) -> Unit,
         ) {
             viewModelScope.launch {
                 val mode = settings.definitionMode.first()
@@ -95,6 +95,7 @@ class ThematicViewModel
                             it.suffixPosOut,
                             it.suffixDefTemplate,
                             it.suffixTags,
+                            it.sources,
                         )
                     }
             }

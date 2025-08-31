@@ -23,6 +23,7 @@ data class WordResult(
     val suffixPosOut: String? = null,
     val suffixDefTemplate: String? = null,
     val suffixTags: String? = null,
+    val sources: String? = null,
 )
 
 @Singleton
@@ -83,6 +84,7 @@ constructor(
                     suffixPosOut = s.posOut,
                     suffixDefTemplate = s.defTemplate,
                     suffixTags = s.tags,
+                    sources = null,
                 )
             }
             val t1 = System.nanoTime()
@@ -111,6 +113,7 @@ constructor(
                 suffixPosOut = s.posOut,
                 suffixDefTemplate = s.defTemplate,
                 suffixTags = s.tags,
+                sources = null,
             )
         }
 
@@ -126,6 +129,7 @@ constructor(
                     definition = r.definition,
                     decomposition = r.decomposition,
                     mode = "simple",
+                    sources = r.sources,
                 )
             }
             return r

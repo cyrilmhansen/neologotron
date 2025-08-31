@@ -31,7 +31,7 @@ sealed class Route(val value: String) {
     data object Detail : Route(
         "detail/{word}?from={from}&def={def}&decomp={decomp}" +
             "&pform={pform}&rform={rform}&sform={sform}" +
-            "&rgloss={rgloss}&rconn={rconn}&spos={spos}&sdef={sdef}&stags={stags}",
+            "&rgloss={rgloss}&rconn={rconn}&spos={spos}&sdef={sdef}&stags={stags}&src={src}",
     ) {
         val argName = "word"
         val fromArg = "from"
@@ -45,6 +45,7 @@ sealed class Route(val value: String) {
         val sposArg = "spos"
         val sdefArg = "sdef"
         val stagsArg = "stags"
+        val srcArg = "src"
 
         fun build(
             word: String,
@@ -59,6 +60,7 @@ sealed class Route(val value: String) {
             spos: String? = null,
             sdef: String? = null,
             stags: String? = null,
+            src: String? = null,
         ): String {
             val f =
                 when (from) {
@@ -84,6 +86,7 @@ sealed class Route(val value: String) {
             spos?.takeIf { it.isNotBlank() }?.let { params += "spos=${Uri.encode(it)}" }
             sdef?.takeIf { it.isNotBlank() }?.let { params += "sdef=${Uri.encode(it)}" }
             stags?.takeIf { it.isNotBlank() }?.let { params += "stags=${Uri.encode(it)}" }
+            src?.takeIf { it.isNotBlank() }?.let { params += "src=${Uri.encode(it)}" }
             return if (params.isEmpty()) base else base + "?" + params.joinToString("&")
         }
     }

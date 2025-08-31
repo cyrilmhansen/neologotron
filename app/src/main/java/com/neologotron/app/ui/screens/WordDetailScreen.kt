@@ -34,7 +34,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
+import androidx.compose.foundation.text.ClickableText
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -55,9 +58,11 @@ fun WordDetailScreen(
     val word by vm.word.collectAsState()
     val definition by vm.definition.collectAsState()
     val decomposition by vm.decomposition.collectAsState()
+    val sources by vm.sources.collectAsState()
     val isFavorite by vm.isFavorite.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
+    val uriHandler = LocalUriHandler.current
     val scope = rememberCoroutineScope()
     val defMode by settingsVm.definitionMode.collectAsState(initial = GeneratorRules.DefinitionMode.TECHNICAL)
 
@@ -136,6 +141,20 @@ fun WordDetailScreen(
             Text(text = stringResource(id = R.string.label_etymology), style = MaterialTheme.typography.titleMedium)
             Text(text = if (decomposition.isNotBlank()) decomposition else stringResource(id = R.string.placeholder_decomposition))
 
+            val url = remember(sources) { sources?.let { wiktionaryUrlFromSource(it) } }
+            if (url != null) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(text = stringResource(id = R.string.label_source))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    ClickableText(
+                        text = AnnotatedString(stringResource(id = R.string.wiktionary)),
+                        style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.primary),
+                        onClick = { uriHandler.openUri(url) },
+                    )
+                }
+            }
+
             Spacer(modifier = Modifier.height(24.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(text = stringResource(id = R.string.label_def_mode), modifier = Modifier.padding(end = 8.dp))
@@ -159,4 +178,14 @@ fun WordDetailScreen(
             }) { Text(text = stringResource(id = if (isFavorite) R.string.action_unfavorite else R.string.action_favorite)) }
         }
     }
+}
+
+private fun wiktionaryUrlFromSource(src: String): String? {
+    val token = src.split(';', ',').firstOrNull()?.trim() ?: return null
+    if (!token.startsWith("wiktionary:")) return null
+    val parts = token.removePrefix("wiktionary:").split(':')
+    if (parts.size < 3) return null
+    val lang = parts[0]
+    val wordAnchor = parts[2]
+    return "https://$lang.wiktionary.org/wiki/$wordAnchor"
 }

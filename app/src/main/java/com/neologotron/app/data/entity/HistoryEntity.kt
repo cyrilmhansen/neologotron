@@ -20,4 +20,5 @@ data class HistoryEntity(
     val suffixPosOut: String? = null,
     val suffixDefTemplate: String? = null,
     val suffixTags: String? = null,
+    val sources: String? = null,
 )

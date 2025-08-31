@@ -133,7 +133,7 @@ fun WordTheatreHost() {
                 }
                 composable(Route.Thematic.value) {
                     ThematicScreen(
-                        onOpenDetail = { w, def, decomp, pform, rform, sform, rgloss, rconn, spos, sdef, stags ->
+                        onOpenDetail = { w, def, decomp, pform, rform, sform, rgloss, rconn, spos, sdef, stags, src ->
                             navController.navigate(
                                 Route.Detail.build(
                                     w,
@@ -148,6 +148,7 @@ fun WordTheatreHost() {
                                     spos = spos,
                                     sdef = sdef,
                                     stags = stags,
+                                    src = src,
                                 ),
                             )
                         },
@@ -155,7 +156,7 @@ fun WordTheatreHost() {
                 }
                 composable(Route.Workshop.value) {
                     WorkshopScreen(
-                        onOpenDetail = { w, def, decomp, pform, rform, sform, rgloss, rconn, spos, sdef, stags ->
+                        onOpenDetail = { w, def, decomp, pform, rform, sform, rgloss, rconn, spos, sdef, stags, src ->
                             navController.navigate(
                                 Route.Detail.build(
                                     w,
@@ -170,6 +171,7 @@ fun WordTheatreHost() {
                                     spos = spos,
                                     sdef = sdef,
                                     stags = stags,
+                                    src = src,
                                 ),
                             )
                         },
@@ -229,6 +231,10 @@ fun WordTheatreHost() {
                                 defaultValue = ""
                             },
                             navArgument(Route.Detail.stagsArg) {
+                                type = NavType.StringType
+                                defaultValue = ""
+                            },
+                            navArgument(Route.Detail.srcArg) {
                                 type = NavType.StringType
                                 defaultValue = ""
                             },
