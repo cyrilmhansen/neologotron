@@ -215,6 +215,8 @@ CSV_FILES = [
     "neologotron_racines.csv",
 ]
 
+SHORT_PREFIX_POLICY_PATH = ETL_DIR / "short_prefix_policy.json"
+
 
 def _merge_csvs(fr_dir: Path, mul_dir: Path, out_dir: Path) -> Dict[str, int]:
     """Merge FR-first with MUL supplemental by 'form'. Keep FR on conflicts."""
@@ -259,6 +261,38 @@ def _merge_csvs(fr_dir: Path, mul_dir: Path, out_dir: Path) -> Dict[str, int]:
         counts[name] = len(rows)
         print(f"  Wrote {len(rows)} rows")
     return counts
+
+
+def _apply_short_prefix_policy(csv_dir: Path, policy: Dict[str, List[str]]) -> None:
+    """Remove short prefixes not explicitly allowed and any denied prefixes."""
+    prefixes_csv = csv_dir / "neologotron_prefixes.csv"
+    if not prefixes_csv.exists():
+        return
+    allow = {p.lower() for p in policy.get("allow", [])}
+    deny = {p.lower() for p in policy.get("deny", [])}
+    with open(prefixes_csv, "r", encoding="utf-8", newline="") as f:
+        reader = list(csv.DictReader(f))
+        if not reader:
+            return
+        headers = reader[0].keys()
+    filtered: List[Dict[str, str]] = []
+    removed = 0
+    for row in reader:
+        form = (row.get("form") or "").lower()
+        base = form.strip().strip("-")
+        if base in deny:
+            removed += 1
+            continue
+        if len(base) <= 2 and base not in allow:
+            removed += 1
+            continue
+        filtered.append(row)
+    if removed:
+        print(f"  short prefix policy: removed {removed} prefixes from {csv_dir}")
+    with open(prefixes_csv, "w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=headers)
+        writer.writeheader()
+        writer.writerows(filtered)
 
 
 def _copy_to_assets(src_dir: Path) -> None:
@@ -832,6 +866,13 @@ def wizard(args=None) -> int:
     export_dir = run_dir / "export"
     _ensure_dir(raw_dir)
 
+    # Load short prefix policy
+    try:
+        with open(SHORT_PREFIX_POLICY_PATH, "r", encoding="utf-8") as f:
+            short_policy = json.load(f)
+    except FileNotFoundError:
+        short_policy = {}
+
     # 1) Download
     fr_path = raw_dir / "fr-extract.jsonl.gz"
     all_path = raw_dir / "raw-enwiktionary.jsonl.gz"
@@ -847,9 +888,11 @@ def wizard(args=None) -> int:
 
     # 3) Transform
     _run_transform(fr_path, out_fr, lang="fr", include_translingual=False, origin_filter="classical")
+    _apply_short_prefix_policy(out_fr, short_policy)
     if not (args and args.fr_only):
         _run_transform(mul_path, out_mul, lang="fr", include_translingual=True,
                        roots_from_translingual=True, mul_fallback_classical=True, origin_filter="classical")
+        _apply_short_prefix_policy(out_mul, short_policy)
 
     # 4) Merge, FR preferred
     if args and args.fr_only:
